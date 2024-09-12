@@ -35,10 +35,10 @@ def main() -> int:
             )
 
             video_frame_start = time.time()
-            video_frame = assets.read_image("nggyu", frame_index)
+            video_frame = assets.read_image("nfsa-cut-1", frame_index)
             if video_frame is None:
                 frame_index = 1
-                video_frame = assets.read_image("nggyu", frame_index)
+                video_frame = assets.read_image("nfsa-cut-1", frame_index)
             else:
                 frame_index += 1
 
