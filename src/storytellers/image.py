@@ -35,7 +35,8 @@ def get_camera_frame():
     # Convert to PIL Image
     image = Image.fromarray(rgb_frame)
 
-    return image
+    # flipped feels more natural
+    return image.transpose(Image.FLIP_LEFT_RIGHT)
 
 
 def resize_crop(image, width):
