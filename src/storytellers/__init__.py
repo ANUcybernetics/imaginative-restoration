@@ -9,6 +9,7 @@ import math
 IMAGE_SIZE = 256
 # IMAGE_PROMPT = "cubism meets pointillism"
 IMAGE_PROMPT = "the world is made of moss and rocks, but the humans are chuds"
+AI_STRENGTH = 0.2
 
 
 def breathe(frame_index):
@@ -54,7 +55,7 @@ def main() -> int:
             )
 
             predict_start = time.time()
-            image = gen_ai.predict(image, IMAGE_PROMPT, IMAGE_SIZE, 0.3, 2)
+            image = gen_ai.predict(image, IMAGE_PROMPT, IMAGE_SIZE, AI_STRENGTH, 1)
             print(f"AI prediction time: {time.time() - predict_start:.4f} seconds")
 
             viewer_start = time.time()
