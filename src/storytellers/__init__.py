@@ -24,7 +24,7 @@ def process_webcam_frame(print_timings: bool) -> tuple:
     webcam_frame = image_utils.resize_crop(image_utils.get_camera_frame(), IMAGE_SIZE)
     if print_timings:
         print(f"Webcam frame processing time: {time.time() - start_time:.4f} seconds")
-    return webcam_frame, start_time
+    return webcam_frame
 
 
 def process_video_frame(frame_index: int, print_timings: bool) -> tuple:
@@ -47,7 +47,7 @@ def apply_chroma_key(video_frame, webcam_frame, print_timings: bool) -> tuple:
     image = image_utils.chroma_key(video_frame, webcam_frame)
     if print_timings:
         print(f"Chroma key processing time: {time.time() - start_time:.4f} seconds")
-    return image, start_time
+    return image
 
 
 def apply_ai_prediction(image, print_timings: bool) -> tuple:
@@ -55,15 +55,14 @@ def apply_ai_prediction(image, print_timings: bool) -> tuple:
     image = gen_ai.predict(image, IMAGE_PROMPT, IMAGE_SIZE, AI_STRENGTH, 1)
     if print_timings:
         print(f"AI prediction time: {time.time() - start_time:.4f} seconds")
-    return image, start_time
+    return image
 
 
-def display_image(image, print_timings: bool) -> float:
+def display_image(image, print_timings: bool) -> None:
     start_time = time.time()
     viewer.show_image(image)
     if print_timings:
         print(f"Image display time: {time.time() - start_time:.4f} seconds")
-    return start_time
 
 
 def main() -> int:
@@ -73,11 +72,11 @@ def main() -> int:
         while True:
             start_time = time.time()
 
-            webcam_frame, _ = process_webcam_frame(print_timings)
+            webcam_frame = process_webcam_frame(print_timings)
             video_frame, frame_index = process_video_frame(frame_index, print_timings)
-            image, _ = apply_chroma_key(video_frame, webcam_frame, print_timings)
-            image, _ = apply_ai_prediction(image, print_timings)
-            _ = display_image(image, print_timings)
+            image = apply_chroma_key(video_frame, webcam_frame, print_timings)
+            image = apply_ai_prediction(image, print_timings)
+            display_image(image, print_timings)
 
             if print_timings:
                 print(f"Total loop time: {time.time() - start_time:.4f} seconds\n")
