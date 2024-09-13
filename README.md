@@ -32,6 +32,9 @@ for more info.
 - test with the actual videos
 - sound
 - move from using matplotlib (gross!) to something nicer for the display
+- tweak the prompt stuff so that it keeps the greyscale
+- try the "physical overlay" on the display thing
+- try post-keying and/or post-overlay
 
 ## Licence
 
