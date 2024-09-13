@@ -42,9 +42,9 @@ def process_video_frame(frame_index: int, print_timings: bool) -> tuple:
     return video_frame, frame_index
 
 
-def apply_chroma_key(video_frame, webcam_frame, print_timings: bool) -> tuple:
+def apply_chroma_key(source_image, key_image, print_timings: bool) -> tuple:
     start_time = time.time()
-    image = image_utils.chroma_key(video_frame, webcam_frame)
+    image = image_utils.chroma_key(source_image, key_image)
     if print_timings:
         print(f"Chroma key processing time: {time.time() - start_time:.4f} seconds")
     return image
