@@ -9,9 +9,9 @@ IMAGE_SIZE = 256
 # IMAGE_PROMPT = "cubism meets pointillism"
 IMAGE_PROMPT = (
     # "beautiful and intricate patterned regions of color on a pure white background"
-    "animal silhouettes and geometric shapes in bold, bright color on a pure white background"
+    "localised geometric shapes and patterns in bold, bright colors on a pure white background"
 )
-AI_STRENGTH = 0.5
+AI_STRENGTH = 0.4
 
 
 def breathe(frame_index):
