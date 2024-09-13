@@ -7,8 +7,11 @@ import time
 
 IMAGE_SIZE = 256
 # IMAGE_PROMPT = "cubism meets pointillism"
-IMAGE_PROMPT = "the world is made of moss and rocks, but the humans are chuds"
-AI_STRENGTH = 0.2
+IMAGE_PROMPT = (
+    # "beautiful and intricate patterned regions of color on a pure white background"
+    "animal silhouettes and geometric shapes in bold, bright color on a pure white background"
+)
+AI_STRENGTH = 0.5
 
 
 def breathe(frame_index):
@@ -72,10 +75,10 @@ def main() -> int:
         while True:
             start_time = time.time()
 
-            webcam_frame = process_webcam_frame(print_timings)
-            video_frame, frame_index = process_video_frame(frame_index, print_timings)
-            image = apply_chroma_key(video_frame, webcam_frame, print_timings)
+            image = process_webcam_frame(print_timings)
             image = apply_ai_prediction(image, print_timings)
+            video_frame, frame_index = process_video_frame(frame_index, print_timings)
+            image = apply_chroma_key(video_frame, image, print_timings)
             display_image(image, print_timings)
 
             if print_timings:
