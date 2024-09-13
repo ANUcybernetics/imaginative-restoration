@@ -2,9 +2,8 @@ import storytellers.viewer as viewer
 import storytellers.gen_ai as gen_ai
 import storytellers.image as image_utils
 import storytellers.assets as assets
-
-# from diffusers.utils import load_image
 import math
+import time
 
 IMAGE_SIZE = 256
 # IMAGE_PROMPT = "cubism meets pointillism"
@@ -24,8 +23,6 @@ def main() -> int:
     frame_index = 1
     try:
         while True:
-            import time
-
             start_time = time.time()
 
             webcam_frame = image_utils.resize_crop(
