@@ -19,47 +19,68 @@ def breathe(frame_index):
     return scaled_value
 
 
+def process_webcam_frame(print_timings: bool) -> tuple:
+    start_time = time.time()
+    webcam_frame = image_utils.resize_crop(image_utils.get_camera_frame(), IMAGE_SIZE)
+    if print_timings:
+        print(f"Webcam frame processing time: {time.time() - start_time:.4f} seconds")
+    return webcam_frame, start_time
+
+
+def process_video_frame(frame_index: int, print_timings: bool) -> tuple:
+    start_time = time.time()
+    video_frame = assets.read_image("nfsa-cut-1", frame_index)
+    if video_frame is None:
+        frame_index = 1
+        video_frame = assets.read_image("nfsa-cut-1", frame_index)
+    else:
+        frame_index += 1
+
+    video_frame = image_utils.resize_crop(video_frame, IMAGE_SIZE)
+    if print_timings:
+        print(f"Video frame processing time: {time.time() - start_time:.4f} seconds")
+    return video_frame, frame_index
+
+
+def apply_chroma_key(video_frame, webcam_frame, print_timings: bool) -> tuple:
+    start_time = time.time()
+    image = image_utils.chroma_key(video_frame, webcam_frame)
+    if print_timings:
+        print(f"Chroma key processing time: {time.time() - start_time:.4f} seconds")
+    return image, start_time
+
+
+def apply_ai_prediction(image, print_timings: bool) -> tuple:
+    start_time = time.time()
+    image = gen_ai.predict(image, IMAGE_PROMPT, IMAGE_SIZE, AI_STRENGTH, 1)
+    if print_timings:
+        print(f"AI prediction time: {time.time() - start_time:.4f} seconds")
+    return image, start_time
+
+
+def display_image(image, print_timings: bool) -> float:
+    start_time = time.time()
+    viewer.show_image(image)
+    if print_timings:
+        print(f"Image display time: {time.time() - start_time:.4f} seconds")
+    return start_time
+
+
 def main() -> int:
     frame_index = 1
+    print_timings = True
     try:
         while True:
             start_time = time.time()
 
-            webcam_frame = image_utils.resize_crop(
-                image_utils.get_camera_frame(), IMAGE_SIZE
-            )
-            print(
-                f"Webcam frame processing time: {time.time() - start_time:.4f} seconds"
-            )
+            webcam_frame, _ = process_webcam_frame(print_timings)
+            video_frame, frame_index = process_video_frame(frame_index, print_timings)
+            image, _ = apply_chroma_key(video_frame, webcam_frame, print_timings)
+            image, _ = apply_ai_prediction(image, print_timings)
+            _ = display_image(image, print_timings)
 
-            video_frame_start = time.time()
-            video_frame = assets.read_image("nfsa-cut-1", frame_index)
-            if video_frame is None:
-                frame_index = 1
-                video_frame = assets.read_image("nfsa-cut-1", frame_index)
-            else:
-                frame_index += 1
-
-            video_frame = image_utils.resize_crop(video_frame, IMAGE_SIZE)
-            print(
-                f"Video frame processing time: {time.time() - video_frame_start:.4f} seconds"
-            )
-
-            chroma_key_start = time.time()
-            image = image_utils.chroma_key(video_frame, webcam_frame)
-            print(
-                f"Chroma key processing time: {time.time() - chroma_key_start:.4f} seconds"
-            )
-
-            predict_start = time.time()
-            image = gen_ai.predict(image, IMAGE_PROMPT, IMAGE_SIZE, AI_STRENGTH, 1)
-            print(f"AI prediction time: {time.time() - predict_start:.4f} seconds")
-
-            viewer_start = time.time()
-            viewer.show_image(image)
-            print(f"Image display time: {time.time() - viewer_start:.4f} seconds")
-
-            print(f"Total loop time: {time.time() - start_time:.4f} seconds\n")
+            if print_timings:
+                print(f"Total loop time: {time.time() - start_time:.4f} seconds\n")
     except KeyboardInterrupt:
         pass
     finally:
