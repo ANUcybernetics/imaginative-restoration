@@ -52,6 +52,16 @@ def resize_crop(image, width):
     return image
 
 
+def canny_image(image):
+    image = np.array(image)
+    image = cv2.Canny(image, 100, 200)
+    image = 255 - image  # Invert the image
+    image = image[:, :, None]
+    image = np.concatenate([image, image, image], axis=2)
+    image = Image.fromarray(image)
+    return image
+
+
 def chroma_key(source_image, key_image):
     # Convert images to numpy arrays
     source_array = np.array(source_image)
