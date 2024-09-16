@@ -6,17 +6,17 @@ import math
 
 # code adapted from https://huggingface.co/spaces/diffusers/unofficial-SDXL-Turbo-i2i-t2i
 
-i2i_pipe = AutoPipelineForImage2Image.from_pretrained(
+pipe = AutoPipelineForImage2Image.from_pretrained(
     "stabilityai/sdxl-turbo",
     torch_dtype=torch.float16,
     variant="fp16",
 )
 
 # this doesn't work on mps
-# i2i_pipe.unet = torch.compile(i2i_pipe.unet, mode="reduce-overhead", fullgraph=True)
+# pipe.unet = torch.compile(pipe.unet, mode="reduce-overhead", fullgraph=True)
 
-i2i_pipe.to("mps")
-i2i_pipe.set_progress_bar_config(disable=True)
+pipe.to("mps")
+pipe.set_progress_bar_config(disable=True)
 
 
 def predict(init_image, prompt, size, strength, steps, seed=1231231):
@@ -26,7 +26,7 @@ def predict(init_image, prompt, size, strength, steps, seed=1231231):
     if int(steps * strength) < 1:
         steps = math.ceil(1 / max(0.10, strength))
 
-    results = i2i_pipe(
+    results = pipe(
         prompt=prompt,
         image=init_image,
         generator=generator,
