@@ -1,5 +1,7 @@
 import storytellers.viewer as viewer
 import storytellers.gen_ai as gen_ai
+
+# import storytellers.sdxl_controlnet as sdxl_controlnet
 import storytellers.image as image_utils
 import storytellers.assets as assets
 import math
@@ -9,9 +11,10 @@ IMAGE_SIZE = 256
 # IMAGE_PROMPT = "cubism meets pointillism"
 IMAGE_PROMPT = (
     # "beautiful and intricate patterned regions of color on a pure white background"
-    "localised geometric shapes and patterns in bold, bright colors on a pure white background"
+    "sharks, sharks everywnere"
 )
-AI_STRENGTH = 0.4
+NEGATIVE_PROMPT = "detailed background, colorful background"
+AI_STRENGTH = 0.8
 
 
 def breathe(frame_index):
@@ -25,6 +28,7 @@ def breathe(frame_index):
 def process_webcam_frame(print_timings: bool) -> tuple:
     start_time = time.time()
     webcam_frame = image_utils.resize_crop(image_utils.get_camera_frame(), IMAGE_SIZE)
+    # webcam_frame = image_utils.canny_image(webcam_frame)
     if print_timings:
         print(f"Webcam frame processing time: {time.time() - start_time:.4f} seconds")
     return webcam_frame
@@ -55,7 +59,10 @@ def apply_chroma_key(source_image, key_image, print_timings: bool) -> tuple:
 
 def apply_ai_prediction(image, print_timings: bool) -> tuple:
     start_time = time.time()
-    image = gen_ai.predict(image, IMAGE_PROMPT, IMAGE_SIZE, AI_STRENGTH, 1)
+    image = gen_ai.predict(
+        image, IMAGE_PROMPT, NEGATIVE_PROMPT, IMAGE_SIZE, AI_STRENGTH, 1
+    )
+
     if print_timings:
         print(f"AI prediction time: {time.time() - start_time:.4f} seconds")
     return image
@@ -70,7 +77,7 @@ def display_image(image, print_timings: bool) -> None:
 
 def main() -> int:
     frame_index = 1
-    print_timings = True
+    print_timings = False
     try:
         while True:
             start_time = time.time()

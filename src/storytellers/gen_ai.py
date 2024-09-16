@@ -19,7 +19,7 @@ pipe.to("mps")
 pipe.set_progress_bar_config(disable=True)
 
 
-def predict(init_image, prompt, size, strength, steps, seed=1231231):
+def predict(init_image, prompt, negative_prompt, size, strength, steps, seed=1231231):
     generator = torch.manual_seed(seed)
     init_image = image.resize_crop(init_image, size)
 
@@ -28,6 +28,7 @@ def predict(init_image, prompt, size, strength, steps, seed=1231231):
 
     results = pipe(
         prompt=prompt,
+        negative_prompt=negative_prompt,
         image=init_image,
         generator=generator,
         num_inference_steps=steps,
