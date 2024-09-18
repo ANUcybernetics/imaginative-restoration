@@ -28,13 +28,11 @@ for more info.
 
 ## TODO
 
+- add the "frame-based prompt" stuff (maybe in a JSON file?, or a dict)
 - make it go brrrrrr (it's currently only ~2fps on my very beefy MBP)
-- test with the actual videos
 - sound
-- move from using matplotlib (gross!) to something nicer for the display
-- tweak the prompt stuff so that it keeps the greyscale
-- try the "physical overlay" on the display thing
-- try post-keying and/or post-overlay
+- move from using matplotlib (gross!) to probably wxPython (maybe
+  [this](https://wiki.wxpython.org/WorkingWithImages)) or maybe kivy
 
 ## Licence
 
