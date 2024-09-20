@@ -29,10 +29,11 @@ for more info.
 ## TODO
 
 - add the "frame-based prompt" stuff (maybe in a JSON file?, or a dict)
-- async it: run film at real speed, but run the ai stuff as fast as possible
-- camera is 873mm above desk
+- [async it](https://docs.python.org/3/library/asyncio-eventloop.html#running-and-stopping-the-loop):
+  run film at real speed, but run the ai stuff as fast as possible
+- camera is 873mm above desk, 4:3
 - need to figure out what to put on the horizontal CRT? diagonal is?
-- make it go brrrrrr (it's currently only ~2fps on my very beefy MBP)
+- make it go brrrrrr (i2c, StreamDiffusion, downsize?)
 - sound: Daniel to provide, but add the playback code in there
 - move from using matplotlib (gross!) to probably wxPython (maybe
   [this](https://wiki.wxpython.org/WorkingWithImages)) or maybe kivy
