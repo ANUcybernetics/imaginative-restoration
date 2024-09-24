@@ -8,11 +8,6 @@ import math
 import time
 
 IMAGE_SIZE = 256
-# IMAGE_PROMPT = "cubism meets pointillism"
-IMAGE_PROMPT = (
-    # "beautiful and intricate patterned regions of color on a pure white background"
-    "sharks, sharks everywhere"
-)
 NEGATIVE_PROMPT = "detailed background, colorful background"
 AI_STRENGTH = 0.8
 
@@ -57,11 +52,10 @@ def apply_chroma_key(source_image, key_image, print_timings: bool) -> tuple:
     return image
 
 
-def apply_ai_prediction(image, print_timings: bool) -> tuple:
+def apply_ai_prediction(frame_index: int, image, print_timings: bool) -> tuple:
     start_time = time.time()
-    image = gen_ai.predict(
-        image, IMAGE_PROMPT, NEGATIVE_PROMPT, IMAGE_SIZE, AI_STRENGTH, 1
-    )
+    prompt = assets.read_prompt(frame_index)
+    image = gen_ai.predict(image, prompt, NEGATIVE_PROMPT, IMAGE_SIZE, AI_STRENGTH, 1)
 
     if print_timings:
         print(f"AI prediction time: {time.time() - start_time:.4f} seconds")
@@ -83,7 +77,7 @@ def main() -> int:
             start_time = time.time()
 
             image = process_webcam_frame(print_timings)
-            image = apply_ai_prediction(image, print_timings)
+            image = apply_ai_prediction(frame_index, image, print_timings)
             video_frame, frame_index = process_video_frame(frame_index, print_timings)
             image = apply_chroma_key(video_frame, image, print_timings)
             display_image(image, print_timings)

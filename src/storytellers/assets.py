@@ -8,3 +8,20 @@ def read_image(folder, frame_index):
         return Image.open(file_path)
     else:
         return None
+
+
+# NOTE: the last index needs to be greater than the max frame index in the video
+FRAME_PROMPT_INDEX = [
+    (0, "goldfish on a green screen background"),
+    (10, "shark on a green screen background"),
+    (100, " on a green screen background"),
+    (5000, "goldfish on a green screen background"),
+]
+
+
+def read_prompt(frame_index):
+    for index, prompt in FRAME_PROMPT_INDEX:
+        if index >= frame_index:
+            return prompt
+
+    raise f"cannot find prompt for frame {frame_index}: out of bounds"
