@@ -11,7 +11,7 @@ IMAGE_SIZE = 256
 # IMAGE_PROMPT = "cubism meets pointillism"
 IMAGE_PROMPT = (
     # "beautiful and intricate patterned regions of color on a pure white background"
-    "sharks, sharks everywnere"
+    "sharks, sharks everywhere"
 )
 NEGATIVE_PROMPT = "detailed background, colorful background"
 AI_STRENGTH = 0.8
