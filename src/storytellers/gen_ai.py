@@ -1,4 +1,4 @@
-import storytellers.image as image
+import storytellers.utils as utils
 from diffusers import AutoPipelineForImage2Image
 import torch
 from PIL import Image
@@ -21,7 +21,7 @@ pipe.set_progress_bar_config(disable=True)
 
 def predict(init_image, prompt, negative_prompt, size, strength, steps, seed=1231231):
     generator = torch.manual_seed(seed)
-    init_image = image.resize_crop(init_image, size)
+    init_image = utils.resize_crop(init_image, size)
 
     if int(steps * strength) < 1:
         steps = math.ceil(1 / max(0.10, strength))

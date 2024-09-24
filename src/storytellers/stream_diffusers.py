@@ -28,7 +28,7 @@ stream.vae = AutoencoderTiny.from_pretrained("madebyollin/taesd").to(
 pipe.enable_xformers_memory_efficient_attention()
 
 
-# these utility functions from image_utils.py in StreamDiffusion repo
+# these utility functions from utils.py in StreamDiffusion repo
 def denormalize(images) -> torch.Tensor:
     """
     Denormalize an image array to [0,1].

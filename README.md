@@ -22,7 +22,7 @@ for more info.
 1. ensure you've got your image frames in `assets/<video_name>/`
 2. modify the code in `src/storytellers/__init__.py` to point at your folder of
    image frames
-3. set up your webcam (might need to change the index at the top of `image.py`
+3. set up your webcam (might need to change the index at the top of `utils.py`
    to select the right webcam)
 4. `rye run storytellers` and you're away
 

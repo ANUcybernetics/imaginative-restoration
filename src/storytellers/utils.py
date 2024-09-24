@@ -67,12 +67,12 @@ def chroma_key(source_image, key_image):
     source_array = np.array(source_image)
     key_array = np.array(key_image)
 
-    # Define the white-ish color range
-    lower_white = np.array([150, 150, 150])
-    upper_white = np.array([255, 255, 255])
+    # Define the green-screen colour range
+    lower_green = np.array([40, 40, 40])
+    upper_green = np.array([80, 255, 80])
 
-    # Create a mask for white-ish pixels
-    mask = np.all((key_array >= lower_white) & (key_array <= upper_white), axis=-1)
+    # Create a mask for green-ish pixels
+    mask = np.all((key_array >= lower_green) & (key_array <= upper_green), axis=-1)
 
     # Use the mask to combine the images
     result = np.where(mask[:, :, np.newaxis], source_array, key_array)

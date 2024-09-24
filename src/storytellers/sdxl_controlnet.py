@@ -1,4 +1,4 @@
-import storytellers.image as image
+import storytellers.utils as utils
 from diffusers import (
     ControlNetModel,
     StableDiffusionXLControlNetPipeline,
@@ -30,10 +30,10 @@ def predict(init_image, prompt, size, strength, steps, seed=1231231):
     #     "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/sd_controlnet/hf-logo.png"
     # )
 
-    init_image = image.resize_crop(init_image, size)
+    init_image = utils.resize_crop(init_image, size)
     controlnet_conditioning_scale = 0.5  # recommended for good generalization
 
-    canny_image = image.canny_image(init_image)
+    canny_image = utils.canny_image(init_image)
 
     results = pipe(
         prompt,
