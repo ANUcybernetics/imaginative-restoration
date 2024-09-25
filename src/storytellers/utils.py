@@ -64,6 +64,10 @@ def canny_image(image):
     return image
 
 
+def green_image(size):
+    return Image.new("RGB", (size, size), color=(40, 255, 40))
+
+
 def chroma_key(background_image, foreground_image):
     # Convert images to numpy arrays
     source_array = np.array(background_image)

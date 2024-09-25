@@ -7,13 +7,15 @@ import storytellers.assets as assets
 
 import asyncio
 
+from asyncio import Task
+
 import time
 from typing import Tuple, Any
 
 IMAGE_SIZE: int = 256
 NEGATIVE_PROMPT: str = "detailed background, colorful background"
 AI_STRENGTH: float = 0.8
-PRINT_TIMINGS: bool = False
+PRINT_TIMINGS: bool = True
 
 
 # NOTE this function has the same name as the one in utils, but also crops & resizes
@@ -67,24 +69,40 @@ def display_image(image: Any) -> None:
         print(f"Image display time: {time.time() - start_time:.4f} seconds")
 
 
-def get_ai_frame(frame_index: int):
+async def get_ai_frame(frame_index: int):
     webcam_frame: Any = get_webcam_frame()
-    ai_frame: Any = img2img(assets.read_prompt(frame_index), webcam_frame)
+    ai_frame: Any = await asyncio.to_thread(
+        img2img, assets.read_prompt(frame_index), webcam_frame
+    )
     return ai_frame
 
 
-def main() -> int:
+async def main_loop() -> int:
     frame_index: int = 1
     try:
+        # initial tasks & a placeholder image
+        ai_task: Task = asyncio.create_task(get_ai_frame(frame_index))
+        ai_frame = utils.green_image(IMAGE_SIZE)
         while True:
-            ai_frame = get_ai_frame(frame_index)
+            if ai_task.done():
+                ai_frame = await ai_task
+                # TODO do I need to finalise? the old task in some way
+                ai_task = asyncio.create_task(get_ai_frame(frame_index))
+
             film_frame, next_frame_index = get_film_frame(frame_index)
+
             display_frame = chroma_key_compose(film_frame, ai_frame)
             display_image(display_frame)
             frame_index = next_frame_index
     except KeyboardInterrupt:
         pass
     finally:
+        if ai_task:
+            ai_task.cancel()
         viewer.close_viewer()
         utils.cleanup()
     return 0
+
+
+def main():
+    asyncio.run(main_loop())
