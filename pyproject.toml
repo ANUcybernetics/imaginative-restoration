@@ -21,9 +21,6 @@ license = { text = "MIT License" }
 [project.urls]
 Homepage = "https://github.com/ANUcybernetics/storytellers"
 
-[project.scripts]
-"storytellers" = "storytellers:main"
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
