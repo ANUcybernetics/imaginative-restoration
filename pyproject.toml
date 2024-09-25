@@ -12,6 +12,7 @@ dependencies = [
     "matplotlib>=3.9.2",
     "torchvision>=0.19.1",
     "scikit-image>=0.24.0",
+    "pyside6>=6.7.2",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"

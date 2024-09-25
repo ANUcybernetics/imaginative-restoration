@@ -90,6 +90,13 @@ psutil==6.0.0
     # via accelerate
 pyparsing==3.1.4
     # via matplotlib
+pyside6==6.7.2
+    # via storytellers
+pyside6-addons==6.7.2
+    # via pyside6
+pyside6-essentials==6.7.2
+    # via pyside6
+    # via pyside6-addons
 python-dateutil==2.9.0.post0
     # via matplotlib
 pyyaml==6.0.2
@@ -113,6 +120,10 @@ scipy==1.14.1
     # via scikit-image
 setuptools==74.1.2
     # via torch
+shiboken6==6.7.2
+    # via pyside6
+    # via pyside6-addons
+    # via pyside6-essentials
 six==1.16.0
     # via python-dateutil
 sympy==1.13.2
