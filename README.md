@@ -28,7 +28,7 @@ for more info.
 
 ## TODO
 
-- get film playback at "normal" speed, not as-fast-as-possible
+- get 4:3 aspect ratio working
 - test camera is 873mm above desk, 4:3, slightly-smaller-than-A3 surface
 - make it go brrrrrr (i2c, StreamDiffusion, downsize?)
 - sound: Daniel to provide, but add the playback code in there
