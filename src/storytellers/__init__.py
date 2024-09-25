@@ -7,103 +7,81 @@ import storytellers.assets as assets
 
 import asyncio
 
-import math
 import time
 from typing import Tuple, Any
 
 IMAGE_SIZE: int = 256
 NEGATIVE_PROMPT: str = "detailed background, colorful background"
 AI_STRENGTH: float = 0.8
+PRINT_TIMINGS: bool = False
 
 
-def breathe(frame_index: int) -> float:
-    normalized: float = (frame_index % 5) * (2 * math.pi / 5)
-    sin_value: float = math.sin(normalized)
-    scaled_value: float = 0.5 + sin_value * 0.4
-
-    return scaled_value
-
-
-async def process_webcam_frame(print_timings: bool) -> Any:
+# NOTE this function has the same name as the one in utils, but also crops & resizes
+def get_webcam_frame() -> Any:
     start_time: float = time.time()
     webcam_frame: Any = utils.resize_crop(utils.get_camera_frame(), IMAGE_SIZE)
     # webcam_frame = utils.canny_image(webcam_frame)
-    if print_timings:
+    if PRINT_TIMINGS:
         print(f"Webcam frame processing time: {time.time() - start_time:.4f} seconds")
     return webcam_frame
 
 
-def process_video_frame(frame_index: int, print_timings: bool) -> Tuple[Any, int]:
+def get_film_frame(frame_index: int) -> Tuple[Any, int]:
     start_time: float = time.time()
-    video_frame: Any = assets.read_image("nfsa-cut-1", frame_index)
-    if video_frame is None:
+    film_frame: Any = assets.read_image(frame_index)
+    if film_frame is None:
         frame_index = 1
-        video_frame = assets.read_image("nfsa-cut-1", frame_index)
+        film_frame = assets.read_image(frame_index)
     else:
         frame_index += 1
 
-    video_frame = utils.resize_crop(video_frame, IMAGE_SIZE)
-    if print_timings:
+    film_frame = utils.resize_crop(film_frame, IMAGE_SIZE)
+    if PRINT_TIMINGS:
         print(f"Video frame processing time: {time.time() - start_time:.4f} seconds")
-    return video_frame, frame_index
+    return film_frame, frame_index
 
 
-def apply_chroma_key(source_image: Any, key_image: Any, print_timings: bool) -> Any:
+def chroma_key_compose(background_image: Any, foreground_image: Any) -> Any:
     start_time: float = time.time()
-    image: Any = utils.chroma_key(source_image, key_image)
-    if print_timings:
+    image: Any = utils.chroma_key(background_image, foreground_image)
+    if PRINT_TIMINGS:
         print(f"Chroma key processing time: {time.time() - start_time:.4f} seconds")
     return image
 
 
-async def apply_ai_prediction(frame_index: int, image: Any, print_timings: bool) -> Any:
+def img2img(prompt: str, input_image: Any) -> Any:
     start_time: float = time.time()
-    prompt: str = assets.read_prompt(frame_index)
-    image = gen_ai.predict(image, prompt, NEGATIVE_PROMPT, IMAGE_SIZE, AI_STRENGTH, 1)
+    output_image = gen_ai.predict(
+        input_image, prompt, NEGATIVE_PROMPT, IMAGE_SIZE, AI_STRENGTH, 1
+    )
 
-    if print_timings:
+    if PRINT_TIMINGS:
         print(f"AI prediction time: {time.time() - start_time:.4f} seconds")
-    return image
+    return output_image
 
 
-async def display_image(image: Any, print_timings: bool) -> None:
+def display_image(image: Any) -> None:
     start_time: float = time.time()
     viewer.show_image(image)
-    if print_timings:
+    if PRINT_TIMINGS:
         print(f"Image display time: {time.time() - start_time:.4f} seconds")
 
 
-async def stream_video(print_timings: bool):
-    frame_index: int = 1
-    while True:
-        video_frame: Any
-        video_frame, frame_index = process_video_frame(frame_index, print_timings)
-        await display_image(video_frame, print_timings)
-        await asyncio.sleep(0.01)  # Small delay to allow other tasks to run
-
-
-async def process_webcam(print_timings: bool):
-    frame_index: int = 1
-    while True:
-        webcam_frame: Any = await process_webcam_frame(print_timings)
-        ai_frame: Any = await apply_ai_prediction(
-            frame_index, webcam_frame, print_timings
-        )
-        video_frame: Any
-        video_frame, _ = process_video_frame(frame_index, print_timings)
-        combined_frame: Any = apply_chroma_key(video_frame, ai_frame, print_timings)
-        await display_image(combined_frame, print_timings)
-        frame_index += 1
-        await asyncio.sleep(0.01)  # Small delay to allow other tasks to run
+def get_ai_frame(frame_index: int):
+    webcam_frame: Any = get_webcam_frame()
+    ai_frame: Any = img2img(assets.read_prompt(frame_index), webcam_frame)
+    return ai_frame
 
 
 def main() -> int:
-    print_timings: bool = False
+    frame_index: int = 1
     try:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            asyncio.gather(stream_video(print_timings), process_webcam(print_timings))
-        )
+        while True:
+            ai_frame = get_ai_frame(frame_index)
+            film_frame, next_frame_index = get_film_frame(frame_index)
+            display_frame = chroma_key_compose(film_frame, ai_frame)
+            display_image(display_frame)
+            frame_index = next_frame_index
     except KeyboardInterrupt:
         pass
     finally:

@@ -1,3 +1,5 @@
+import math
+
 import cv2
 import numpy as np
 from PIL import Image
@@ -62,10 +64,10 @@ def canny_image(image):
     return image
 
 
-def chroma_key(source_image, key_image):
+def chroma_key(background_image, foreground_image):
     # Convert images to numpy arrays
-    source_array = np.array(source_image)
-    key_array = np.array(key_image)
+    source_array = np.array(background_image)
+    key_array = np.array(foreground_image)
 
     # Define the green-screen colour range
     lower_green = np.array([40, 40, 40])
@@ -89,3 +91,11 @@ def cleanup():
     global camera
     if camera.isOpened():
         camera.release()
+
+
+def breathe(frame_index: int) -> float:
+    normalized: float = (frame_index % 5) * (2 * math.pi / 5)
+    sin_value: float = math.sin(normalized)
+    scaled_value: float = 0.5 + sin_value * 0.4
+
+    return scaled_value
