@@ -28,12 +28,14 @@ for more info.
 
 ## TODO
 
+- add audio playback code
 - add controlnet/t2i (perhaps invert the sketch)
 - test with 1080p camera 873mm above desk, slightly-smaller-than-A3 surface
+- put the updated prompts in `utils.FRAME_PROMPT_INDEX`
+- get the final cut of the film from Daniel (and soundtrack)
 - add cropping & keystone correction
 - make it go brrrrrr (i2c, StreamDiffusion, downsize?)
 - check display splitter works
-- sound: Daniel to provide, but add the playback code in there
 
 ## Licence
 
