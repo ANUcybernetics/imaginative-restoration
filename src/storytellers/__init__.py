@@ -79,14 +79,12 @@ async def get_ai_frame(frame_index: int):
 
 async def main_loop() -> int:
     frame_index: int = 1
+    ai_frame = utils.green_image(IMAGE_SIZE)
+    ai_task: Task = asyncio.create_task(get_ai_frame(frame_index))
     try:
-        # initial tasks & a placeholder image
-        ai_task: Task = asyncio.create_task(get_ai_frame(frame_index))
-        ai_frame = utils.green_image(IMAGE_SIZE)
         while True:
             if ai_task.done():
-                ai_frame = await ai_task
-                # TODO do I need to finalise? the old task in some way
+                ai_frame = ai_task.result()
                 ai_task = asyncio.create_task(get_ai_frame(frame_index))
 
             film_frame, next_frame_index = get_film_frame(frame_index)
@@ -94,6 +92,9 @@ async def main_loop() -> int:
             display_frame = chroma_key_compose(film_frame, ai_frame)
             display_image(display_frame)
             frame_index = next_frame_index
+
+            # Yield control to allow other coroutines to run
+            await asyncio.sleep(0)
     except KeyboardInterrupt:
         pass
     finally:
