@@ -28,7 +28,6 @@ for more info.
 
 ## TODO
 
-- get 4:3 aspect ratio working
 - add controlnet/t2i (perhaps invert the sketch)
 - test with 1080p camera 873mm above desk, slightly-smaller-than-A3 surface
 - add cropping & keystone correction

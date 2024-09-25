@@ -1,10 +1,11 @@
-import storytellers.utils as utils
+import torch
 from diffusers import (
+    AutoencoderKL,
     ControlNetModel,
     StableDiffusionXLControlNetPipeline,
-    AutoencoderKL,
 )
-import torch
+
+import storytellers.utils as utils
 
 controlnet = ControlNetModel.from_pretrained(
     "diffusers/controlnet-canny-sdxl-1.0", torch_dtype=torch.float16
@@ -30,7 +31,7 @@ def predict(init_image, prompt, size, strength, steps, seed=1231231):
     #     "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/sd_controlnet/hf-logo.png"
     # )
 
-    init_image = utils.resize_crop(init_image, size)
+    init_image = utils.resize_crop(init_image)
     controlnet_conditioning_scale = 0.5  # recommended for good generalization
 
     canny_image = utils.canny_image(init_image)

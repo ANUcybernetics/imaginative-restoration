@@ -1,8 +1,9 @@
-import storytellers.utils as utils
-from diffusers import AutoPipelineForImage2Image
-import torch
-from PIL import Image
 import math
+
+import torch
+from diffusers import AutoPipelineForImage2Image
+
+import storytellers.utils as utils
 
 # code adapted from https://huggingface.co/spaces/diffusers/unofficial-SDXL-Turbo-i2i-t2i
 
@@ -21,7 +22,7 @@ pipe.set_progress_bar_config(disable=True)
 
 def predict(init_image, prompt, negative_prompt, size, strength, steps, seed=1231231):
     generator = torch.manual_seed(seed)
-    init_image = utils.resize_crop(init_image, size)
+    init_image = utils.resize_crop(init_image)
 
     if int(steps * strength) < 1:
         steps = math.ceil(1 / max(0.10, strength))
@@ -34,8 +35,8 @@ def predict(init_image, prompt, negative_prompt, size, strength, steps, seed=123
         num_inference_steps=steps,
         guidance_scale=0.0,
         strength=strength,
-        width=size,
-        height=size,
+        width=utils.IMAGE_WIDTH,
+        height=int(utils.IMAGE_WIDTH*0.75), # 4:3 aspect ratio
         output_type="pil",
     )
     nsfw_content_detected = (
@@ -44,5 +45,5 @@ def predict(init_image, prompt, negative_prompt, size, strength, steps, seed=123
         else False
     )
     if nsfw_content_detected:
-        return Image.new("RGB", (size, size))
+        return utils.green_image()
     return results.images[0]

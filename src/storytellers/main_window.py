@@ -34,7 +34,7 @@ class AIFrameWorker(QThread):
             webcam_frame,
             prompt,
             utils.NEGATIVE_PROMPT,
-            utils.IMAGE_SIZE,
+            utils.IMAGE_WIDTH,
             utils.AI_STRENGTH,
             1
         )
@@ -54,7 +54,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.image_label)
 
         self.frame_index = 1
-        self.ai_frame = utils.green_image(utils.IMAGE_SIZE)
+        self.ai_frame = utils.green_image()
 
         self.ai_worker = AIFrameWorker()
         self.ai_worker.frame_ready.connect(self.on_ai_frame_ready)

@@ -8,8 +8,8 @@ from PIL import Image
 # One-off initialization
 camera = cv2.VideoCapture(0)
 
-# some constants, might refactor this stuff later (perhaps CLI args?)
-IMAGE_SIZE: int = 256
+# it's 4:3 aspect
+IMAGE_WIDTH: int = 256
 FRAME_TIME: int = 1.0 / 15
 NEGATIVE_PROMPT: str = "detailed background, colorful background"
 AI_STRENGTH: float = 0.8
@@ -20,10 +20,10 @@ PRINT_TIMINGS: bool = False
 def get_film_frame(frame_index):
     file_path = f"assets/nfsa/frame-{frame_index:04d}.png"
     if os.path.exists(file_path):
-        image = resize_crop(Image.open(file_path), IMAGE_SIZE)
+        image = resize_crop(Image.open(file_path))
         return (image, frame_index + 1)
     else:
-        image = resize_crop(Image.open(file_path), IMAGE_SIZE)
+        image = resize_crop(Image.open(file_path))
         return (Image.open("assets/nfsa/frame-0001.png"), 1)
 
 
@@ -72,23 +72,31 @@ def get_camera_frame():
 
     # Convert to PIL Image
     image = Image.fromarray(rgb_frame)
-    image = resize_crop(image, IMAGE_SIZE)
+    image = resize_crop(image)
     # flipped feels more natural
     image = image.transpose(Image.FLIP_LEFT_RIGHT)
     return image
 
 
-def resize_crop(image, width):
-    image = image.convert("RGB")
-    w, h = image.size
-    # assume w > h
-    left = (w - h) // 2
-    top = 0
-    right = left + h
-    bottom = h
-    image = image.crop((left, top, right, bottom))
-    image = image.resize((width, width), Image.NEAREST)
-    return image
+def resize_crop(image):
+    target_ratio = 4 / 3
+    img_width, img_height = image.size
+    img_ratio = img_width / img_height
+
+    if img_ratio > target_ratio:
+        # Image is wider than target, crop width
+        new_width = int(img_height * target_ratio)
+        left = (img_width - new_width) // 2
+        image = image.crop((left, 0, left + new_width, img_height))
+    elif img_ratio < target_ratio:
+        # Image is taller than target, crop height
+        new_height = int(img_width / target_ratio)
+        top = (img_height - new_height) // 2
+        image = image.crop((0, top, img_width, top + new_height))
+
+    # Resize to target width
+    height = int(IMAGE_WIDTH / target_ratio)
+    return image.resize((IMAGE_WIDTH, height), Image.LANCZOS)
 
 
 def canny_image(image):
@@ -101,8 +109,8 @@ def canny_image(image):
     return image
 
 
-def green_image(size):
-    return Image.new("RGB", (size, size), color=(40, 255, 40))
+def green_image():
+    return Image.new("RGB", (IMAGE_WIDTH, int(IMAGE_WIDTH*0.75)), color=(40, 255, 40))
 
 
 def chroma_key(background_image, foreground_image):
