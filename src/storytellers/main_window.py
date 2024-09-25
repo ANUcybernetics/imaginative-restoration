@@ -1,9 +1,9 @@
 import asyncio
 
 import numpy as np
-from PySide6.QtCore import QThread, QTimer, Signal, Slot
+from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QPixmap
-from PySide6.QtWidgets import QLabel, QMainWindow
+from PySide6.QtWidgets import QLabel, QMainWindow, QSizePolicy
 
 from . import gen_ai, utils
 
@@ -46,8 +46,11 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Storytellers")
+        self.showFullScreen()
 
         self.image_label = QLabel(self)
+        self.image_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.image_label.setAlignment(Qt.AlignCenter)
         self.setCentralWidget(self.image_label)
 
         self.frame_index = 1
@@ -75,7 +78,10 @@ class MainWindow(QMainWindow):
                          display_frame.height,
                          QImage.Format_RGB888)
         pixmap = QPixmap.fromImage(q_image)
-        self.image_label.setPixmap(pixmap)
+
+        # Scale the pixmap to fit the label while maintaining aspect ratio
+        scaled_pixmap = pixmap.scaled(self.image_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.image_label.setPixmap(scaled_pixmap)
 
     def closeEvent(self, event):
         self.ai_worker.stop()
