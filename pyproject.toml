@@ -1,7 +1,7 @@
 [project]
 name = "storytellers"
 version = "0.1.0"
-description = "Add your description here"
+description = "Source code for the Storytellers installation. A SOCY x NIDA x NFSA collaboration."
 authors = [{ name = "Ben Swift", email = "ben@benswift.me" }]
 dependencies = [
     "diffusers>=0.30.2",
@@ -16,6 +16,10 @@ dependencies = [
 ]
 readme = "README.md"
 requires-python = ">= 3.12"
+license = { text = "MIT License" }
+
+[project.urls]
+Homepage = "https://github.com/ANUcybernetics/storytellers"
 
 [project.scripts]
 "storytellers" = "storytellers:main"
