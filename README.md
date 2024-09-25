@@ -31,7 +31,8 @@ for more info.
 - add audio playback code
 - add controlnet/t2i (perhaps invert the sketch)
 - test with 1080p camera 873mm above desk, slightly-smaller-than-A3 surface
-- put the updated prompts in `utils.FRAME_PROMPT_INDEX`
+- put the updated prompts in `utils.FRAME_PROMPT_INDEX` (currently in
+  [here](https://docs.google.com/document/d/1uNgKd9r9YIJIwN2FSylH2od6w8og2B1i38UkzmLHLvA/))
 - get the final cut of the film from Daniel (and soundtrack)
 - add cropping & keystone correction
 - make it go brrrrrr (i2c, StreamDiffusion, downsize?)
