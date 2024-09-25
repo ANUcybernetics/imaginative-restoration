@@ -97,8 +97,7 @@ async def main_loop() -> int:
     except KeyboardInterrupt:
         pass
     finally:
-        if ai_task:
-            ai_task.cancel()
+        ai_task.cancel()
         viewer.close_viewer()
         utils.cleanup()
     return 0
