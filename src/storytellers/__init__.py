@@ -13,9 +13,10 @@ import time
 from typing import Tuple, Any
 
 IMAGE_SIZE: int = 256
+FRAME_TIME: int = 1.0 / 15
 NEGATIVE_PROMPT: str = "detailed background, colorful background"
 AI_STRENGTH: float = 0.8
-PRINT_TIMINGS: bool = True
+PRINT_TIMINGS: bool = False
 
 
 # NOTE this function has the same name as the one in utils, but also crops & resizes
@@ -78,6 +79,7 @@ async def get_ai_frame(frame_index: int):
 
 
 async def main_loop() -> int:
+    # frame is an (index, time) tuple
     frame_index: int = 1
     ai_frame = utils.green_image(IMAGE_SIZE)
     ai_task: Task = asyncio.create_task(get_ai_frame(frame_index))
@@ -90,11 +92,12 @@ async def main_loop() -> int:
             film_frame, next_frame_index = get_film_frame(frame_index)
 
             display_frame = chroma_key_compose(film_frame, ai_frame)
+            # display_frame = film_frame
             display_image(display_frame)
             frame_index = next_frame_index
 
             # Yield control to allow other coroutines to run
-            await asyncio.sleep(0)
+            await asyncio.sleep(FRAME_TIME * 0.8)
     except KeyboardInterrupt:
         pass
     finally:
