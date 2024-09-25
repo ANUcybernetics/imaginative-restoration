@@ -29,8 +29,11 @@ for more info.
 ## TODO
 
 - get 4:3 aspect ratio working
-- test camera is 873mm above desk, 4:3, slightly-smaller-than-A3 surface
+- add controlnet/t2i (perhaps invert the sketch)
+- test with 1080p camera 873mm above desk, slightly-smaller-than-A3 surface
+- add cropping & keystone correction
 - make it go brrrrrr (i2c, StreamDiffusion, downsize?)
+- check display splitter works
 - sound: Daniel to provide, but add the playback code in there
 
 ## Licence
