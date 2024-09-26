@@ -4,6 +4,7 @@ import torch
 from diffusers import AutoPipelineForImage2Image
 
 import storytellers.utils as utils
+from storytellers.utils import get_best_device
 
 # code adapted from https://huggingface.co/spaces/diffusers/unofficial-SDXL-Turbo-i2i-t2i
 
@@ -16,7 +17,7 @@ pipe = AutoPipelineForImage2Image.from_pretrained(
 # this doesn't work on mps
 # pipe.unet = torch.compile(pipe.unet, mode="reduce-overhead", fullgraph=True)
 
-pipe.to("mps")
+pipe.to(get_best_device())
 pipe.set_progress_bar_config(disable=True)
 
 

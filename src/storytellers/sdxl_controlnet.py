@@ -6,6 +6,7 @@ from diffusers import (
 )
 
 import storytellers.utils as utils
+from storytellers.utils import get_best_device
 
 controlnet = ControlNetModel.from_pretrained(
     "diffusers/controlnet-canny-sdxl-1.0", torch_dtype=torch.float16
@@ -19,6 +20,7 @@ pipe = StableDiffusionXLControlNetPipeline.from_pretrained(
     vae=vae,
     torch_dtype=torch.float16,
 )
+pipe.to(get_best_device())
 pipe.enable_model_cpu_offload()
 # pipe.to("mps")
 pipe.set_progress_bar_config(disable=True)

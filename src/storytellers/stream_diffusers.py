@@ -4,9 +4,11 @@ import torch
 from diffusers import AutoencoderTiny, StableDiffusionPipeline
 from streamdiffusion import StreamDiffusion
 
+from storytellers.utils import get_best_device
+
 # You can load any models using diffuser's StableDiffusionPipeline
 pipe = StableDiffusionPipeline.from_pretrained("stabilityai/sdxl-turbo").to(
-    device=torch.device("mps"),
+    device=get_best_device(),
     dtype=torch.float16,
 )
 
