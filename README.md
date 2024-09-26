@@ -44,6 +44,11 @@ for more info.
 - make it go brrrrrr (StreamDiffusion, downsize?)
 - run two displays (check display splitter works)
 
+### maybe...
+
+- add an extra YOLO step (perhaps only every n frames), and then add the
+  detected object(s) to the prompt
+
 ## Licence
 
 MIT
