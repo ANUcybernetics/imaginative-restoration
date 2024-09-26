@@ -46,8 +46,8 @@ for more info.
 
 ### maybe...
 
-- add an extra YOLO step (perhaps only every n frames), and then add the
-  detected object(s) to the prompt
+- add an extra [YOLO](https://github.com/THU-MIG/yolov10) step (perhaps only
+  every n frames), and then add the detected object(s) to the prompt
 
 ## Licence
 
