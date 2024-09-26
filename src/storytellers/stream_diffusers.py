@@ -1,3 +1,11 @@
+# this code hasn't been run yet, but is based on
+# https://github.com/cumulo-autumn/StreamDiffusion?tab=readme-ov-file#image-to-image
+#
+# TODO
+# - update this code to match the `gen_ai.img2img` function sig,
+#   so it's a drop-in replacement
+# - fire up the ol' Jetson and get this working
+# - add the T2I canny adapter
 import numpy as np
 import PIL.Image
 import torch

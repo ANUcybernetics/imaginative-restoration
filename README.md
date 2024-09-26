@@ -32,22 +32,30 @@ for more info.
 
 ## TODO
 
-- refactor hardcoded `mps` backend stuff to choose `cuda` if available
+- build docker container which works on Jetson Orin AGX (see comments in
+  `Dockerfile` for hints on how to proceed)
+- add
+  [T2I adapter (canny)](https://huggingface.co/TencentARC/t2i-adapter-canny-sdxl-1.0)
+  so the generated images hew more closely to the input sketch
+- make it go brrrrrr (StreamDiffusion, downsize?), perhaps by:
+  - xformers
+  - use StreamDiffusion tricks (there's a non-working skeleton in
+    `stream_diffusers.py`, but it needs a lot of work) test
+  - worst-comes-to-worst we can do some "img2img at low res, then scale up"
+    tricks and things of that nature
 - add audio playback code
-- add controlnet/t2i (perhaps invert the sketch)
 - test with 1080p camera 873mm above desk, slightly-smaller-than-A3 surface
+- set up for two displays (via splitter)
 - put the updated prompts in `utils.FRAME_PROMPT_INDEX` (currently in
   [here](https://docs.google.com/document/d/1uNgKd9r9YIJIwN2FSylH2od6w8og2B1i38UkzmLHLvA/))
 - get the final cut of the film from Daniel (and soundtrack), resize and split
   it into frames
 - add cropping & keystone correction
-- make it go brrrrrr (StreamDiffusion, downsize?)
-- run two displays (check display splitter works)
 
-### maybe...
+### and maybe if we have time
 
 - add an extra [YOLO](https://github.com/THU-MIG/yolov10) step (perhaps only
-  every n frames), and then add the detected object(s) to the prompt
+  every n frames) post-webcam, and then add any detected object(s) to the prompt
 
 ## Licence
 
