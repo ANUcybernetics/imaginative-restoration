@@ -1,6 +1,21 @@
 # Storytellers
 
-Software for the _Storytellers_ installation at the NFSA
+Storytellers is an immersive and interactive experience in which participants
+are invited into a futuristic world where fragments of film and salvaged film
+artifacts from decades gone by are used as a canvas to imagine a brighter future
+through the lens of 'rewilding'.
+
+These rescued film materials are kept in underground grottos acting as archival
+spaces which also protect them from the increasingly inhospitable land above
+ground. Participants of this experience will embody the persona of a
+'storyteller' who specifically works in the _Imaginative Restoration: Rewilding
+Division_. These storytellers are those who have specifically evolved to live in
+these darkened spaces and imaginatively restore damaged film, with a particular
+focus on the Australian flora and fauna they can dream up and imagine.
+
+## Repo structure
+
+This repo contains the software for the _Storytellers_ installation at the NFSA
 [Fantastic Futures](https://www.nfsa.gov.au/fantastic-futures-conference-canberra-2024)
 conference in October 2024. Code in this repo by
 [@benswift](https://github.com/benswift), but others have contributed sother
@@ -8,8 +23,6 @@ significant work to the overall project---writing, set design & build, archival
 content, etc. The _Storytellers_ project is a collaboration between the
 [NFSA](https://www.nfsa.gov.au/), [NIDA](https://www.nida.edu.au) and the
 [ANU School of Cybernetics](https://cybernetics.anu.edu.au).
-
-## Repo structure
 
 Python workflow-wise, it's a [rye](https://rye.astral.sh) snafu, so `rye sync`
 will set you up. Other ways work too, but... [y'know](https://xkcd.com/1987/).
