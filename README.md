@@ -57,6 +57,7 @@ for more info.
   - worst-comes-to-worst we can do some "img2img at low res, then scale up"
     tricks and things of that nature
 - add audio playback code
+- make it easy to turn on/off/sleep
 - test with 1080p camera 873mm above desk, slightly-smaller-than-A3 surface
 - set up for two displays (via splitter)
 - put the updated prompts in `utils.FRAME_PROMPT_INDEX` (currently in
