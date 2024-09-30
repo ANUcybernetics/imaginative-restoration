@@ -1,21 +1,21 @@
-# Storytellers
+# Imaginative Restoration: Re-wilding Division
 
-Storytellers is an immersive and interactive experience in which participants
-are invited into a futuristic world where fragments of film and salvaged film
-artifacts from decades gone by are used as a canvas to imagine a brighter future
-through the lens of 'rewilding'.
+_Imaginative Restoration: Re-wilding Division_ is an immersive and interactive
+experience in which participants are invited into a futuristic world where
+fragments of film and salvaged film artifacts from decades gone by are used as a
+canvas to imagine a brighter future through the lens of 'rewilding'.
 
 These rescued film materials are kept in underground grottos acting as archival
 spaces which also protect them from the increasingly inhospitable land above
 ground. Participants of this experience will embody the persona of a
-'storyteller' who specifically works in the _Imaginative Restoration: Rewilding
-Division_. These storytellers are those who have specifically evolved to live in
-these darkened spaces and imaginatively restore damaged film, with a particular
-focus on the Australian flora and fauna they can dream up and imagine.
+_storyteller_ who specifically works in the division. These storytellers are
+those who have specifically evolved to live in these darkened spaces and
+imaginatively restore damaged film, with a particular focus on the Australian
+flora and fauna they can dream up and imagine.
 
 ## Repo structure
 
-This repo contains the software for the _Storytellers_ installation at the NFSA
+This repo contains the software for the above-described installation at the NFSA
 [Fantastic Futures](https://www.nfsa.gov.au/fantastic-futures-conference-canberra-2024)
 conference in October 2024. Code in this repo by
 [@benswift](https://github.com/benswift), but others have contributed sother
@@ -58,6 +58,7 @@ for more info.
     tricks and things of that nature
 - add audio playback code
 - make it easy to turn on/off/sleep
+- test & tag all electronics
 - test with 1080p camera 873mm above desk, slightly-smaller-than-A3 surface
 - set up for two displays (via splitter)
 - put the updated prompts in `utils.FRAME_PROMPT_INDEX` (currently in
