@@ -1,17 +1,28 @@
 # Imaginative Restoration: Re-wilding Division
 
-_Imaginative Restoration: Re-wilding Division_ is an immersive and interactive
-experience in which participants are invited into a futuristic world where
-fragments of film and salvaged film artifacts from decades gone by are used as a
-canvas to imagine a brighter future through the lens of 'rewilding'.
+In a distant future, humanity has retreated underground to escape increasingly
+inhospitable surface conditions. Here, in subterranean grottos, the Storytellers
+safeguard fragments of the past. But they don't merely preserve these
+artefacts—they breathe new life into them through a process called Imaginative
+Restoration.
 
-These rescued film materials are kept in underground grottos acting as archival
-spaces which also protect them from the increasingly inhospitable land above
-ground. Participants of this experience will embody the persona of a
-_storyteller_ who specifically works in the division. These storytellers are
-those who have specifically evolved to live in these darkened spaces and
-imaginatively restore damaged film, with a particular focus on the Australian
-flora and fauna they can dream up and imagine.
+_Imaginative Restoration: Rewilding Division_ is an immersive installation that
+invites participants to step into the role of a Storyteller. Your mission? To
+interact with and creatively restore damaged archival films from the
+[National Film and Sound Archive of Australia](https://www.nfsa.gov.au/) (NFSA).
+As a Storyteller in the Rewilding Division you work to dream up and repopulate
+the scenes with Australian flora and fauna, by hand drawing the creatures you
+can imagine, in live time you will see them enter the footage of the film,
+adding colour to the black and white scenes of the past.
+
+Storytellers is the result of an exploratory collaboration between the
+[National Institute of Dramatic Arts](https://www.nida.edu.au) (NIDA), the
+[National Film and Sound Archive of Australia](https://www.nfsa.gov.au/) (NFSA)
+and the [School of Cybernetics](https://cybernetics.anu.edu.au) from the
+Australian National University (ANU). It emerged from a workshop held in
+Canberra during July 2024 where experts in dramatic writing, props and effects,
+curation, and digital technologies came together to explore the future of
+dramatic arts creation, recording, and archiving in the age of generative AI.
 
 ## Repo structure
 
@@ -20,9 +31,7 @@ This repo contains the software for the above-described installation at the NFSA
 conference in October 2024. Code in this repo by
 [@benswift](https://github.com/benswift), but others have contributed sother
 significant work to the overall project---writing, set design & build, archival
-content, etc. The _Storytellers_ project is a collaboration between the
-[NFSA](https://www.nfsa.gov.au/), [NIDA](https://www.nida.edu.au) and the
-[ANU School of Cybernetics](https://cybernetics.anu.edu.au).
+content, etc.
 
 Python workflow-wise, it's a [rye](https://rye.astral.sh) snafu, so `rye sync`
 will set you up. Other ways work too, but... [y'know](https://xkcd.com/1987/).
