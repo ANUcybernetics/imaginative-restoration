@@ -18,7 +18,7 @@ adding colour to the black and white scenes of the past.
 Storytellers is the result of an exploratory collaboration between the
 [National Institute of Dramatic Arts](https://www.nida.edu.au) (NIDA), the
 [National Film and Sound Archive of Australia](https://www.nfsa.gov.au/) (NFSA)
-and the [School of Cybernetics](https://cybernetics.anu.edu.au) from the
+and the [School of Cybernetics](https://cybernetics.anu.edu.au) at the
 Australian National University (ANU). It emerged from a workshop held in
 Canberra during July 2024 where experts in dramatic writing, props and effects,
 curation, and digital technologies came together to explore the future of
