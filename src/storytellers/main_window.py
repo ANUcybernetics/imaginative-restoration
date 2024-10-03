@@ -2,8 +2,8 @@ import asyncio
 
 import numpy as np
 from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
-from PySide6.QtGui import QImage, QPixmap
-from PySide6.QtWidgets import QLabel, QMainWindow, QSizePolicy
+from PySide6.QtGui import QImage, QKeyEvent, QPixmap
+from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QSizePolicy
 
 from . import gen_ai, utils
 
@@ -64,6 +64,8 @@ class MainWindow(QMainWindow):
         self.timer.timeout.connect(self.update_frame)
         self.timer.start(int(utils.FRAME_TIME * 1000))  # Convert to milliseconds
 
+        self.setFocusPolicy(Qt.StrongFocus)
+
     @Slot(object)
     def on_ai_frame_ready(self, new_ai_frame):
         self.ai_frame = new_ai_frame
@@ -83,8 +85,15 @@ class MainWindow(QMainWindow):
         scaled_pixmap = pixmap.scaled(self.image_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.image_label.setPixmap(scaled_pixmap)
 
+    def keyPressEvent(self, event: QKeyEvent):
+        if event.key() == Qt.Key_Q:
+            self.close()
+        else:
+            super().keyPressEvent(event)
+
     def closeEvent(self, event):
         self.ai_worker.stop()
         self.ai_worker.wait()
         utils.cleanup()
+        QApplication.quit()
         super().closeEvent(event)
