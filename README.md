@@ -73,8 +73,9 @@ On the Jetson Orin AGX 64GB, you'll also need to
 
 ## TODO
 
-- build docker container which works on Jetson Orin AGX (see comments in
-  `Dockerfile` for hints on how to proceed)
+See [issues](https://github.com/ANUcybernetics/storytellers/issues) for the main
+items, plus a few other things which haven't been written up as issues yet:
+
 - make it easy to turn on/off/sleep
 - test & tag all electronics
 - test with 1080p camera 873mm above desk, slightly-smaller-than-A3 surface
@@ -84,11 +85,16 @@ On the Jetson Orin AGX 64GB, you'll also need to
 - get the final cut of the film from Daniel (and soundtrack), resize and split
   it into frames
 
-## Development notes
+## Development notes (Jetson Linux)
 
 - due to the small built-in root FS on the Jetson's SD card, I followed the
   instructions [here](https://www.jetson-ai-lab.com/tips_ssd-docker.html) to put
   all the docker stuff on a (usb-attached) SSD
+- ran into a few bugs along the way in
+  [jetson-containers](https://github.com/dusty-nv/jetson-containers/issues/654),
+  which are fixed in
+  [Ben's fork](https://github.com/benswift/jetson-containers/) although
+  hopefully they'll be merged back in at some point
 - `xhost +local:docker` on host machine so docker can connect to the X server
 
 ## Licence
