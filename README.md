@@ -50,7 +50,21 @@ for more info.
 1. ensure you've got your image frames in `assets/nfsa/`
 2. set up your webcam (might need to change the index at the top of `utils.py`
    to select the right webcam)
-3. `rye run python -m storytellers` and you're away
+3. then, on a desktop machine with the right drivers installed, you can `rye run python -m storytellers` and you're away
+
+On the Jetson Orin AGX 64GB, you'll need to
+
+4. build the special "base" container with `diffusers` and `transformers` in it using the [nvidia-jetson](https://github.com/dusty-nv/jetson-containers) tool with
+
+    jetson-containers build --name=stjet transformers diffusers
+
+5. build the `storytellers` container with this actual application code in it with
+
+    docker build . --tag storytellers
+
+6. and then you can run the Qt6 app with
+
+    docker run --rm -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix storytellers
 
 ## TODO
 
@@ -64,6 +78,11 @@ for more info.
   [here](https://docs.google.com/document/d/1uNgKd9r9YIJIwN2FSylH2od6w8og2B1i38UkzmLHLvA/))
 - get the final cut of the film from Daniel (and soundtrack), resize and split
   it into frames
+
+## Development notes
+
+- due to the small built-in root FS on the Jetson's SD card, I followed the instructions [here](https://www.jetson-ai-lab.com/tips_ssd-docker.html) to put all the docker stuff on a (usb-attached) SSD
+- `xhost +local:docker` on host machine so docker can connect to the X server
 
 ## Licence
 
