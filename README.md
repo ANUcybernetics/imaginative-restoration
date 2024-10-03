@@ -91,8 +91,6 @@ items, plus a few other things which haven't been written up as issues yet:
 - test & tag all electronics
 - test with 1080p camera 873mm above desk, slightly-smaller-than-A3 surface
 - set up for two displays (via splitter)
-- put the updated prompts in `utils.FRAME_PROMPT_INDEX` (currently in
-  [here](https://docs.google.com/document/d/1uNgKd9r9YIJIwN2FSylH2od6w8og2B1i38UkzmLHLvA/))
 - get the final cut of the film from Daniel (and soundtrack), resize and split
   it into frames
 

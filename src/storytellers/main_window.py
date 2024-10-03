@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QKeyEvent, QPixmap
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QSizePolicy
 
-from . import gen_ai, utils
+from . import gen_ai, prompts, utils
 
 
 class AIFrameWorker(QThread):
@@ -22,7 +22,7 @@ class AIFrameWorker(QThread):
 
         while self.running:
             webcam_frame = utils.get_camera_frame()
-            prompt = utils.get_prompt_for_frame(self.frame_index)
+            prompt = prompts.for_frame(self.frame_index)
 
             ai_frame = loop.run_until_complete(self.get_ai_frame(webcam_frame, prompt))
             self.frame_ready.emit(ai_frame)
