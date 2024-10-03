@@ -35,10 +35,11 @@ content, etc.
 
 Python workflow-wise, it's a [rye](https://rye.astral.sh) snafu, so `rye sync`
 will set you up. Other ways work too, but... [y'know](https://xkcd.com/1987/).
+On Jetson (see instructions below) it's dockerized.
 
 App-wise, running the module's `main()` func will run a native (Qt6) app which
 opens a fullscreen window, turns on the camera, and loops/mogrifies the film
-continuously.
+continuously. Press "Q" on the keyboard to quit.
 
 Note: video files aren't committed to this repo, because (a) we don't have the
 licence to put them on GitHub and (b) they'd bloat the repo anyway. So to use
@@ -50,26 +51,36 @@ for more info.
 1. ensure you've got your image frames in `assets/nfsa/`
 2. set up your webcam (might need to change the index at the top of `utils.py`
    to select the right webcam)
-3. then, on a desktop machine with the right drivers installed, you can
-   `rye run python -m storytellers` and you're away
+3. then, on a desktop machine with the right drivers installed, you can run with
 
-On the Jetson Orin AGX 64GB, you'll also need to
+   ```sh
+   rye run python -m storytellers
+   ```
+
+On the
+[Jetson Orin AGX 64GB](https://www.nvidia.com/content/dam/en-zz/Solutions/gtcf21/jetson-orin/nvidia-jetson-agx-orin-technical-brief.pdf),
+you'll also need to
 
 4. build the special "base" container with `diffusers` and `transformers` in it
    using the [nvidia-jetson](https://github.com/dusty-nv/jetson-containers) tool
    with
 
+   ```sh
    jetson-containers build --name=stjet transformers diffusers
+   ```
 
 5. build the `storytellers` container with this actual application code in it
    with
 
+   ```sh
    docker build . --tag storytellers
+   ```
 
 6. and then you can run the Qt6 app with
 
-   docker run --rm -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix
-   storytellers
+   ```sh
+   docker run --rm -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix storytellers
+   ```
 
 ## TODO
 
