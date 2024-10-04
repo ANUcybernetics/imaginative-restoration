@@ -22,12 +22,16 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip3 install --no-cache-dir PySide6 opencv-python-headless huggingface_hub[hf_transfer]
 
-COPY . /app
-WORKDIR /app
+# Copy only the download script
+COPY download_models.py /tmp/download_models.py
 
 # Download model files
 ENV HF_HUB_ENABLE_HF_TRANSFER=1
-RUN python3 download_models.py
+RUN python3 /tmp/download_models.py
+
+# Copy the rest of the application code
+COPY . /app
+WORKDIR /app
 
 ENV QT_QPA_PLATFORM=xcb
 ENV PYTHONUNBUFFERED=1
