@@ -33,8 +33,10 @@ def get_film_frame(frame_index):
         image = resize_crop(Image.open(file_path))
         return (image, frame_index + 1)
     else:
+        # loop back to the beginning
+        file_path = "assets/nfsa/frame-0001.png"
         image = resize_crop(Image.open(file_path))
-        return (Image.open("assets/nfsa/frame-0001.png"), 1)
+        return (image, 2)
 
 
 ## camera
