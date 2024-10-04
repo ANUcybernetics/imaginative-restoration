@@ -90,9 +90,10 @@ See [issues](https://github.com/ANUcybernetics/storytellers/issues) for the main
 items, plus a few other things which haven't been written up as issues yet:
 
 - make it easy to turn on/off/sleep
+- test audio output from the jetson
+- test splitter
 - test & tag all electronics
 - test with 1080p camera 873mm above desk, slightly-smaller-than-A3 surface
-- set up for two displays (via splitter)
 - get the final cut of the film from Daniel (and soundtrack), resize and split
   it into frames
 
@@ -106,7 +107,6 @@ items, plus a few other things which haven't been written up as issues yet:
   which are fixed in
   [Ben's fork](https://github.com/benswift/jetson-containers/) although
   hopefully they'll be merged back in at some point
-- `xhost +local:docker` on host machine so docker can connect to the X server
 
 ## Licence
 
