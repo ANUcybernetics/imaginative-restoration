@@ -1,0 +1,11 @@
+[Unit]
+Description=Imaginative Restoration: Re-wilding Division
+After=network.target
+
+[Service]
+ExecStart=~/Code/storytellers/run.sh
+Type=simple
+User=jane
+
+[Install]
+WantedBy=multi-user.target
