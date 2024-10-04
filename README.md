@@ -79,7 +79,7 @@ you'll also need to
 6. and then you can run the Qt6 app with
 
    ```sh
-   docker run --rm -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix storytellers
+   docker run --rm -it --device=/dev/video0:/dev/video0 --env DISPLAY=$DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix storytellers
    ```
 
 ## TODO
