@@ -76,7 +76,9 @@ you'll also need to
    docker build . --tag storytellers
    ```
 
-6. and then you can run the Qt6 app with
+6. run `xhost +local:docker` on your host machine to allow the Docker container to connect to your X server
+
+7. and then you can run the Qt6 app with
 
    ```sh
    docker run --rm -it --device=/dev/video0:/dev/video0 --env DISPLAY=$DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix storytellers
