@@ -1,5 +1,12 @@
 FROM stjet:r36.4.0
 
+ENV PYTHONUNBUFFERED=1
+
+# Download model files (as an early docker layer)
+COPY download_models.py /tmp/download_models.py
+ENV HF_HUB_ENABLE_HF_TRANSFER=1
+RUN python3 /tmp/download_models.py
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-dev \
@@ -20,21 +27,13 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --no-cache-dir PySide6 opencv-python-headless huggingface_hub[hf_transfer]
+RUN pip3 install --no-cache-dir controlnet_aux PySide6 opencv-python-headless
 
-# Copy only the download script
-COPY download_models.py /tmp/download_models.py
-
-# Download model files
-ENV HF_HUB_ENABLE_HF_TRANSFER=1
-RUN python3 /tmp/download_models.py
-
-# Copy the rest of the application code
+# copy the application code
 COPY . /app
 WORKDIR /app
 
 ENV QT_QPA_PLATFORM=xcb
-ENV PYTHONUNBUFFERED=1
 
 ENV PYTHONPATH="/app/src"
 CMD ["python3", "-u", "-m", "storytellers"]
