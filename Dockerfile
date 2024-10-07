@@ -4,7 +4,6 @@ ENV PYTHONUNBUFFERED=1
 
 # Download model files (as an early docker layer)
 COPY download_models.py /tmp/download_models.py
-ENV HF_HUB_ENABLE_HF_TRANSFER=1
 RUN python3 /tmp/download_models.py
 
 # Install system dependencies
