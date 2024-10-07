@@ -91,6 +91,6 @@ FRAME_PROMPT_INDEX = [
 def for_frame(frame_index):
     for index, _, prompt in FRAME_PROMPT_INDEX:
         if index >= frame_index:
-            return prompt
+            return prompt + ", matisse, fauvism, cave painting, vibrant colors, bold outline, (isolated on greenscreen: 1.5), sfx, greenscreen"
 
     raise f"cannot find prompt for frame {frame_index}: index out of bounds"
