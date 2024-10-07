@@ -22,7 +22,6 @@ camera = cv2.VideoCapture(0)
 IMAGE_WIDTH: int = 256
 FRAME_TIME: int = 1.0 / 15
 NEGATIVE_PROMPT: str = "detailed background, colorful background"
-AI_STRENGTH: float = 0.8
 PRINT_TIMINGS: bool = False
 
 ## archival-film related assets
