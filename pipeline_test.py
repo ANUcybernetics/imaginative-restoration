@@ -11,14 +11,16 @@ calibration_image = utils.camera_calibration_image()
 calibration_image.save("assets/calibration.png", format="PNG")
 print(f"Calibration image time: {time.time() - start_time:.2f} seconds")
 
-start_time = time.time()
-canny_image = utils.canny_image(utils.get_camera_frame())
-canny_image.save("assets/canny.png", format="PNG")
-print(f"Canny image time: {time.time() - start_time:.2f} seconds")
+# start_time = time.time()
+# canny_image = utils.canny_image(utils.get_camera_frame())
+# canny_image.save("assets/canny.png", format="PNG")
+# print(f"Canny image time: {time.time() - start_time:.2f} seconds")
+
+canny_image = load_image("assets/canny-fairy.png")
 
 start_time = time.time()
-genai_image = gen_ai.predict(canny_image, "a goldfish against a greenscreen background", "ugly, low-contrast")
-genai_image.save("assets/goldfish.png", format="PNG")
+genai_image = gen_ai.predict(canny_image, "goldfish", "ugly, low-contrast")
+genai_image.save("assets/genai.png", format="PNG")
 print(f"genAI image time: {time.time() - start_time:.2f} seconds")
 
 # a handy CLI invocation for development:
