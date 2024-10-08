@@ -1,10 +1,16 @@
 import asyncio
 
 import numpy as np
-from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
+from PySide6.QtCore import Qt, QThread, QTimer, QUrl, Signal, Slot
 from PySide6.QtGui import QImage, QKeyEvent, QPixmap
-from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QSizePolicy
 from PySide6.QtMultimedia import QSoundEffect
+from PySide6.QtWidgets import (
+    QApplication,
+    QLabel,
+    QMainWindow,
+    QMessageBox,
+    QSizePolicy,
+)
 
 from . import gen_ai, prompts, utils
 
