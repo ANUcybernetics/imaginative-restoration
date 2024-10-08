@@ -1,3 +1,9 @@
+# this is the thing that gets added to the end of all of the "scene-based prompts"
+PROMPT_SUFFIX = ", matisse, fauvism, cave painting, vibrant colors, bold outline, (isolated on greenscreen: 1.5), sfx, greenscreen"
+
+# TODO haven't explored this much at all
+NEGATIVE_PROMPT = "detailed background, colorful background"
+
 # each element is (inital_frame, scene description, prompt)
 FRAME_PROMPT_INDEX = [
     # TODO need to update the frame indices for all of these when we get the final cut...
@@ -91,6 +97,6 @@ FRAME_PROMPT_INDEX = [
 def for_frame(frame_index):
     for index, _, prompt in FRAME_PROMPT_INDEX:
         if index >= frame_index:
-            return prompt + ", matisse, fauvism, cave painting, vibrant colors, bold outline, (isolated on greenscreen: 1.5), sfx, greenscreen"
+            return prompt + PROMPT_SUFFIX
 
     raise f"cannot find prompt for frame {frame_index}: index out of bounds"

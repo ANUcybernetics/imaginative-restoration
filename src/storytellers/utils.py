@@ -6,31 +6,6 @@ import numpy as np
 import torch
 from PIL import Image, ImageDraw
 
-# camera & draw surface alignment
-CAMERA_RESOLUTION = (1920, 1080)
-CAMERA_CROP_RECT = (930, 440, 400, 300)
-
-# film is 4:3 aspect ratio
-IMAGE_WIDTH: int = 256
-FRAME_TIME: int = 1.0 / 15
-NEGATIVE_PROMPT: str = "detailed background, colorful background"
-PRINT_TIMINGS: bool = False
-
-
-def get_best_device():
-    if torch.cuda.is_available():
-        return torch.device("cuda")
-    elif torch.backends.mps.is_available():
-        return torch.device("mps")
-    else:
-        return torch.device("cpu")
-
-# One-off initialization
-camera = cv2.VideoCapture(0)
-camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_RESOLUTION[0])
-camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_RESOLUTION[1])
-
-## archival-film related assets
 
 def get_film_frame(frame_index):
     file_path = f"assets/nfsa/frame-{frame_index:04d}.png"
@@ -44,7 +19,41 @@ def get_film_frame(frame_index):
         return (image, 2)
 
 
+# a few other config params
+FRAME_TIME: int = 1.0 / 10
+PRINT_TIMINGS: bool = False
+
+def get_best_device():
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    elif torch.backends.mps.is_available():
+        return torch.device("mps")
+    else:
+        return torch.device("cpu")
+
+
 ## camera
+
+# camera & draw surface alignment
+CAMERA_RESOLUTION = (1920, 1080)
+# film is 4:3 aspect ratio, so make sure the cropped area is the same
+CAMERA_CROP_RECT = (930, 440, 400, 300)
+# get the image width from the first frame
+IMAGE_WIDTH, IMAGE_HEIGHT = get_film_frame(1)[0].size
+
+# Check if the image aspect ratio matches the camera crop rect
+crop_ratio = CAMERA_CROP_RECT[2] / CAMERA_CROP_RECT[3]
+image_ratio = IMAGE_WIDTH / IMAGE_HEIGHT
+if abs(crop_ratio - image_ratio) > 0.01:  # Allow for small floating-point differences
+    print(f"Error: Image aspect ratio ({image_ratio:.2f}) does not match camera crop ratio ({crop_ratio:.2f}).")
+    print("Please adjust the CAMERA_CROP_RECT or the film frame dimensions.")
+    exit(1)
+
+# One-off initialization
+camera = cv2.VideoCapture(0)
+camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_RESOLUTION[0])
+camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_RESOLUTION[1])
+
 
 def get_camera_frame(crop = True):
     """

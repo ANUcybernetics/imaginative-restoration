@@ -33,7 +33,7 @@ class AIFrameWorker(QThread):
             gen_ai.predict,
             webcam_frame,
             prompt,
-            utils.NEGATIVE_PROMPT
+            prompts.NEGATIVE_PROMPT
         )
 
     def stop(self):
