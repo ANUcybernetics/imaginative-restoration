@@ -7,7 +7,11 @@ import storytellers.utils as utils
 from storytellers.utils import get_best_device
 
 # load adapter
-adapter = T2IAdapter.from_pretrained("TencentARC/t2i-adapter-canny-sdxl-1.0", torch_dtype=torch.float16, variant="fp16").to("cuda")
+adapter = T2IAdapter.from_pretrained(
+    "TencentARC/t2i-adapter-canny-sdxl-1.0",
+    torch_dtype=torch.float16,
+    variant="fp16",
+).to(get_best_device())
 
 # load euler_a scheduler
 model_id = 'stabilityai/sdxl-turbo'
@@ -16,7 +20,7 @@ vae=AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=t
 pipe = StableDiffusionXLAdapterPipeline.from_pretrained(
     model_id, vae=vae, adapter=adapter, scheduler=euler_a, torch_dtype=torch.float16, variant="fp16",
 ).to(get_best_device())
-pipe.enable_xformers_memory_efficient_attention()
+# pipe.enable_xformers_memory_efficient_attention()
 pipe.set_progress_bar_config(disable=True)
 
 # there's an openCV-powered canny detector in utils, but this one is recommended in the t2i
