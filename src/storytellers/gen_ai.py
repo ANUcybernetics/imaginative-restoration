@@ -2,7 +2,6 @@ import math
 
 import torch
 from diffusers import AutoPipelineForImage2Image, StableDiffusionXLAdapterPipeline, T2IAdapter, EulerAncestralDiscreteScheduler, AutoencoderKL
-from controlnet_aux.canny import CannyDetector
 
 import storytellers.utils as utils
 from storytellers.utils import get_best_device
@@ -20,17 +19,12 @@ pipe = StableDiffusionXLAdapterPipeline.from_pretrained(
 pipe.enable_xformers_memory_efficient_attention()
 pipe.set_progress_bar_config(disable=True)
 
-canny_detector = CannyDetector()
-
 # there's an openCV-powered canny detector in utils, but this one is recommended in the t2i
 # example page so it'll live in this file
-def canny_image(image):
-    return canny_detector(image, detect_resolution=image.width/2)
-
 
 def predict(init_image, prompt, negative_prompt):
     init_image = utils.resize_crop(init_image)
-    canny = canny_image(init_image)
+    canny = utils.canny_image(init_image)
 
     # if int(steps * strength) < 1:
     #     steps = math.ceil(1 / max(0.10, strength))
