@@ -1,14 +1,18 @@
 #!/bin/bash
 
+PLAY_AUDIO=0
+
 # be a good systemd service citizen
 set -euo pipefail
 IFS=$'\n\t'
 
 xhost +local:docker
 
-# Start ffplay in the background, looping the audio file
-ffplay -nodisp -loop 0 assets/nfsa/audio.wav &
-FFPLAY_PID=$!
+# Start ffplay in the background, looping the audio file if PLAY_AUDIO is set to 1
+if [ "${PLAY_AUDIO:-0}" = "1" ]; then
+    ffplay -nodisp -loop 0 assets/nfsa/audio.wav &
+    FFPLAY_PID=$!
+fi
 
 # Run the Docker container
 docker run --rm -it \
@@ -19,5 +23,7 @@ docker run --rm -it \
     --volume ${XDG_RUNTIME_DIR:-/run/user/1000}:/tmp/runtime-root \
     storytellers
 
-# When Docker container exits, kill ffplay
-kill $FFPLAY_PID
+# When Docker container exits, kill ffplay if it was started
+if [ "${PLAY_AUDIO:-0}" = "1" ]; then
+    kill $FFPLAY_PID
+fi
