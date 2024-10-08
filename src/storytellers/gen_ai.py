@@ -22,10 +22,15 @@ pipe.set_progress_bar_config(disable=True)
 
 canny_detector = CannyDetector()
 
+# there's an openCV-powered canny detector in utils, but this one is recommended in the t2i
+# example page so it'll live in this file
+def canny_image(image):
+    return canny_detector(image, detect_resolution=image.width/2)
+
 
 def predict(init_image, prompt, negative_prompt):
     init_image = utils.resize_crop(init_image)
-    canny_image = canny_detector(init_image, detect_resolution=utils.IMAGE_WIDTH/2, image_resolution=utils.IMAGE_WIDTH)
+    canny = canny_image(init_image)
 
     # if int(steps * strength) < 1:
     #     steps = math.ceil(1 / max(0.10, strength))
@@ -34,14 +39,14 @@ def predict(init_image, prompt, negative_prompt):
     results = pipe(
         prompt=prompt,
         negative_prompt=negative_prompt,
-        image=canny_image,
+        image=canny,
         num_inference_steps=steps,
         guidance_scale=0.0,
         # strength=strength,
         adapter_conditioning_scale=0.8,
         adapter_conditioning_factor=1,
-        width=utils.IMAGE_WIDTH,
-        height=int(utils.IMAGE_WIDTH*0.75), # 4:3 aspect ratio
+        width=init_image.width,
+        height=int(init_image.height),
         output_type="pil",
     )
     nsfw_content_detected = (
@@ -50,5 +55,5 @@ def predict(init_image, prompt, negative_prompt):
         else False
     )
     if nsfw_content_detected:
-        return utils.green_image()
+        return utils.green_image(init_image.size)
     return results.images[0]

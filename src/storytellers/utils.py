@@ -4,7 +4,17 @@ import os
 import cv2
 import numpy as np
 import torch
-from PIL import Image
+from PIL import Image, ImageDraw
+
+# camera & draw surface alignment
+CAMERA_RESOLUTION = (1920, 1080)
+CAMERA_CROP_RECT = (930, 440, 400, 300)
+
+# film is 4:3 aspect ratio
+IMAGE_WIDTH: int = 256
+FRAME_TIME: int = 1.0 / 15
+NEGATIVE_PROMPT: str = "detailed background, colorful background"
+PRINT_TIMINGS: bool = False
 
 
 def get_best_device():
@@ -17,30 +27,26 @@ def get_best_device():
 
 # One-off initialization
 camera = cv2.VideoCapture(0)
-
-# it's 4:3 aspect
-IMAGE_WIDTH: int = 256
-FRAME_TIME: int = 1.0 / 15
-NEGATIVE_PROMPT: str = "detailed background, colorful background"
-PRINT_TIMINGS: bool = False
+camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_RESOLUTION[0])
+camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_RESOLUTION[1])
 
 ## archival-film related assets
 
 def get_film_frame(frame_index):
     file_path = f"assets/nfsa/frame-{frame_index:04d}.png"
     if os.path.exists(file_path):
-        image = resize_crop(Image.open(file_path))
+        image = Image.open(file_path)
         return (image, frame_index + 1)
     else:
         # loop back to the beginning
         file_path = "assets/nfsa/frame-0001.png"
-        image = resize_crop(Image.open(file_path))
+        image = Image.open(file_path)
         return (image, 2)
 
 
 ## camera
 
-def get_camera_frame():
+def get_camera_frame(crop = True):
     """
     Captures and returns the current webcam image as a PIL Image.
 
@@ -65,11 +71,30 @@ def get_camera_frame():
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     # Convert to PIL Image
-    image = Image.fromarray(rgb_frame)
-    image = resize_crop(image)
-    # flipped feels more natural
-    image = image.transpose(Image.FLIP_LEFT_RIGHT)
+    image = Image.fromarray(rgb_frame).transpose(Image.FLIP_LEFT_RIGHT)
+
+    # Crop the image to the specified rectangle
+    if crop:
+        x, y, w, h = CAMERA_CROP_RECT
+        image = image.crop((x, y, x+w, y+h))
+
     return image
+
+
+def camera_calibration_image():
+    # Create a transparent overlay
+    camera_image = get_camera_frame(False)
+    overlay = Image.new('RGBA', camera_image.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(overlay)
+
+    # Unpack the box coordinates
+    x, y, w, h = CAMERA_CROP_RECT
+
+    # Draw the red box with transparent center
+    draw.rectangle([x, y, x+w, y+h], outline=(255, 0, 0, 255), width=2)
+
+    # Combine the original image with the overlay
+    return Image.alpha_composite(camera_image.convert('RGBA'), overlay).convert('RGB')
 
 
 def resize_crop(image):
@@ -96,15 +121,14 @@ def resize_crop(image):
 def canny_image(image):
     image = np.array(image)
     image = cv2.Canny(image, 100, 200)
-    image = 255 - image  # Invert the image
     image = image[:, :, None]
     image = np.concatenate([image, image, image], axis=2)
     image = Image.fromarray(image)
     return image
 
 
-def green_image():
-    return Image.new("RGB", (IMAGE_WIDTH, int(IMAGE_WIDTH*0.75)), color=(40, 255, 40))
+def green_image(size):
+    return Image.new("RGB", size, color=(40, 255, 40))
 
 
 def chroma_key(background_image, foreground_image):

@@ -51,7 +51,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.image_label)
 
         self.frame_index = 1
-        self.ai_frame = utils.green_image()
+        self.ai_frame, _ = utils.get_film_frame(self.frame_index)
 
         self.ai_worker = AIFrameWorker()
         self.ai_worker.frame_ready.connect(self.on_ai_frame_ready)
@@ -68,6 +68,13 @@ class MainWindow(QMainWindow):
         self.ai_frame = new_ai_frame
 
     def update_frame(self):
+        # "camera calibration" mode
+        # display_frame = utils.camera_calibration_image()
+
+        # canny image mode
+        # display_frame = utils.canny_image(utils.get_camera_frame())
+
+        # "normal" mode
         film_frame, self.frame_index = utils.get_film_frame(self.frame_index)
         display_frame = utils.chroma_key(film_frame, self.ai_frame)
 
