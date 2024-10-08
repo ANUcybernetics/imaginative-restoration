@@ -4,6 +4,7 @@ import numpy as np
 from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QKeyEvent, QPixmap
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QSizePolicy
+from PySide6.QtMultimedia import QSoundEffect
 
 from . import gen_ai, prompts, utils
 
@@ -40,6 +41,35 @@ class AIFrameWorker(QThread):
         self.running = False
 
 class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Storytellers")
+        self.showFullScreen()
+
+        self.image_label = QLabel(self)
+        self.image_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.image_label.setAlignment(Qt.AlignCenter)
+        self.setCentralWidget(self.image_label)
+
+        self.frame_index = 1
+        self.ai_frame, _ = utils.get_film_frame(self.frame_index)
+
+        self.ai_worker = AIFrameWorker()
+        self.ai_worker.frame_ready.connect(self.on_ai_frame_ready)
+        self.ai_worker.start()
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_frame)
+        self.timer.start(int(utils.FRAME_TIME * 1000))  # Convert to milliseconds
+
+        self.setFocusPolicy(Qt.StrongFocus)
+
+        # Initialize audio player
+        self.audio_player = QSoundEffect()
+        self.audio_player.setSource(QUrl.fromLocalFile("assets/nfsa/audio.wav"))
+        self.audio_player.setLoopCount(QSoundEffect.Infinite)
+        if not self.audio_player.play():
+            QMessageBox.warning(self, "Audio Error", "Failed to play audio. Check your audio setup.")
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Storytellers")

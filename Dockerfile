@@ -23,16 +23,26 @@ RUN apt-get update && apt-get install -y \
     libqt6gui6 \
     libqt6widgets6 \
     libqt6core6 \
+    # for audio
+    pipewire \
+    libspa-0.2-bluetooth \
+    libspa-0.2-jack \
+    pipewire-audio-client-libraries \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --no-cache-dir controlnet_aux PySide6 opencv-python-headless
+RUN pip3 install --no-cache-dir \
+    controlnet_aux \
+    PySide6 \
+    opencv-python-headless
 
 # copy the application code
 COPY . /app
 WORKDIR /app
 
 ENV QT_QPA_PLATFORM=xcb
+ENV XDG_RUNTIME_DIR=/tmp/runtime-root
+ENV PIPEWIRE_RUNTIME_DIR=/tmp/pipewire-0
 
 ENV PYTHONPATH="/app/src"
 CMD ["python3", "-u", "-m", "storytellers"]
