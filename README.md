@@ -66,7 +66,7 @@ you'll also need to
    with
 
    ```sh
-   jetson-containers build --name=stjet transformers diffusers xformers torch_tensorrt
+   jetson-containers build --name=stjet transformers diffusers torch_tensor2trt
    ```
 
 5. build the `storytellers` container with this actual application code in it
