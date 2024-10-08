@@ -146,8 +146,8 @@ def chroma_key(background_image, foreground_image):
     foreground_array = np.array(foreground_image)
 
     # Define the green-screen colour range
-    lower_green = np.array([40, 40, 40])
-    upper_green = np.array([80, 255, 80])
+    lower_green = np.array([0, 100, 0])
+    upper_green = np.array([255, 255, 255])
 
     # Create a mask for green-ish pixels
     mask = np.all((foreground_array >= lower_green) & (foreground_array <= upper_green), axis=-1)
