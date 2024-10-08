@@ -74,7 +74,7 @@ def get_camera_frame(crop = True):
 
     ret, frame = camera.read()
     if not ret:
-        raise "could not read camera frame"
+        raise RuntimeError("could not read camera frame")
 
     # Convert BGR to RGB
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
