@@ -73,9 +73,10 @@ class MainWindow(QMainWindow):
         # Initialize audio player
         self.audio_player = QSoundEffect()
         self.audio_player.setSource(QUrl.fromLocalFile("assets/nfsa/audio.wav"))
-        self.audio_player.setLoopCount(QSoundEffect.Infinite)
+        self.audio_player.setLoopCount(-2) # QSoundEffect.Infinite
         if not self.audio_player.play():
-            QMessageBox.warning(self, "Audio Error", "Failed to play audio. Check your audio setup.")
+            QMessageBox.critical(self, "Audio Error", "Failed to play audio. Check your audio setup. The application will now exit.")
+            self.closeEvent()
 
     @Slot(object)
     def on_ai_frame_ready(self, new_ai_frame):
@@ -109,9 +110,10 @@ class MainWindow(QMainWindow):
         else:
             super().keyPressEvent(event)
 
-    def closeEvent(self, event):
+    def closeEvent(self, event = None):
         self.ai_worker.stop()
         self.ai_worker.wait()
         utils.cleanup()
         QApplication.quit()
-        super().closeEvent(event)
+        if event:
+            super().closeEvent(event)
