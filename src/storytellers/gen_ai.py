@@ -23,7 +23,6 @@ pipe.set_progress_bar_config(disable=True)
 # example page so it'll live in this file
 
 def predict(init_image, prompt, negative_prompt):
-    init_image = utils.resize_crop(init_image)
     canny = utils.canny_image(init_image)
 
     # if int(steps * strength) < 1:
@@ -40,7 +39,7 @@ def predict(init_image, prompt, negative_prompt):
         adapter_conditioning_scale=0.8,
         adapter_conditioning_factor=1,
         width=init_image.width,
-        height=int(init_image.height),
+        height=init_image.height,
         output_type="pil",
     )
     nsfw_content_detected = (

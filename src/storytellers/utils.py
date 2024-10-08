@@ -37,7 +37,7 @@ def get_best_device():
 # camera & draw surface alignment
 CAMERA_RESOLUTION = (1920, 1080)
 # film is 4:3 aspect ratio, so make sure the cropped area is the same
-CAMERA_CROP_RECT = (930, 440, 400, 300)
+CAMERA_CROP_RECT = (930, 440, 300, 300)
 # get the image width from the first frame
 IMAGE_WIDTH, IMAGE_HEIGHT = get_film_frame(1)[0].size
 
@@ -55,7 +55,7 @@ camera.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_RESOLUTION[0])
 camera.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_RESOLUTION[1])
 
 
-def get_camera_frame(crop = True):
+def get_camera_frame(crop_and_resize = True):
     """
     Captures and returns the current webcam image as a PIL Image.
 
@@ -83,9 +83,9 @@ def get_camera_frame(crop = True):
     image = Image.fromarray(rgb_frame).transpose(Image.FLIP_LEFT_RIGHT)
 
     # Crop the image to the specified rectangle
-    if crop:
+    if crop_and_resize:
         x, y, w, h = CAMERA_CROP_RECT
-        image = image.crop((x, y, x+w, y+h))
+        image = image.crop((x, y, x+w, y+h)).resize((IMAGE_WIDTH, IMAGE_HEIGHT), Image.LANCZOS)
 
     return image
 
@@ -104,27 +104,6 @@ def camera_calibration_image():
 
     # Combine the original image with the overlay
     return Image.alpha_composite(camera_image.convert('RGBA'), overlay).convert('RGB')
-
-
-def resize_crop(image):
-    target_ratio = 4 / 3
-    img_width, img_height = image.size
-    img_ratio = img_width / img_height
-
-    if img_ratio > target_ratio:
-        # Image is wider than target, crop width
-        new_width = int(img_height * target_ratio)
-        left = (img_width - new_width) // 2
-        image = image.crop((left, 0, left + new_width, img_height))
-    elif img_ratio < target_ratio:
-        # Image is taller than target, crop height
-        new_height = int(img_width / target_ratio)
-        top = (img_height - new_height) // 2
-        image = image.crop((0, top, img_width, top + new_height))
-
-    # Resize to target width
-    height = int(IMAGE_WIDTH / target_ratio)
-    return image.resize((IMAGE_WIDTH, height), Image.LANCZOS)
 
 
 def canny_image(image):
