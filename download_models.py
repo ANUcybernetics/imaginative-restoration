@@ -3,7 +3,9 @@ from huggingface_hub import snapshot_download
 
 if __name__ == "__main__":
     models = [
-        "stabilityai/sdxl-turbo"
+        "stabilityai/sdxl-turbo",
+        "TencentARC/t2i-adapter-canny-sdxl-1.0",
+        "madebyollin/sdxl-vae-fp16-fix"
     ]
 
     for repo_id in models:
