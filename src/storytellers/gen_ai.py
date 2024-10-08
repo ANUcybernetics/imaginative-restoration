@@ -28,14 +28,14 @@ def predict(init_image, prompt, negative_prompt):
 
     # if int(steps * strength) < 1:
     #     steps = math.ceil(1 / max(0.10, strength))
-    steps = 1
+    steps = 4
 
     results = pipe(
         prompt=prompt,
         negative_prompt=negative_prompt,
         image=canny,
         num_inference_steps=steps,
-        guidance_scale=0.0,
+        guidance_scale=7.5,
         # strength=strength,
         adapter_conditioning_scale=0.8,
         adapter_conditioning_factor=1,
