@@ -23,7 +23,6 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --no-cache-dir \
-    controlnet_aux \
     PySide6 \
     opencv-python-headless
 
