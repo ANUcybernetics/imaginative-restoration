@@ -138,6 +138,18 @@ def chroma_key(background_image, foreground_image):
     return Image.fromarray(result)
 
 
+def combine_bw_images(image_1, image_2):
+    # Convert images to numpy arrays
+    array_1 = np.array(image_1.convert('L'))
+    array_2 = np.array(image_2.convert('L'))
+
+    # Combine images: white (255) if either image has white, black (0) otherwise
+    combined_array = np.where((array_1 == 255) | (array_2 == 255), 255, 0)
+
+    # Convert back to PIL Image
+    return Image.fromarray(combined_array.astype(np.uint8), mode='L')
+
+
 def cleanup():
     """
     Releases the camera resource.
