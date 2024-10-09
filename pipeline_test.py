@@ -1,22 +1,24 @@
+import time
+
 import storytellers.gen_ai as gen_ai
 import storytellers.utils as utils
 from diffusers.utils import load_image
 
-film_image = load_image("assets/nfsa/frame-0001.png")
-
-import time
-
-start_time = time.time()
-calibration_image = utils.camera_calibration_image()
-calibration_image.save("assets/calibration.png", format="PNG")
-print(f"Calibration image time: {time.time() - start_time:.2f} seconds")
+film_image = load_image("assets/nfsa/frame-2000.png")
 
 # start_time = time.time()
-# canny_image = utils.canny_image(utils.get_camera_frame())
-# canny_image.save("assets/canny.png", format="PNG")
-# print(f"Canny image time: {time.time() - start_time:.2f} seconds")
+# calibration_image = utils.camera_calibration_image()
+# calibration_image.save("assets/calibration.png", format="PNG")
+# print(f"Calibration image time: {time.time() - start_time:.2f} seconds")
 
-canny_image = load_image("assets/canny-fairy.png")
+start_time = time.time()
+canny_image_1 = utils.canny_image(utils.get_camera_frame())
+canny_image_1 = utils.canny_image(film_image)
+canny_image = utils.combine_bw_image(canny_image_1, canny_image_2)
+canny_image.save("assets/canny.png", format="PNG")
+print(f"Canny image time: {time.time() - start_time:.2f} seconds")
+
+# canny_image = load_image("assets/canny-fairy.png")
 
 start_time = time.time()
 genai_image = gen_ai.predict(canny_image, "goldfish", "ugly, low-contrast")
