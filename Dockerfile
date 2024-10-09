@@ -23,11 +23,6 @@ RUN apt-get update && apt-get install -y \
     libqt6gui6 \
     libqt6widgets6 \
     libqt6core6 \
-    # for audio
-    pipewire \
-    libspa-0.2-bluetooth \
-    libspa-0.2-jack \
-    pipewire-audio-client-libraries \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
