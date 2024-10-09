@@ -27,19 +27,18 @@ pipe.set_progress_bar_config(disable=True)
 # example page so it'll live in this file
 
 def predict(init_image, prompt, negative_prompt):
-    canny = utils.canny_image(init_image)
+    canny_image = utils.canny_image(init_image)
 
     # if int(steps * strength) < 1:
     #     steps = math.ceil(1 / max(0.10, strength))
-    steps = 4
+    steps = 1
 
     results = pipe(
         prompt=prompt,
         negative_prompt=negative_prompt,
-        image=canny,
+        image=canny_image,
         num_inference_steps=steps,
         guidance_scale=7.5,
-        # strength=strength,
         adapter_conditioning_scale=0.8,
         adapter_conditioning_factor=1,
         width=init_image.width,
