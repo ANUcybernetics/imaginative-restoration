@@ -19,7 +19,7 @@ docker run --rm -it \
     --device=/dev/video0:/dev/video0 \
     --env DISPLAY=$DISPLAY \
     --volume /tmp/.X11-unix:/tmp/.X11-unix \
-    --volume $HF_HUB:/data/models/huggingface \
+    --volume $HF_HOME:/data/models/huggingface \
     storytellers
 
 # When Docker container exits, kill ffplay if it was started
