@@ -2,10 +2,6 @@ FROM stjet:r36.4.0
 
 ENV PYTHONUNBUFFERED=1
 
-# Download model files (as an early docker layer)
-COPY download_models.py /tmp/download_models.py
-RUN python3 /tmp/download_models.py
-
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-dev \
