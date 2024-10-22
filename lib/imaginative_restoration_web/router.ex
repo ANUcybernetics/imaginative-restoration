@@ -17,7 +17,7 @@ defmodule ImaginativeRestorationWeb.Router do
   scope "/", ImaginativeRestorationWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", IndexLive
   end
 
   # Other scopes may use custom stacks.
