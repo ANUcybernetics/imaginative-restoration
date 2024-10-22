@@ -4,6 +4,8 @@ defmodule ImaginativeRestoration.AI.Replicate do
   """
 
   @base_url "https://api.replicate.com/v1"
+  # nice big timeout in case of Replicate cold starts
+  @timeout :timer.minutes(5)
 
   defp auth_token do
     System.get_env("REPLICATE_API_TOKEN")
@@ -43,7 +45,12 @@ defmodule ImaginativeRestoration.AI.Replicate do
       input: input
     }
 
-    case Req.post(url, json: body, headers: [{"Prefer", "wait=60"}], auth: {:bearer, auth_token()}) do
+    case Req.post(url,
+           json: body,
+           headers: [{"Prefer", "wait=60"}],
+           auth: {:bearer, auth_token()},
+           receive_timeout: @timeout
+         ) do
       {:ok, %{status: 201, body: body}} ->
         {:ok, body}
 
