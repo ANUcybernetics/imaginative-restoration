@@ -4,8 +4,6 @@ defmodule ImaginativeRestoration.AI.Replicate do
   """
 
   @base_url "https://api.replicate.com/v1"
-  # nice big timeout in case of Replicate cold starts
-  @timeout :timer.minutes(5)
 
   defp auth_token do
     System.get_env("REPLICATE_API_TOKEN")
@@ -33,8 +31,6 @@ defmodule ImaginativeRestoration.AI.Replicate do
 
   @doc """
   Creates a prediction using the specified model version and input.
-
-  This uses the new "Prefer" header to make this a blocking request.
   """
   @spec create_prediction(String.t(), map()) :: {:ok, map()} | {:error, any()}
   def create_prediction(model_version, input) do
@@ -45,14 +41,38 @@ defmodule ImaginativeRestoration.AI.Replicate do
       input: input
     }
 
-    case Req.post(url,
-           json: body,
-           headers: [{"Prefer", "wait=60"}],
-           auth: {:bearer, auth_token()},
-           receive_timeout: @timeout
-         ) do
+    case Req.post(url, json: body, auth: {:bearer, auth_token()}) do
       {:ok, %{status: 201, body: body}} ->
-        {:ok, body}
+        poll_prediction(body["id"])
+
+      {:ok, %{status: status, body: body}} ->
+        {:error, "HTTP #{status}: #{inspect(body)}"}
+
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
+  defp poll_prediction(prediction_id) do
+    url = "#{@base_url}/predictions/#{prediction_id}"
+
+    case Req.get(url, auth: {:bearer, auth_token()}) do
+      {:ok, %{status: 200, body: %{"status" => status} = body}} ->
+        case status do
+          "succeeded" ->
+            {:ok, body}
+
+          "failed" ->
+            {:error, body["error"] || "Prediction failed"}
+
+          "canceled" ->
+            {:error, "Prediction was canceled"}
+
+          _ ->
+            # Wait for 1 second before polling again
+            Process.sleep(1000)
+            poll_prediction(prediction_id)
+        end
 
       {:ok, %{status: status, body: body}} ->
         {:error, "HTTP #{status}: #{inspect(body)}"}
