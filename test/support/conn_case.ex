@@ -19,15 +19,14 @@ defmodule ImaginativeRestorationWeb.ConnCase do
 
   using do
     quote do
+      use ImaginativeRestorationWeb, :verified_routes
+      import ImaginativeRestorationWeb.ConnCase
+      import Phoenix.ConnTest
+      import Plug.Conn
       # The default endpoint for testing
       @endpoint ImaginativeRestorationWeb.Endpoint
 
-      use ImaginativeRestorationWeb, :verified_routes
-
       # Import conveniences for testing with connections
-      import Plug.Conn
-      import Phoenix.ConnTest
-      import ImaginativeRestorationWeb.ConnCase
     end
   end
 

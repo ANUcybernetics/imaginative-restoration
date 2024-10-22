@@ -1,4 +1,4 @@
-export const WebcamStreamHook = {
+const WebcamStreamHook = {
   mounted() {
     this.initWebcam();
   },
@@ -17,3 +17,5 @@ export const WebcamStreamHook = {
       });
   },
 };
+
+export default WebcamStreamHook;

@@ -32,6 +32,12 @@ config :imaginative_restoration, ImaginativeRestorationWeb.Endpoint,
   pubsub_server: ImaginativeRestoration.PubSub,
   live_view: [signing_salt: "NTxy6HlN"]
 
+config :imaginative_restoration, Oban,
+  repo: ImaginativeRestoration.Repo,
+  engine: Oban.Engines.Lite,
+  plugins: [Oban.Plugins.Pruner],
+  queues: [default: 10]
+
 config :imaginative_restoration,
   ecto_repos: [ImaginativeRestoration.Repo],
   ash_domains: [ImaginativeRestoration.Sketches],

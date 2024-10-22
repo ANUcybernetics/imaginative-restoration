@@ -22,7 +22,10 @@ import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
 
-import WebcamStream from "./webcam_stream_hook";
+import WebcamStreamHook from "./webcam_stream_hook";
+
+let Hooks = {};
+Hooks.WebcamStream = WebcamStreamHook;
 
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
@@ -30,7 +33,7 @@ let csrfToken = document
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: { _csrf_token: csrfToken },
-  hooks: { WebcamStream },
+  hooks: Hooks,
 });
 
 // Show progress bar on live navigation and form submits

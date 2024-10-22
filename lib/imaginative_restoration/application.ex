@@ -10,9 +10,8 @@ defmodule ImaginativeRestoration.Application do
     children = [
       ImaginativeRestorationWeb.Telemetry,
       ImaginativeRestoration.Repo,
-      {Ecto.Migrator,
-        repos: Application.fetch_env!(:imaginative_restoration, :ecto_repos),
-        skip: skip_migrations?()},
+      {Oban, Application.fetch_env!(:imaginative_restoration, Oban)},
+      {Ecto.Migrator, repos: Application.fetch_env!(:imaginative_restoration, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:imaginative_restoration, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: ImaginativeRestoration.PubSub},
       # Start a worker by calling: ImaginativeRestoration.Worker.start_link(arg)
@@ -35,7 +34,7 @@ defmodule ImaginativeRestoration.Application do
     :ok
   end
 
-  defp skip_migrations?() do
+  defp skip_migrations? do
     # By default, sqlite migrations are run when using a release
     System.get_env("RELEASE_NAME") != nil
   end

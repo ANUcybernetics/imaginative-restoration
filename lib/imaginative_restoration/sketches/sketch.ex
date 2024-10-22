@@ -11,10 +11,10 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
   attributes do
     integer_primary_key :id
-    attribute :sketch_image_url, :string, allow_nil?: false
     attribute :prompt, :string, allow_nil?: false
-    attribute :processed_image_url, :string
-    attribute :ai_model, :string, allow_nil?: false
+    attribute :unprocessed, :string, allow_nil?: false
+    attribute :processed, :string
+    attribute :model, :string, allow_nil?: false
     attribute :hidden, :boolean, default: false
 
     create_timestamp :inserted_at

@@ -55,7 +55,8 @@ defmodule ImaginativeRestoration.MixProject do
       {:ash_sqlite, "~> 0.2"},
       {:ash_phoenix, "~> 2.1"},
       {:styler, "~> 1.1", only: [:dev, :test], runtime: false},
-      {:req, "~> 0.5"}
+      {:req, "~> 0.5"},
+      {:oban, "~> 2.18"}
     ]
   end
 
