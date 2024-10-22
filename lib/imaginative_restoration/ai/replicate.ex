@@ -3,6 +3,8 @@ defmodule ImaginativeRestoration.AI.Replicate do
   Module for interacting with the Replicate API.
   """
 
+  alias ImaginativeRestoration.AI.JsonFixer
+
   @base_url "https://api.replicate.com/v1"
 
   defp auth_token do
@@ -112,5 +114,41 @@ defmodule ImaginativeRestoration.AI.Replicate do
          {:ok, %{"output" => [_canny, output]}} <- create_prediction(version, input) do
       output
     end
+  end
+
+  def invoke("lucataco/florence-2-large" = model, input_image) do
+    input = %{
+      image: input_image,
+      task_input: "Object Detection"
+    }
+
+    with {:ok, version} <- get_latest_version(model),
+         {:ok, %{"output" => %{"text" => bad_json}}} <- create_prediction(version, input) do
+      bad_json
+      |> JsonFixer.parse_incorrect_json()
+      |> get_in(["<OD>", "labels"])
+    end
+  end
+
+  def invoke("lucataco/remove-bg" = model, input_image) do
+    input = %{image: input_image}
+
+    with {:ok, version} <- get_latest_version(model),
+         {:ok, %{"output" => output}} <- create_prediction(version, input) do
+      output
+    end
+  end
+
+  # TODO maybe these should go in AI module?
+  def sketch2img(input_image) do
+    invoke("adirik/t2i-adapter-sdxl-sketch", input_image, "fauvism, matisse, cave painting")
+  end
+
+  def detect_objects(input_image) do
+    invoke("lucataco/florence-2-large", input_image)
+  end
+
+  def remove_bg(input_image) do
+    invoke("lucataco/remove-bg", input_image)
   end
 end
