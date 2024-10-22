@@ -8,8 +8,10 @@ defmodule ImaginativeRestorationWeb.IndexLive do
 
   def render(assigns) do
     ~H"""
-    <div>
-      Imaginative Restoration: Rewilding Division
+    <div class="absolute top-8 right-8">
+      <video id="video" phx-hook="WebcamStream" class="size-[240px] object-cover">
+        Video stream not available.
+      </video>
     </div>
     """
   end
