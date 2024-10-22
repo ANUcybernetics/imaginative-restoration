@@ -4,9 +4,9 @@ TODO copy description from the other `README.md`.
 
 ## TODO
 
+- add rembg model
 - update js hook to screencap and send event to server liveview process
 - draw images on canvas
-- get replicate platform working
 - add "no change to sketch" detection
 - add sketch->processed models, randomise
 - flocking behaviour for sketches
