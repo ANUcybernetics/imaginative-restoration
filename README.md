@@ -7,7 +7,6 @@ TODO copy description from the other `README.md`.
 - update js hook to screencap and send event to server liveview process
 - draw images on canvas
 - get replicate platform working
-- play film on canvas (maybe host in bucket?)
 - add "no change to sketch" detection
 - add sketch->processed models, randomise
 - flocking behaviour for sketches
