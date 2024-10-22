@@ -4,7 +4,7 @@ TODO copy description from the other `README.md`.
 
 ## TODO
 
-- add js hook for capturing webcam (inc. capturing frame and sending event)
+- update js hook to screencap and send event to server liveview process
 - draw images on canvas
 - get replicate platform working
 - play film on canvas (maybe host in bucket?)
