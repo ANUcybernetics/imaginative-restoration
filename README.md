@@ -4,7 +4,7 @@ TODO copy description from the other `README.md`.
 
 ## TODO
 
-- add rembg model
+- set cache control on the video so it's cached
 - update js hook to screencap and send event to server liveview process
 - draw images on canvas
 - add "no change to sketch" detection
