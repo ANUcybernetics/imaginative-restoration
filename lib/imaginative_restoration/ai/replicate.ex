@@ -88,8 +88,9 @@ defmodule ImaginativeRestoration.AI.Replicate do
       prompt: prompt
     }
 
-    with {:ok, version} <- get_latest_version(model) do
-      create_prediction(version, input)
+    with {:ok, version} <- get_latest_version(model),
+         {:ok, %{"output" => [_canny, output]}} <- create_prediction(version, input) do
+      output
     end
   end
 end
