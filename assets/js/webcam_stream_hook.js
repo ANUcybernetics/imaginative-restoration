@@ -4,6 +4,7 @@ const WebcamStreamHook = {
   },
 
   initWebcam() {
+    // TODO this should bomb out if the element isn't a <video>
     const video = this.el;
 
     navigator.mediaDevices
