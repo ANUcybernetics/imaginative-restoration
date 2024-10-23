@@ -2,17 +2,16 @@ const WebcamStreamHook = {
   mounted() {
     this.initWebcam();
   },
-
   initWebcam() {
     // TODO this should bomb out if the element isn't a <video>
     const video = this.el;
 
     navigator.mediaDevices
       .getUserMedia({
-        video: true,
-        // video: {
-        //   deviceId: { exact: "D55838D7F3DC4AACF5F73181A02463CB04516D77" },
-        // },
+        // video: true,
+        video: {
+          deviceId: { exact: "D55838D7F3DC4AACF5F73181A02463CB04516D77" },
+        },
         audio: false,
       })
       .then((stream) => {
@@ -20,25 +19,31 @@ const WebcamStreamHook = {
         // flip video horizontally (useful for normal webcam use, not necessarily for overhead setup)
         // video.style.transform = "scaleX(-1)";
         video.play();
-        this.startFrameCapture(video);
+
+        video.addEventListener("loadedmetadata", () => {
+          // init "frame capture" canvas
+          this.canvas = document.createElement("canvas");
+          this.context = this.canvas.getContext("2d");
+          this.canvas.width = video.videoWidth;
+          this.canvas.height = video.videoHeight;
+
+          // Start frame capture
+          this.captureFrame();
+          setInterval(() => this.captureFrame(), 30_000); // Capture every 30 seconds
+        });
       })
       .catch((error) => {
         console.error("Error accessing the webcam:", error);
       });
   },
 
-  startFrameCapture(video) {
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
+  captureFrame() {
+    const video = this.el;
 
-    setInterval(() => {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    this.context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
 
-      const dataUrl = canvas.toDataURL("image/jpeg");
-      this.pushEvent("webcam_frame", { frame: dataUrl });
-    }, 30_000); // 30 seconds
+    const dataUrl = this.canvas.toDataURL("image/jpeg");
+    this.pushEvent("webcam_frame", { frame: dataUrl });
   },
 };
 
