@@ -3,8 +3,6 @@ defmodule ImaginativeRestoration.AI.Replicate do
   Module for interacting with the Replicate API.
   """
 
-  alias ImaginativeRestoration.AI.JsonFixer
-
   @base_url "https://api.replicate.com/v1"
 
   defp auth_token do
@@ -125,7 +123,8 @@ defmodule ImaginativeRestoration.AI.Replicate do
     with {:ok, version} <- get_latest_version(model),
          {:ok, %{"output" => %{"text" => bad_json}}} <- create_prediction(version, input) do
       bad_json
-      |> JsonFixer.parse_incorrect_json()
+      # required because this model returns invalid json
+      |> String.replace("'", "\"")
       |> get_in(["<OD>", "labels"])
     end
   end
