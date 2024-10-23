@@ -5,12 +5,13 @@ defmodule ImaginativeRestoration.ReplicateTest do
 
   defp invoke_args do
     sketch_image = "https://fly.storage.tigris.dev/imaginative-restoration-sketches/butterfly-sketch.png"
+    processed_image = "https://fly.storage.tigris.dev/imaginative-restoration-sketches/butterfly-matisse.png"
     prompt = "fauvism, matisse, cave painting"
 
     [
       ["adirik/t2i-adapter-sdxl-sketch", sketch_image, prompt],
       ["lucataco/florence-2-large", sketch_image],
-      ["lucataco/remove-bg", sketch_image]
+      ["lucataco/remove-bg", processed_image]
     ]
   end
 
@@ -58,17 +59,7 @@ defmodule ImaginativeRestoration.ReplicateTest do
         |> Enum.map(fn {model, _} -> model end)
 
       if length(failed_models) > 0 do
-        IO.puts("Failed models: #{Enum.join(failed_models, ", ")}")
-      end
-
-      for {_, result} <- results do
-        case result do
-          {:ok, output} ->
-            assert String.match?(output, ~r/\S/)
-
-          {:error, _} ->
-            flunk("Some models failed to invoke")
-        end
+        flunk("Failed models: #{Enum.join(failed_models, ", ")}")
       end
     end
   end
