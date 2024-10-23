@@ -3,6 +3,8 @@ defmodule ImaginativeRestoration.Sketches do
   use Ash.Domain
 
   resources do
-    resource ImaginativeRestoration.Sketches.Sketch
+    resource ImaginativeRestoration.Sketches.Sketch do
+      define :process, args: [:unprocessed]
+    end
   end
 end

@@ -31,19 +31,20 @@ defmodule ImaginativeRestorationWeb.IndexLive do
     {:ok, assign(socket, sketch_dataurl: nil, processed_dataurl: nil)}
   end
 
-  def handle_event("webcam_frame", %{"frame" => frame_data}, socket) do
-    Task.async(fn -> ImaginativeRestoration.AI.process(frame_data) end)
-    {:noreply, assign(socket, sketch_dataurl: frame_data)}
+  def handle_event("webcam_frame", %{"frame" => dataurl}, socket) do
+    Task.start(fn ->
+      result = ImaginativeRestoration.AI.process(dataurl)
+      send(self(), {:processed_frame, result})
+    end)
+
+    {:noreply, assign(socket, sketch_dataurl: dataurl)}
   end
 
-  def handle_info({ref, {:ok, processed_dataurl}}, socket) do
-    # Cancel the monitoring since the task completed successfully
-    Process.demonitor(ref, [:flush])
+  def handle_info({:processed_frame, {:ok, processed_dataurl}}, socket) do
     {:noreply, assign(socket, processed_dataurl: processed_dataurl)}
   end
 
-  def handle_info({:DOWN, _ref, :process, _pid, reason}, socket) do
-    # Handle task failure
+  def handle_info({:processed_frame, {:error, reason}}, socket) do
     IO.puts("Processing failed: #{inspect(reason)}")
     {:noreply, socket}
   end

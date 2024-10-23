@@ -4,6 +4,8 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
     domain: ImaginativeRestoration.Sketches,
     data_layer: AshSqlite.DataLayer
 
+  alias ImaginativeRestoration.AI.Replicate
+
   sqlite do
     table "sketches"
     repo ImaginativeRestoration.Repo
@@ -11,13 +13,55 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
   attributes do
     integer_primary_key :id
-    attribute :prompt, :string, allow_nil?: false
-    attribute :unprocessed, :string, allow_nil?: false
+
+    # unprocessed and processed are image data URLs
+    attribute :unprocessed, :string
     attribute :processed, :string
+
+    # prompt will be calculated based on the image number & the object detected in the sketch
+    # but useful to store it in the resource for later analysis
+    attribute :prompt, :string, allow_nil?: false
+
+    # model is the model used to process the sketch
+    # currently supported models are:
+    #
+    # - adirik/t2i-adapter-sdxl-sketch
+    # - adirik/t2i-adapter-sdxl-canny
+    # - adirik/t2i-adapter-sdxl-lineart
+    # - philz1337x/controlnet-deliberate
+    #
     attribute :model, :string, allow_nil?: false
+
+    # should be set to true if the sketch doesn't show up on the canvas
     attribute :hidden, :boolean, default: false
 
     create_timestamp :inserted_at
     update_timestamp :updated_at
+  end
+
+  actions do
+    create :process do
+      accept [:unprocessed]
+
+      # default model, for now
+      change set_attribute(:model, "adirik/t2i-adapter-sdxl-canny")
+
+      change fn changeset, _context ->
+        unprocessed = changeset.attributes.unprocessed
+        model = changeset.attributes.model
+
+        with {:ok, labels} <- Replicate.invoke("lucataco/florence-2-large", unprocessed),
+             prompt = "colorful #{Enum.join(labels, ", ")} on a white background",
+             {:ok, ai_image} <- Replicate.invoke(model, unprocessed, prompt),
+             {:ok, final_image} <- Replicate.invoke("lucataco/remove-bg", ai_image) do
+          changeset
+          |> Ash.Changeset.force_change_attribute(:prompt, prompt)
+          |> Ash.Changeset.force_change_attribute(:processed, final_image)
+        else
+          _ ->
+            changeset
+        end
+      end
+    end
   end
 end
