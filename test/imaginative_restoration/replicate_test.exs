@@ -11,6 +11,9 @@ defmodule ImaginativeRestoration.ReplicateTest do
 
     [
       ["adirik/t2i-adapter-sdxl-sketch", sketch_image, prompt],
+      ["adirik/t2i-adapter-sdxl-canny", sketch_image, prompt],
+      ["adirik/t2i-adapter-sdxl-lineart", sketch_image, prompt],
+      ["philz1337x/controlnet-deliberate", sketch_image, prompt],
       ["lucataco/florence-2-large", sketch_image],
       ["lucataco/remove-bg", processed_image]
     ]

@@ -114,6 +114,42 @@ defmodule ImaginativeRestoration.AI.Replicate do
     end
   end
 
+  def invoke("adirik/t2i-adapter-sdxl-canny" = model, input_image, prompt) do
+    input = %{
+      image: input_image,
+      prompt: prompt
+    }
+
+    with {:ok, version} <- get_latest_version(model),
+         {:ok, %{"output" => [_canny, output]}} <- create_prediction(version, input) do
+      {:ok, output}
+    end
+  end
+
+  def invoke("adirik/t2i-adapter-sdxl-lineart" = model, input_image, prompt) do
+    input = %{
+      image: input_image,
+      prompt: prompt
+    }
+
+    with {:ok, version} <- get_latest_version(model),
+         {:ok, %{"output" => [_canny, output]}} <- create_prediction(version, input) do
+      {:ok, output}
+    end
+  end
+
+  def invoke("philz1337x/controlnet-deliberate" = model, input_image, prompt) do
+    input = %{
+      image: input_image,
+      prompt: prompt
+    }
+
+    with {:ok, version} <- get_latest_version(model),
+         {:ok, %{"output" => [_canny, output]}} <- create_prediction(version, input) do
+      {:ok, output}
+    end
+  end
+
   def invoke("lucataco/florence-2-large" = model, input_image) do
     input = %{
       image: input_image,
