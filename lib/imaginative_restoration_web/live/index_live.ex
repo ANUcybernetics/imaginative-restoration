@@ -33,8 +33,8 @@ defmodule ImaginativeRestorationWeb.IndexLive do
 
   def handle_event("webcam_frame", %{"frame" => dataurl}, socket) do
     Task.start(fn ->
-      result = ImaginativeRestoration.AI.process(dataurl)
-      send(self(), {:processed_frame, result})
+      {:ok, sketch} = ImaginativeRestoration.Sketches.process(dataurl)
+      send(self(), {:processed_frame, sketch.processed})
     end)
 
     {:noreply, assign(socket, sketch_dataurl: dataurl)}
