@@ -110,7 +110,7 @@ defmodule ImaginativeRestoration.AI.Replicate do
 
     with {:ok, version} <- get_latest_version(model),
          {:ok, %{"output" => [_canny, output]}} <- create_prediction(version, input) do
-      output
+      {:ok, output}
     end
   end
 
@@ -125,7 +125,9 @@ defmodule ImaginativeRestoration.AI.Replicate do
       bad_json
       # required because this model returns invalid json
       |> String.replace("'", "\"")
+      |> Jason.decode!()
       |> get_in(["<OD>", "labels"])
+      |> then(fn labels -> {:ok, labels} end)
     end
   end
 
@@ -134,7 +136,7 @@ defmodule ImaginativeRestoration.AI.Replicate do
 
     with {:ok, version} <- get_latest_version(model),
          {:ok, %{"output" => output}} <- create_prediction(version, input) do
-      output
+      {:ok, output}
     end
   end
 
