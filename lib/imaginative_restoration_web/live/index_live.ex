@@ -19,17 +19,31 @@ defmodule ImaginativeRestorationWeb.IndexLive do
         >
           Video stream not available.
         </video>
-        <img src={@webcam_image_data_url} class="absolute bottom-8 right-8 size-[240px] object-cover" />
+        <img src={@sketch_dataurl} class="absolute bottom-8 right-8 size-[240px] object-cover" />
+        <img src={@processed_dataurl} class="absolute bottom-8 left-8 size-[240px] object-cover" />
       </div>
     </div>
     """
   end
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :webcam_image_data_url, nil)}
+    {:ok, assign(socket, sketch_dataurl: nil, processed_dataurl: nil)}
   end
 
   def handle_event("webcam_frame", %{"frame" => frame_data}, socket) do
-    {:noreply, assign(socket, :webcam_image_data_url, frame_data)}
+    Task.async(fn -> ImaginativeRestoration.AI.process(frame_data) end)
+    {:noreply, assign(socket, sketch_dataurl: frame_data)}
+  end
+
+  def handle_info({ref, {:ok, processed_dataurl}}, socket) do
+    # Cancel the monitoring since the task completed successfully
+    Process.demonitor(ref, [:flush])
+    {:noreply, assign(socket, processed_dataurl: processed_dataurl)}
+  end
+
+  def handle_info({:DOWN, _ref, :process, _pid, reason}, socket) do
+    # Handle task failure
+    IO.puts("Processing failed: #{inspect(reason)}")
+    {:noreply, socket}
   end
 end
