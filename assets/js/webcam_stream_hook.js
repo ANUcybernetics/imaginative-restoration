@@ -8,11 +8,17 @@ const WebcamStreamHook = {
     const video = this.el;
 
     navigator.mediaDevices
-      .getUserMedia({ video: true, audio: false })
+      .getUserMedia({
+        video: true,
+        // video: {
+        //   deviceId: { exact: "D55838D7F3DC4AACF5F73181A02463CB04516D77" },
+        // },
+        audio: false,
+      })
       .then((stream) => {
         video.srcObject = stream;
         // flip video horizontally (useful for normal webcam use, not necessarily for overhead setup)
-        video.style.transform = "scaleX(-1)";
+        // video.style.transform = "scaleX(-1)";
         video.play();
         this.startFrameCapture(video);
       })
