@@ -31,7 +31,7 @@ const WebcamStreamHook = {
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       const dataUrl = canvas.toDataURL("image/jpeg");
-      this.pushEventTo(this.el, "webcam_frame", { frame: dataUrl });
+      this.pushEvent("webcam_frame", { frame: dataUrl });
     }, 30_000); // 30 seconds
   },
 };
