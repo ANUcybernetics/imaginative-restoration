@@ -4,10 +4,10 @@ TODO copy description from the other `README.md`.
 
 ## TODO
 
-- draw images on canvas
 - crop image based on bb before AI-ifying?
 - webp (and compression?) for final images
 - add "no change to sketch" detection
+- maybe ditch Oban, just use Task.async
 - flocking behaviour for sketches
 - add canny filter (client-side?)
 - add animated "capturing" widget for top-right, with countdown and sfx
