@@ -28,6 +28,8 @@ defmodule ImaginativeRestoration.ReplicateTest do
     test "can successfully invoke all Replicate models" do
       tasks =
         for [model | _] = args <- invoke_args() do
+          IO.puts("invoking #{model}...")
+
           Task.async(fn ->
             result = apply(Replicate, :invoke, args)
 
