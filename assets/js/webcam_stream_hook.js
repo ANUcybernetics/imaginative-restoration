@@ -29,7 +29,7 @@ const WebcamStreamHook = {
 
           // Start frame capture
           this.captureFrame();
-          setInterval(() => this.captureFrame(), 30_000); // Capture every 30 seconds
+          setInterval(() => this.captureFrame(), 60_000); // Capture every 60 seconds
         });
       })
       .catch((error) => {
