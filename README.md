@@ -7,6 +7,8 @@ TODO copy description from the other `README.md`.
 - set cache control on the video so it's cached
 - update js hook to screencap and send event to server liveview process
 - draw images on canvas
+- crop image based on bb before AI-ifying?
+- webp (and compression?) for final images
 - add "no change to sketch" detection
 - add sketch->processed models, randomise
 - flocking behaviour for sketches
