@@ -1,6 +1,7 @@
 defmodule ImaginativeRestoration.ReplicateTest do
   use ImaginativeRestoration.DataCase
 
+  alias ImaginativeRestoration.AI
   alias ImaginativeRestoration.AI.Replicate
 
   defp invoke_args do
@@ -23,6 +24,13 @@ defmodule ImaginativeRestoration.ReplicateTest do
         assert {:ok, version} = Replicate.get_latest_version(model)
         assert String.match?(version, ~r/^[a-f0-9]{64}$/)
       end
+    end
+
+    test "can run the whole processing pipeline" do
+      sketch_image = "https://fly.storage.tigris.dev/imaginative-restoration-sketches/butterfly-sketch.png"
+
+      {:ok, output} = AI.process(sketch_image)
+      IO.puts("input: #{sketch_image}\noutput: #{output}\n")
     end
 
     # @tag skip: true

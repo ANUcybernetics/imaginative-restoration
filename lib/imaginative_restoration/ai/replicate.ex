@@ -139,17 +139,4 @@ defmodule ImaginativeRestoration.AI.Replicate do
       {:ok, output}
     end
   end
-
-  # TODO maybe these should go in AI module?
-  def sketch2img(input_image) do
-    invoke("adirik/t2i-adapter-sdxl-sketch", input_image, "fauvism, matisse, cave painting")
-  end
-
-  def detect_objects(input_image) do
-    invoke("lucataco/florence-2-large", input_image)
-  end
-
-  def remove_bg(input_image) do
-    invoke("lucataco/remove-bg", input_image)
-  end
 end
