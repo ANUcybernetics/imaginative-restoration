@@ -17,7 +17,7 @@ defmodule ImaginativeRestoration.AI do
 
   def process(input_image) do
     with {:ok, labels} <- detect_objects(input_image),
-         prompt = Enum.join(labels, ", ") <> "in the style of fauvism, matisse",
+         prompt = "colorful #{Enum.join(labels, ", ")} on a white background",
          {:ok, ai_image} <- sketch2img(input_image, prompt) do
       remove_bg(ai_image)
     end
