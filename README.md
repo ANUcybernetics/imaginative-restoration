@@ -14,7 +14,6 @@ TODO copy description from the other `README.md`.
 - flocking behaviour for sketches
 - add canny filter (client-side?)
 - add animated "capturing" widget for top-right, with countdown and sfx
-- basic auth
 - deploy to fly.io
 - rename old `main` branch to `jetson`, move `web` branch to `main` (maybe
   rebase? but probs not)
