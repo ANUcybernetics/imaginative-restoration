@@ -29,7 +29,6 @@ defmodule ImaginativeRestorationWeb.IndexLive do
   end
 
   def handle_event("webcam_frame", %{"frame" => frame_data}, socket) do
-    dbg()
     first_64_bytes = binary_part(frame_data, 0, min(64, byte_size(frame_data)))
     IO.puts("First 64 bytes of frame: #{inspect(first_64_bytes, limit: :infinity)}")
 
