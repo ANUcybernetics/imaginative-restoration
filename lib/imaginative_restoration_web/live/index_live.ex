@@ -2,6 +2,8 @@ defmodule ImaginativeRestorationWeb.IndexLive do
   @moduledoc false
   use ImaginativeRestorationWeb, :live_view
 
+  require Logger
+
   def render(assigns) do
     ~H"""
     <div class=" flex items-center justify-center h-full">
@@ -45,7 +47,7 @@ defmodule ImaginativeRestorationWeb.IndexLive do
   end
 
   def handle_info({:processed_frame, {:error, reason}}, socket) do
-    IO.puts("Processing failed: #{inspect(reason)}")
+    Logger.warning("Processing failed: #{inspect(reason)}")
     {:noreply, socket}
   end
 end
