@@ -19,20 +19,17 @@ defmodule ImaginativeRestorationWeb.IndexLive do
         >
           Video stream not available.
         </video>
+        <img src={@webcam_image_data_url} class="absolute bottom-8 right-8 size-[240px] object-cover" />
       </div>
     </div>
     """
   end
 
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    {:ok, assign(socket, :webcam_image_data_url, nil)}
   end
 
   def handle_event("webcam_frame", %{"frame" => frame_data}, socket) do
-    first_64_bytes = binary_part(frame_data, 0, min(64, byte_size(frame_data)))
-    IO.puts("First 64 bytes of frame: #{inspect(first_64_bytes, limit: :infinity)}")
-
-    IO.puts("Received webcam frame")
-    {:noreply, socket}
+    {:noreply, assign(socket, :webcam_image_data_url, frame_data)}
   end
 end
