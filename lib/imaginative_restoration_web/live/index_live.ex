@@ -15,6 +15,7 @@ defmodule ImaginativeRestorationWeb.IndexLive do
         <video
           id="video"
           phx-hook="WebcamStream"
+          phx-data-capture-size="512"
           class="absolute top-8 right-8 size-[240px] object-cover"
         >
           Video stream not available.

@@ -36,11 +36,27 @@ const WebcamStreamHook = {
         console.error("Error accessing the webcam:", error);
       });
   },
-
   captureFrame() {
     const video = this.el;
+    const captureSize = this.canvas.width;
 
-    this.context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+    // Calculate the size and position for cropping
+    const videoSize = Math.min(video.videoWidth, video.videoHeight);
+    const startX = (video.videoWidth - videoSize) / 2;
+    const startY = (video.videoHeight - videoSize) / 2;
+
+    // Draw the current video frame to the canvas, cropping to square and resizing
+    this.context.drawImage(
+      video,
+      startX,
+      startY,
+      videoSize,
+      videoSize,
+      0,
+      0,
+      captureSize,
+      captureSize,
+    );
 
     const dataUrl = this.canvas.toDataURL("image/jpeg");
     this.pushEvent("webcam_frame", { frame: dataUrl });

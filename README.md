@@ -4,7 +4,6 @@ TODO copy description from the other `README.md`.
 
 ## TODO
 
-- crop image based on bb before AI-ifying?
 - webp (and compression?) for final images
 - add "no change to sketch" detection
 - maybe ditch Oban, just use Task.async
@@ -17,6 +16,7 @@ TODO copy description from the other `README.md`.
 
 - read-only views (for outside the grotto)
 - scheduler (i.e. only run during business hours)
+- crop image based on bb before AI-ifying? probably not, though
 
 ## nomenclature
 
