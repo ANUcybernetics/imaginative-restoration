@@ -4,8 +4,6 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
     domain: ImaginativeRestoration.Sketches,
     data_layer: AshSqlite.DataLayer
 
-  alias ImaginativeRestoration.AI.Replicate
-
   sqlite do
     table "sketches"
     repo ImaginativeRestoration.Repo
@@ -45,23 +43,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
       # default model, for now
       change set_attribute(:model, "adirik/t2i-adapter-sdxl-canny")
-
-      change fn changeset, _context ->
-        unprocessed = changeset.attributes.unprocessed
-        model = changeset.attributes.model
-
-        with {:ok, labels} <- Replicate.invoke("lucataco/florence-2-large", unprocessed),
-             prompt = "colorful #{Enum.join(labels, ", ")} on a white background",
-             {:ok, ai_image} <- Replicate.invoke(model, unprocessed, prompt),
-             {:ok, final_image} <- Replicate.invoke("lucataco/remove-bg", ai_image) do
-          changeset
-          |> Ash.Changeset.force_change_attribute(:prompt, prompt)
-          |> Ash.Changeset.force_change_attribute(:processed, final_image)
-        else
-          _ ->
-            changeset
-        end
-      end
+      change ImaginativeRestoration.Changes.Process
     end
   end
 end
