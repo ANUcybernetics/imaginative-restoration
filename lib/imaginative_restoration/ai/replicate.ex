@@ -105,7 +105,10 @@ defmodule ImaginativeRestoration.AI.Replicate do
   def invoke("adirik/t2i-adapter-sdxl-sketch" = model, input_image, prompt) do
     input = %{
       image: input_image,
-      prompt: prompt
+      prompt: prompt,
+      negative_prompt:
+        "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured, caption, signature, background illustration, poster",
+      adapter_conditioning_scale: 0.7
     }
 
     with {:ok, version} <- get_latest_version(model),
@@ -117,7 +120,10 @@ defmodule ImaginativeRestoration.AI.Replicate do
   def invoke("adirik/t2i-adapter-sdxl-canny" = model, input_image, prompt) do
     input = %{
       image: input_image,
-      prompt: prompt
+      prompt: prompt,
+      negative_prompt:
+        "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured, caption, signature, background illustration, poster",
+      adapter_conditioning_scale: 0.7
     }
 
     with {:ok, version} <- get_latest_version(model),
@@ -129,7 +135,10 @@ defmodule ImaginativeRestoration.AI.Replicate do
   def invoke("adirik/t2i-adapter-sdxl-lineart" = model, input_image, prompt) do
     input = %{
       image: input_image,
-      prompt: prompt
+      prompt: prompt,
+      negative_prompt:
+        "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured, caption, signature, background illustration, poster",
+      adapter_conditioning_scale: 0.7
     }
 
     with {:ok, version} <- get_latest_version(model),
@@ -141,7 +150,10 @@ defmodule ImaginativeRestoration.AI.Replicate do
   def invoke("philz1337x/controlnet-deliberate" = model, input_image, prompt) do
     input = %{
       image: input_image,
-      prompt: prompt
+      prompt: prompt,
+      negative_prompt:
+        "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured, caption, signature, background illustration, poster",
+      adapter_conditioning_scale: 0.7
     }
 
     with {:ok, version} <- get_latest_version(model),
