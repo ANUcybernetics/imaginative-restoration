@@ -12,10 +12,10 @@ defmodule ImaginativeRestoration.SketchTest do
       assert "adirik/t2i-adapter-sdxl" <> _ = sketch.model
       refute is_nil(sketch.id)
 
-      assert {:ok, processed} = ImaginativeRestoration.Sketches.process(sketch)
-      assert "adirik/t2i-adapter-sdxl" <> _ = processed.model
-      refute is_nil(processed.processed)
-      refute is_nil(processed.prompt)
+      assert {:ok, processed_sketch} = ImaginativeRestoration.Sketches.process(sketch)
+      assert "adirik/t2i-adapter-sdxl" <> _ = processed_sketch.model
+      assert String.starts_with?(processed_sketch.processed, "data:image/webp;base64,")
+      refute is_nil(processed_sketch.prompt)
     end
   end
 end
