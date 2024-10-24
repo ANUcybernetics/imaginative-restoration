@@ -25,10 +25,10 @@ const WebcamStreamHook = {
 
     navigator.mediaDevices
       .getUserMedia({
-        // video: true,
-        video: {
-          deviceId: { exact: "FEE05D276A4E5EE14B285F75B41830FE1F5BEB7A" },
-        },
+        video: true,
+        // video: {
+        //   deviceId: { exact: "FEE05D276A4E5EE14B285F75B41830FE1F5BEB7A" },
+        // },
         audio: false,
       })
       .then((stream) => {
