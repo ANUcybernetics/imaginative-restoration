@@ -1,6 +1,23 @@
 const WebcamStreamHook = {
   mounted() {
+    this.logDevices();
     this.initWebcam();
+  },
+  logDevices() {
+    navigator.mediaDevices
+      .enumerateDevices()
+      .then((devices) => {
+        devices.forEach((device) => {
+          if (device.kind === "videoinput") {
+            console.log(
+              `Camera Name: ${device.label}, Device ID: ${device.deviceId}`,
+            );
+          }
+        });
+      })
+      .catch((error) => {
+        console.error("Error getting devices:", error);
+      });
   },
   initWebcam() {
     // TODO this should bomb out if the element isn't a <video>
@@ -8,10 +25,10 @@ const WebcamStreamHook = {
 
     navigator.mediaDevices
       .getUserMedia({
-        video: true,
-        // video: {
-        //   deviceId: { exact: "D55838D7F3DC4AACF5F73181A02463CB04516D77" },
-        // },
+        // video: true,
+        video: {
+          deviceId: { exact: "FEE05D276A4E5EE14B285F75B41830FE1F5BEB7A" },
+        },
         audio: false,
       })
       .then((stream) => {
