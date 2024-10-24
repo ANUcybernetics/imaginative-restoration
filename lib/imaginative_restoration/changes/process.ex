@@ -10,7 +10,8 @@ defmodule ImaginativeRestoration.Changes.Process do
     model = changeset.attributes.model
 
     with {:ok, labels} <- Replicate.invoke("lucataco/florence-2-large", unprocessed),
-         prompt = "colorful #{Enum.join(labels, ", ")} on a white background",
+         prompt =
+           "1950s scientific illustration of a lone #{List.first(labels)}, isolated against a plain white background",
          {:ok, ai_image} <- Replicate.invoke(model, unprocessed, prompt),
          {:ok, final_image} <- Replicate.invoke("lucataco/remove-bg", ai_image) do
       changeset
