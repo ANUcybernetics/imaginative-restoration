@@ -20,6 +20,11 @@ TODO copy description from the other `README.md`.
 - rename old `main` branch to `jetson`, move `web` branch to `main` (maybe
   rebase? but probs not)
 
+- nice feedback for:
+
+  - camera not working
+  - processing pipeline failed
+
 - read-only views (for outside the grotto)
 - scheduler (i.e. only run during business hours)
 - crop image based on bb before AI-ifying? probably not, though
