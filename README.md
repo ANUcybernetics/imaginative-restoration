@@ -4,18 +4,17 @@ TODO copy description from the other `README.md`.
 
 ## TODO
 
-- put all images (camera feed, current unprocessed/processed) in a single
-  container
+- when storing processed/unprocessed images, store them as data URLs
 - add a "processing" indicator, or something to indicate when the pipeline is
   complete (maybe need to use the actual Sketch object in assigns)
-- when storing processed/unprocessed images, store them as data URLs
 - check whether the webcam image cropping is actually working
+- add "raw", "cropped" and "processed" image views (check need for squareness)
+- trigger the webcam capture from the server (maybe?)
 - use the florence BB (the first BB one) to crop (and maybe draw that in the
   pipeline indicator too, with label)
 - add "no change to sketch" detection
 - flocking behaviour for sketches
 - fade from bg to colour
-- add canny filter (client-side?)
 - add animated capture widget with countdown, sfx, and "processing pipeline"
   indicator
 - deploy to fly.io
@@ -30,8 +29,8 @@ TODO copy description from the other `README.md`.
   - processing pipeline failed
 
 - read-only views (for outside the grotto)
+- add canny filter (client-side?)
 - scheduler (i.e. only run during business hours)
-- crop image based on bb before AI-ifying? probably not, though
 
 ## nomenclature
 
