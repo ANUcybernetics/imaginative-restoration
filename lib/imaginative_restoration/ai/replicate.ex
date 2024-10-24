@@ -102,37 +102,7 @@ defmodule ImaginativeRestoration.AI.Replicate do
   end
 
   ## here are the model-specific invocations (no need to have a separate module, just pattern match on the model name)
-  def invoke("adirik/t2i-adapter-sdxl-sketch" = model, input_image, prompt) do
-    input = %{
-      image: input_image,
-      prompt: prompt,
-      negative_prompt:
-        "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured, caption, signature, background illustration, poster",
-      adapter_conditioning_scale: 0.7
-    }
-
-    with {:ok, version} <- get_latest_version(model),
-         {:ok, %{"output" => [_canny, output]}} <- create_prediction(version, input) do
-      {:ok, output}
-    end
-  end
-
-  def invoke("adirik/t2i-adapter-sdxl-canny" = model, input_image, prompt) do
-    input = %{
-      image: input_image,
-      prompt: prompt,
-      negative_prompt:
-        "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured, caption, signature, background illustration, poster",
-      adapter_conditioning_scale: 0.7
-    }
-
-    with {:ok, version} <- get_latest_version(model),
-         {:ok, %{"output" => [_canny, output]}} <- create_prediction(version, input) do
-      {:ok, output}
-    end
-  end
-
-  def invoke("adirik/t2i-adapter-sdxl-lineart" = model, input_image, prompt) do
+  def invoke("adirik/t2i-adapter-sdxl" <> _ = model, input_image, prompt) do
     input = %{
       image: input_image,
       prompt: prompt,
@@ -150,10 +120,7 @@ defmodule ImaginativeRestoration.AI.Replicate do
   def invoke("philz1337x/controlnet-deliberate" = model, input_image, prompt) do
     input = %{
       image: input_image,
-      prompt: prompt,
-      negative_prompt:
-        "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured, caption, signature, background illustration, poster",
-      adapter_conditioning_scale: 0.7
+      prompt: prompt
     }
 
     with {:ok, version} <- get_latest_version(model),
