@@ -1,7 +1,6 @@
 defmodule ImaginativeRestoration.ReplicateTest do
   use ImaginativeRestoration.DataCase
 
-  alias ImaginativeRestoration.AI
   alias ImaginativeRestoration.AI.Replicate
 
   defp invoke_args do
