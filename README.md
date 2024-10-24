@@ -4,6 +4,10 @@ TODO copy description from the other `README.md`.
 
 ## TODO
 
+- put all images (camera feed, current unprocessed/processed) in a single
+  container
+- add a "processing" indicator, or something to indicate when the pipeline is
+  complete (maybe need to use the actual Sketch object in assigns)
 - when storing processed/unprocessed images, store them as data URLs
 - check whether the webcam image cropping is actually working
 - use the florence BB (the first BB one) to crop (and maybe draw that in the
