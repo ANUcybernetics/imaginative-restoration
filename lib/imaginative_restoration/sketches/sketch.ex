@@ -44,7 +44,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
       accept [:unprocessed]
 
       # default model, for now
-      change set_attribute(:model, "adirik/t2i-adapter-sdxl-canny")
+      change set_attribute(:model, "adirik/t2i-adapter-sdxl-sketch")
       change ImaginativeRestoration.Changes.Process
     end
   end
