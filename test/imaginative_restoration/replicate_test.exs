@@ -29,13 +29,6 @@ defmodule ImaginativeRestoration.ReplicateTest do
       end
     end
 
-    test "can run the whole processing pipeline" do
-      sketch_image = "https://fly.storage.tigris.dev/imaginative-restoration-sketches/butterfly-sketch.png"
-
-      {:ok, output} = AI.process(sketch_image)
-      IO.puts("input: #{sketch_image}\noutput: #{output}\n")
-    end
-
     # @tag skip: true
     test "can successfully invoke all Replicate models" do
       tasks =
