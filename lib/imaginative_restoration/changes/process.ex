@@ -7,13 +7,13 @@ defmodule ImaginativeRestoration.Changes.Process do
 
   @impl true
   def change(changeset, _opts, _context) do
-    unprocessed = changeset.data.unprocessed
+    raw = changeset.data.raw
     model = changeset.data.model
 
-    with {:ok, labels} <- Replicate.invoke("lucataco/florence-2-large", unprocessed),
+    with {:ok, labels} <- Replicate.invoke("lucataco/florence-2-large", raw),
          prompt =
            "1950s scientific illustration of a lone #{List.first(labels)}, isolated against a plain white background",
-         {:ok, ai_image} <- Replicate.invoke(model, unprocessed, prompt),
+         {:ok, ai_image} <- Replicate.invoke(model, raw, prompt),
          {:ok, final_image_url} <- Replicate.invoke("lucataco/remove-bg", ai_image) do
       final_image_dataurl = Utils.download_to_webp_dataurl(final_image_url)
 

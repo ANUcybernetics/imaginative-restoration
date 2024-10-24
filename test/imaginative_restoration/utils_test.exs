@@ -5,7 +5,7 @@ defmodule ImaginativeRestoration.UtilsTest do
 
   describe "png data URL" do
     test "can be converted to webp data URL" do
-      # unprocessed = ImaginativeRestoration.Fixtures.sketch_dataurl()
+      # raw = ImaginativeRestoration.Fixtures.sketch_dataurl()
       sketch_url = "https://fly.storage.tigris.dev/imaginative-restoration-sketches/bird-flight-sketch.png"
 
       result = Utils.download_to_webp_dataurl(sketch_url)

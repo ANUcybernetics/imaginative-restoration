@@ -4,7 +4,7 @@ defmodule ImaginativeRestoration.Sketches do
 
   resources do
     resource ImaginativeRestoration.Sketches.Sketch do
-      define :init, args: [:unprocessed]
+      define :init, args: [:raw]
       define :process
     end
   end

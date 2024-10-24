@@ -5,10 +5,10 @@ defmodule ImaginativeRestoration.SketchTest do
     @describetag timeout: :timer.minutes(10)
 
     test "can be created and processed (inc. processing on Replicate)" do
-      unprocessed = ImaginativeRestoration.Fixtures.sketch_dataurl()
+      raw = ImaginativeRestoration.Fixtures.sketch_dataurl()
 
-      assert {:ok, sketch} = ImaginativeRestoration.Sketches.init(unprocessed)
-      assert sketch.unprocessed == unprocessed
+      assert {:ok, sketch} = ImaginativeRestoration.Sketches.init(raw)
+      assert sketch.raw == raw
       assert "adirik/t2i-adapter-sdxl" <> _ = sketch.model
       refute is_nil(sketch.id)
 

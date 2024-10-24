@@ -12,8 +12,9 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
   attributes do
     integer_primary_key :id
 
-    # unprocessed and processed are image data URLs
-    attribute :unprocessed, :string, allow_nil?: false
+    # these are all image data URLs (webp)
+    attribute :raw, :string, allow_nil?: false
+    attribute :cropped, :string
     attribute :processed, :string
 
     # prompt will be calculated based on the image number & the object detected in the sketch
@@ -41,19 +42,19 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
     defaults [:read]
 
     create :init do
-      accept [:unprocessed]
+      accept [:raw]
 
       # default model, for now
       change set_attribute(:model, "adirik/t2i-adapter-sdxl-sketch")
     end
 
     update :process do
-      # No attributes needed - will process the sketch's existing unprocessed image
+      # No attributes needed - will process the sketch's existing raw image
 
-      # Validate that we have an unprocessed image to work with
+      # Validate that we have an raw image to work with
       validate fn changeset, _context ->
-        case Ash.Changeset.get_attribute(changeset, :unprocessed) do
-          nil -> {:error, unprocessed: "cannot process without an unprocessed image"}
+        case Ash.Changeset.get_attribute(changeset, :raw) do
+          nil -> {:error, raw: "cannot process without an raw image"}
           _ -> :ok
         end
       end

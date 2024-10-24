@@ -4,7 +4,7 @@ TODO copy description from the other `README.md`.
 
 ## TODO
 
-- when storing processed/unprocessed images, store them as data URLs
+- when storing processed/raw images, store them as data URLs
 - add a "processing" indicator, or something to indicate when the pipeline is
   complete (maybe need to use the actual Sketch object in assigns)
 - check whether the webcam image cropping is actually working
@@ -34,5 +34,5 @@ TODO copy description from the other `README.md`.
 
 ## nomenclature
 
-- each image is a sketch (unprocessed or processed)
+- each image is a sketch (raw or processed)
 - the video area is the canvas

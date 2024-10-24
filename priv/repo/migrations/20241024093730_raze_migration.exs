@@ -1,4 +1,4 @@
-defmodule ImaginativeRestoration.Repo.Migrations.MigrateResources1 do
+defmodule ImaginativeRestoration.Repo.Migrations.RazeMigration do
   @moduledoc """
   Updates resources based on their most recent snapshots.
 
@@ -15,7 +15,8 @@ defmodule ImaginativeRestoration.Repo.Migrations.MigrateResources1 do
       add :model, :text, null: false
       add :prompt, :text
       add :processed, :text
-      add :unprocessed, :text, null: false
+      add :cropped, :text
+      add :raw, :text, null: false
       add :id, :bigserial, null: false, primary_key: true
     end
   end

@@ -24,7 +24,7 @@ defmodule ImaginativeRestorationWeb.IndexLive do
           >
             Video stream not available.
           </video>
-          <img :if={@sketch} src={@sketch.unprocessed} class="size-[240px] object-cover" />
+          <img :if={@sketch} src={@sketch.raw} class="size-[240px] object-cover" />
           <img :if={@sketch} src={@sketch.processed} class="size-[240px] object-cover" />
         </div>
       </div>
