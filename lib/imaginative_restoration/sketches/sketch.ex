@@ -38,6 +38,8 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
   end
 
   actions do
+    defaults [:read]
+
     create :process do
       accept [:unprocessed]
 
