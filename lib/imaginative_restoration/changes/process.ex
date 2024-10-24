@@ -6,8 +6,8 @@ defmodule ImaginativeRestoration.Changes.Process do
 
   @impl true
   def change(changeset, _opts, _context) do
-    unprocessed = changeset.attributes.unprocessed
-    model = changeset.attributes.model
+    unprocessed = changeset.data.unprocessed
+    model = changeset.data.model
 
     with {:ok, labels} <- Replicate.invoke("lucataco/florence-2-large", unprocessed),
          prompt =

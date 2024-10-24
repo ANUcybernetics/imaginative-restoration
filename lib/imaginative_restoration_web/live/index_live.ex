@@ -23,8 +23,8 @@ defmodule ImaginativeRestorationWeb.IndexLive do
         >
           Video stream not available.
         </video>
-        <img src={@sketch_dataurl} class="absolute bottom-8 right-8 size-[240px] object-cover" />
-        <img src={@processed_dataurl} class="absolute bottom-8 left-8 size-[240px] object-cover" />
+        <img src={@sketch.unprocessed} class="absolute bottom-8 right-8 size-[240px] object-cover" />
+        <img src={@processed.processed} class="absolute bottom-8 left-8 size-[240px] object-cover" />
       </div>
     </div>
     """
@@ -32,29 +32,26 @@ defmodule ImaginativeRestorationWeb.IndexLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, sketch_dataurl: nil, processed_dataurl: nil)}
+    {:ok, assign(socket, sketch: nil)}
   end
 
   @impl true
   def handle_event("webcam_frame", %{"frame" => dataurl}, socket) do
     pid = self()
 
+    # spawn the task which will communicate back to self() via :update_sketch messages
     Task.start(fn ->
-      {:ok, sketch} = ImaginativeRestoration.Sketches.process(dataurl)
-      send(pid, {:processed_frame, {:ok, sketch.processed}})
+      sketch = ImaginativeRestoration.Sketches.init!(dataurl)
+      send(pid, {:update_sketch, sketch})
+      sketch = ImaginativeRestoration.Sketches.process!(sketch)
+      send(pid, {:update_sketch, sketch})
     end)
 
-    {:noreply, assign(socket, sketch_dataurl: dataurl)}
-  end
-
-  @impl true
-  def handle_info({:processed_frame, {:ok, processed_dataurl}}, socket) do
-    {:noreply, assign(socket, processed_dataurl: processed_dataurl)}
-  end
-
-  @impl true
-  def handle_info({:processed_frame, {:error, reason}}, socket) do
-    Logger.warning("Processing failed: #{inspect(reason)}")
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:update_sketch, sketch}, socket) do
+    {:noreply, assign(socket, sketch: sketch)}
   end
 end
