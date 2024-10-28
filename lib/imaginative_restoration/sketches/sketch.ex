@@ -21,6 +21,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
     # prompt will be calculated based on the image number & the object detected in the sketch
     # but useful to store it in the resource for later analysis
+    attribute :label, :string
     attribute :prompt, :string
 
     # model is the model used to process the sketch
