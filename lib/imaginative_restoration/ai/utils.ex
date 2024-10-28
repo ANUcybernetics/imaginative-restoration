@@ -1,6 +1,8 @@
 defmodule ImaginativeRestoration.AI.Utils do
   @moduledoc false
 
+  def to_image!(%Vix.Vips.Image{} = image), do: image
+
   def to_image!("http" <> _ = url) do
     url
     |> Req.get!()
