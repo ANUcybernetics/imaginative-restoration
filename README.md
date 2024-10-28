@@ -49,8 +49,6 @@ MIT
 
 ## TODO
 
-- add a "processing" indicator, or something to indicate when the pipeline is
-  complete (maybe need to use the actual Sketch object in assigns)
 - trigger the webcam capture from the server (maybe?)
 - handle any HTTP errors from Replicate
 - add "no change to sketch" detection
