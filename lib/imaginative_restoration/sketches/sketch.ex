@@ -4,6 +4,8 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
     domain: ImaginativeRestoration.Sketches,
     data_layer: AshSqlite.DataLayer
 
+  alias ImaginativeRestoration.AI.Pipeline
+
   sqlite do
     table "sketches"
     repo ImaginativeRestoration.Repo
@@ -46,6 +48,8 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
       # default model, for now
       change set_attribute(:model, "adirik/t2i-adapter-sdxl-sketch")
+
+      change {Pipeline, stage: :crop_and_set_prompt}
     end
 
     update :process do
@@ -59,7 +63,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
         end
       end
 
-      change ImaginativeRestoration.Changes.Process
+      change {Pipeline, stage: :process}
     end
   end
 end

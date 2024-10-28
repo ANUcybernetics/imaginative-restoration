@@ -137,12 +137,17 @@ defmodule ImaginativeRestoration.AI.Replicate do
 
     with {:ok, version} <- get_latest_version(model),
          {:ok, %{"output" => %{"text" => bad_json}}} <- create_prediction(version, input) do
-      bad_json
-      # required because this model returns invalid json
-      |> String.replace("'", "\"")
-      |> Jason.decode!()
-      |> get_in(["<OD>", "labels"])
-      |> then(fn labels -> {:ok, labels} end)
+      body =
+        bad_json
+        # some pre-processing required because this model returns invalid json
+        |> String.replace("'", "\"")
+        |> Jason.decode!()
+        |> Map.fetch!("<OD>")
+
+      label = List.first(body["labels"])
+      [x1, y1, x2, y2] = body["bboxes"] |> List.first() |> Enum.map(&round/1)
+
+      {:ok, {label, [x1, y1, x2 - x1, y2 - y1]}}
     end
   end
 
