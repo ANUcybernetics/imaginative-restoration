@@ -7,8 +7,8 @@ defmodule ImaginativeRestorationWeb.IndexLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class=" flex items-center justify-center h-full">
-      <div class="relative w-full max-w-[calc(100vh*4/3)] aspect-[4/3]">
+    <div class="relative flex items-center justify-center h-full">
+      <div class="w-full max-w-[calc(100vh*4/3)] aspect-[4/3]">
         <video autoplay loop muted class="w-full h-full object-contain">
           <source
             src="https://fly.storage.tigris.dev/imaginative-restoration-sketches/IMGRES_FirstRoughEdit_V1.0_DH_11.09.24.mp4"
@@ -25,9 +25,9 @@ defmodule ImaginativeRestorationWeb.IndexLive do
           >
             Video stream not available.
           </video>
-          <img :if={@sketch} src={@sketch.raw} class="size-[240px] object-cover" />
-          <img :if={@sketch} src={@sketch.cropped} class="size-[240px] object-contain" />
-          <img :if={@sketch} src={@sketch.processed} class="size-[240px] object-cover" />
+          <img :if={@sketch} src={@sketch.raw} class="size-[200px] object-cover" />
+          <img :if={@sketch} src={@sketch.cropped} class="size-[200px] object-contain" />
+          <img :if={@sketch} src={@sketch.processed} class="size-[200px] object-cover" />
         </div>
       </div>
     </div>
@@ -47,8 +47,8 @@ defmodule ImaginativeRestorationWeb.IndexLive do
     Task.start(fn ->
       sketch = ImaginativeRestoration.Sketches.init!(dataurl)
       send(pid, {:update_sketch, sketch})
-      sketch = ImaginativeRestoration.Sketches.process!(sketch)
-      send(pid, {:update_sketch, sketch})
+      # sketch = ImaginativeRestoration.Sketches.process!(sketch)
+      # send(pid, {:update_sketch, sketch})
     end)
 
     {:noreply, socket}
