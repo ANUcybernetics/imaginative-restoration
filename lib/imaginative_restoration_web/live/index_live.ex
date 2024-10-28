@@ -16,12 +16,7 @@ defmodule ImaginativeRestorationWeb.IndexLive do
           /> Your browser does not support the video tag.
         </video>
         <div class="absolute top-8 left-8 flex gap-8">
-          <video
-            id="video"
-            phx-hook="WebcamStream"
-            phx-data-capture-size="512"
-            phx-data-capture-interval="60000"
-          >
+          <video id="video" phx-hook="WebcamStream" data-capture-interval="60000">
             Video stream not available.
           </video>
           <img :if={@sketch} src={@sketch.raw} class="object-contain" />
