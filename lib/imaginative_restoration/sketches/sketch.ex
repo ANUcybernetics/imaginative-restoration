@@ -47,7 +47,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
       accept [:raw]
 
       # default model, for now
-      change set_attribute(:model, "adirik/t2i-adapter-sdxl-sketch")
+      change set_attribute(:model, "adirik/t2i-adapter-sdxl-canny")
 
       change {Pipeline, stage: :crop_and_set_prompt}
     end
