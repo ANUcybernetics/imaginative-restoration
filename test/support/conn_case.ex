@@ -20,6 +20,7 @@ defmodule ImaginativeRestorationWeb.ConnCase do
   using do
     quote do
       use ImaginativeRestorationWeb, :verified_routes
+
       import ImaginativeRestorationWeb.ConnCase
       import Phoenix.ConnTest
       import Plug.Conn
