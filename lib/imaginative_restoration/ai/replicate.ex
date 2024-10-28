@@ -144,10 +144,17 @@ defmodule ImaginativeRestoration.AI.Replicate do
         |> Jason.decode!()
         |> Map.fetch!("<OD>")
 
-      label = List.first(body["labels"])
-      [x1, y1, x2, y2] = body["bboxes"] |> List.first() |> Enum.map(&round/1)
+      # zip the bounding boxes and labels together
+      objects =
+        body["labels"]
+        |> Enum.zip(body["bboxes"])
+        # use the x, y, width, height format
+        |> Enum.map(fn {label, [x1, y1, x2, y2]} -> {label, Enum.map([x1, y1, x2 - x1, y2 - y1], &round/1)} end)
+        # sort by area (largest first)
+        |> Enum.sort_by(fn {_, [_, _, w, h]} -> w * h end, :desc)
 
-      {:ok, {label, [x1, y1, x2 - x1, y2 - y1]}}
+      # return the largest object
+      {:ok, List.first(objects)}
     end
   end
 
