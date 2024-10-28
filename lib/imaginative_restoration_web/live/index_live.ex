@@ -26,7 +26,12 @@ defmodule ImaginativeRestorationWeb.IndexLive do
             Video stream not available.
           </video>
           <img :if={@sketch} src={@sketch.raw} class="size-[200px] object-cover" />
-          <img :if={@sketch} src={@sketch.cropped} class="size-[200px] object-contain" />
+          <div :if={@sketch} class="relative">
+            <img src={@sketch.cropped} class="size-[200px] object-contain" />
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="text-black text-lg font-bold"><%= @sketch.label %></span>
+            </div>
+          </div>
           <img :if={@sketch} src={@sketch.processed} class="size-[200px] object-cover" />
         </div>
       </div>
@@ -47,8 +52,8 @@ defmodule ImaginativeRestorationWeb.IndexLive do
     Task.start(fn ->
       sketch = ImaginativeRestoration.Sketches.init!(dataurl)
       send(pid, {:update_sketch, sketch})
-      # sketch = ImaginativeRestoration.Sketches.process!(sketch)
-      # send(pid, {:update_sketch, sketch})
+      sketch = ImaginativeRestoration.Sketches.process!(sketch)
+      send(pid, {:update_sketch, sketch})
     end)
 
     {:noreply, socket}

@@ -30,6 +30,7 @@ defmodule ImaginativeRestoration.AI.Pipeline do
             cropped = raw |> Utils.crop!(x, y, w, h) |> Utils.to_dataurl!()
 
             changeset
+            |> Ash.Changeset.force_change_attribute(:label, label)
             |> Ash.Changeset.force_change_attribute(:prompt, prompt)
             |> Ash.Changeset.force_change_attribute(:cropped, cropped)
 
