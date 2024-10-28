@@ -1,5 +1,7 @@
 const WebcamStreamHook = {
   mounted() {
+    this.captureInterval = parseInt(this.el.dataset.captureInterval) || 60000;
+
     this.logDevices();
     this.initWebcam();
   },
@@ -46,7 +48,7 @@ const WebcamStreamHook = {
 
           // Start frame capture
           this.captureFrame();
-          setInterval(() => this.captureFrame(), 60_000); // Capture every 60 seconds
+          setInterval(() => this.captureFrame(), this.captureInterval); // Capture every 60 seconds
         });
       })
       .catch((error) => {
@@ -57,16 +59,15 @@ const WebcamStreamHook = {
     const video = this.el;
     const captureSize = this.canvas.width;
 
-    // Calculate the size and position for cropping
-    const videoSize = Math.min(video.videoWidth, video.videoHeight);
+    // assume portrait mode, i.e. w > h
+    const videoSize = video.videoHeight;
     const startX = (video.videoWidth - videoSize) / 2;
-    const startY = (video.videoHeight - videoSize) / 2;
 
     // Draw the current video frame to the canvas, cropping to square and resizing
     this.context.drawImage(
       video,
       startX,
-      startY,
+      0,
       videoSize,
       videoSize,
       0,
