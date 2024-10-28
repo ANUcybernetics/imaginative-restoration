@@ -2,6 +2,7 @@ defmodule ImaginativeRestoration.ReplicateTest do
   use ImaginativeRestoration.DataCase
 
   alias ImaginativeRestoration.AI.Replicate
+  alias ImaginativeRestoration.AI.Utils
 
   defp invoke_args do
     sketch_image = "https://fly.storage.tigris.dev/imaginative-restoration-sketches/butterfly-sketch.png"
@@ -64,6 +65,19 @@ defmodule ImaginativeRestoration.ReplicateTest do
       if length(failed_models) > 0 do
         flunk("Failed models: #{Enum.join(failed_models, ", ")}")
       end
+    end
+
+    test "can crop image to (Florence 2-provided) bounding box" do
+      sketch_image_url = "https://fly.storage.tigris.dev/imaginative-restoration-sketches/shark-sketch.png"
+      sketch_image = Utils.to_image!(sketch_image_url)
+
+      cropped_image_path = "/tmp/cropped.webp"
+
+      {:ok, {_label, [x, y, w, h]}} = Replicate.invoke("lucataco/florence-2-large", sketch_image_url)
+
+      sketch_image
+      |> Utils.crop!(x, y, w, h)
+      |> Image.write!(cropped_image_path)
     end
   end
 end
