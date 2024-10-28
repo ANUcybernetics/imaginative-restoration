@@ -7,7 +7,7 @@ defmodule ImaginativeRestorationWeb.IndexLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="relative flex items-center justify-center h-full">
+    <div class="relative flex items-center justify-center size-full">
       <div class="w-full max-w-[calc(100vh*4/3)] aspect-[4/3]">
         <video autoplay loop muted class="w-full h-full object-contain">
           <source
@@ -21,18 +21,17 @@ defmodule ImaginativeRestorationWeb.IndexLive do
             phx-hook="WebcamStream"
             phx-data-capture-size="512"
             phx-data-capture-interval="60000"
-            class="size-[200px] object-cover"
           >
             Video stream not available.
           </video>
-          <img :if={@sketch} src={@sketch.raw} class="size-[200px] object-cover" />
+          <img :if={@sketch} src={@sketch.raw} class="object-contain" />
           <div :if={@sketch} class="relative">
-            <img src={@sketch.cropped} class="size-[200px] object-contain" />
+            <img src={@sketch.cropped} class="object-contain" />
             <div class="absolute inset-0 flex items-center justify-center">
               <span class="text-black text-lg font-bold"><%= @sketch.label %></span>
             </div>
           </div>
-          <img :if={@sketch} src={@sketch.processed} class="size-[200px] object-cover" />
+          <img :if={@sketch} src={@sketch.processed} class="object-contain" />
         </div>
       </div>
     </div>
