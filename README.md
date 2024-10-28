@@ -14,8 +14,6 @@ TODO copy description from the other `README.md`.
 - add animated capture widget with countdown, sfx, and "processing pipeline"
   indicator
 - deploy to fly.io
-- make the nfsa film grow to fill the width (or height) even if it's bigger than
-  actual size while preserving letterboxing
 - rename old `main` branch to `jetson`, move `web` branch to `main` (maybe
   rebase? but probs not)
 
@@ -24,6 +22,7 @@ TODO copy description from the other `README.md`.
   - camera not working
   - processing pipeline failed
 
+- select at random from the florence-detected objects, not always the first one
 - read-only views (for outside the grotto)
 - add canny filter (client-side?)
 - scheduler (i.e. only run during business hours)
