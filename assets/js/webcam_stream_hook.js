@@ -3,7 +3,7 @@ const WebcamStreamHook = {
     this.captureInterval = parseInt(this.el.dataset.captureInterval) || 60000;
     this.captureBox = JSON.parse(this.el.dataset.captureBox);
 
-    this.logDevices();
+    // this.logDevices();
     this.initWebcam();
   },
 
