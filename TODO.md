@@ -1,9 +1,9 @@
 ## TODO
 
-- add animated capture widget with countdown, sfx, and "processing pipeline"
-  indicator
-- flocking behaviour for sketches (using
-  [boids](https://www.npmjs.com/package/@thi.ng/boids)
+- debugging: why does the boid canvas get resized (and borked) when the
+  "frame_data" event is pushed to the server? check if it's the pushing that
+  matters, or whatever the result is
+
 - fade sketches from bg to colour
 - add "no change to sketch" detection
 - deploy to fly.io
