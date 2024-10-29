@@ -1,9 +1,6 @@
 ## TODO
 
-- debugging: why does the boid canvas get resized (and borked) when the
-  "frame_data" event is pushed to the server? check if it's the pushing that
-  matters, or whatever the result is
-
+- make sketches flock around the canvas as they come in
 - fade sketches from bg to colour
 - add "no change to sketch" detection
 - deploy to fly.io
@@ -25,6 +22,7 @@ Not necessarily good ones, but things we might try:
 ## Helpful scripts
 
 ```elixir
+# http://127.0.0.1:4000/100,120,460,320
 capturebox = [100,120,460,320]
 
 ImaginativeRestoration.Sketches.Sketch
