@@ -108,7 +108,8 @@ defmodule ImaginativeRestoration.AI.Replicate do
       prompt: prompt,
       negative_prompt:
         "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured, caption, signature, background illustration, poster",
-      adapter_conditioning_scale: 0.7
+      adapter_conditioning_scale: 0.65,
+      num_inference_steps: 15
     }
 
     with {:ok, version} <- get_latest_version(model),
