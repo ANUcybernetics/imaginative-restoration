@@ -35,10 +35,15 @@ const WebcamStreamHook = {
 
     navigator.mediaDevices
       .getUserMedia({
-        video: true,
-        // video: {
-        //   deviceId: { exact: "FEE05D276A4E5EE14B285F75B41830FE1F5BEB7A" },
-        // },
+        video: async () => {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const streamCam = devices.find(
+            (device) =>
+              device.kind === "videoinput" &&
+              device.label === "Logitech StreamCam",
+          );
+          return streamCam ? { deviceId: { exact: streamCam.deviceId } } : true;
+        },
         audio: false,
       })
       .then((stream) => {
