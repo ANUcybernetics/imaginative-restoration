@@ -74,11 +74,7 @@ const WebcamStreamHook = {
     const video = this.el;
     const captureBox = this.captureBox;
 
-    // assume portrait mode, i.e. w > h
-    const videoSize = video.videoHeight;
-    const startX = (video.videoWidth - videoSize) / 2;
-
-    // Draw the current video frame to the canvas, cropping to square and resizing
+    // crop the current video frame based on captureBox, send to server as data URL
     this.context.drawImage(
       video,
       captureBox[0],
