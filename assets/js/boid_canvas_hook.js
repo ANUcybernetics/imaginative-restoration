@@ -33,7 +33,7 @@ const BoidCanvasHook = {
     // Configure boids
     const NUM = 100;
     const ACCEL = new HashGrid2((x) => x.pos.prev, 64, NUM);
-    const MAX_RADIUS = 50;
+    const MAX_RADIUS = 200;
 
     // Boid behavior options
     const OPTS = {

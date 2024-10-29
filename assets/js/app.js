@@ -23,7 +23,7 @@ import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
 
 import WebcamStreamHook from "./webcam_stream_hook";
-import BoidCanvasHook from "./boid_canvas";
+import BoidCanvasHook from "./boid_canvas_hook";
 
 let Hooks = {};
 Hooks.WebcamStream = WebcamStreamHook;
