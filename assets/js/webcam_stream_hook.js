@@ -94,36 +94,76 @@ const WebcamStreamHook = {
     this.animateCaptureProgress();
   },
 
+  createProgressOverlay() {
+    // Create SVG container
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+
+    // Position SVG based on video element's position
+    const videoRect = this.el.getBoundingClientRect();
+    svg.style.position = "absolute";
+    svg.style.top = `${videoRect.top}px`;
+    svg.style.left = `${videoRect.left}px`;
+    svg.style.width = `${videoRect.width}px`;
+    svg.style.height = "4px";
+    svg.style.zIndex = "1000";
+
+    // Create progress line
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", "0");
+    line.setAttribute("y1", "2");
+    line.setAttribute("x2", "100%");
+    line.setAttribute("y2", "2");
+    line.setAttribute("stroke-width", "4");
+    line.setAttribute("stroke", "#00ff00");
+    line.style.transformOrigin = "center";
+    line.classList.add("progress-line");
+
+    svg.appendChild(line);
+
+    // Add to body
+    this.progressOverlay = svg;
+    document.body.appendChild(svg);
+
+    return line;
+  },
+
   animateCaptureProgress() {
     // Cancel any existing animation
     if (this.currentAnimation) {
       this.currentAnimation.cancel();
     }
 
-    // Create keyframes for the border animation
+    // Create or get the progress line if it doesn't exist
+    const line =
+      this.progressOverlay?.querySelector(".progress-line") ||
+      this.createProgressOverlay();
+
+    // Define keyframes
     const keyframes = [
       {
-        borderTop: "5px solid #00ff00",
-        clipPath: "inset(0 0% 0 0)", // Show full width
+        transform: "scaleX(1)",
+        stroke: "#00ff00",
       },
       {
-        borderTop: "5px solid #80ff00",
-        clipPath: "inset(0 0% 0 50%)", // Show right half
+        transform: "scaleX(0.5)",
+        stroke: "#ffff00",
+        offset: 0.5,
       },
       {
-        borderTop: "5px solid #ff0000",
-        clipPath: "inset(0 0% 0 100%)", // Hide completely
+        transform: "scaleX(0)",
+        stroke: "#ff0000",
       },
     ];
 
-    const timing = {
+    // Define animation options
+    const options = {
       duration: this.captureInterval,
       easing: "linear",
       fill: "forwards",
     };
 
     // Start the animation
-    this.currentAnimation = this.el.animate(keyframes, timing);
+    this.currentAnimation = line.animate(keyframes, options);
   },
 };
 
