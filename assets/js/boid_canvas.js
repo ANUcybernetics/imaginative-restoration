@@ -33,7 +33,7 @@ const BoidCanvasHook = {
     const ctx = this.el.getContext("2d");
 
     // Configure boids
-    const NUM = isMobile() ? 500 : 800;
+    const NUM = 100;
     const ACCEL = new HashGrid2((x) => x.pos.prev, 64, NUM);
     const MAX_RADIUS = 50;
 
@@ -102,11 +102,11 @@ const BoidCanvasHook = {
           }
 
           // Draw boid
-          ctx.beginPath();
-          ctx.arc(pos[0], pos[1], radius / 2, 0, Math.PI * 2);
-          const color = gradient[Math.min(radius | 0, MAX_RADIUS)];
-          ctx.fillStyle = `rgb(${color[0] * 255},${color[1] * 255},${color[2] * 255})`;
-          ctx.fill();
+          const img = new Image();
+          img.src =
+            "https://cdn.pixabay.com/photo/2016/09/01/08/24/smiley-1635449__180.png";
+          const size = radius / 2;
+          ctx.drawImage(img, pos[0] - size / 2, pos[1] - size / 2, size, size);
         });
       },
     });
