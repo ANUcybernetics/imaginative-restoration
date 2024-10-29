@@ -52,18 +52,17 @@ MIT
 - trigger the webcam capture from the server (maybe?)
 - handle any HTTP errors from Replicate
 - add "no change to sketch" detection
-- flocking behaviour for sketches
+- flocking behaviour for sketches (using
+  [boids](https://www.npmjs.com/package/@thi.ng/boids)
 - fade from bg to colour
 - add animated capture widget with countdown, sfx, and "processing pipeline"
   indicator
 - deploy to fly.io
-- rename old `main` branch to `jetson`, move `web` branch to `main` (maybe
-  rebase? but probs not)
 - get the final cut of the film (including soundtrack)
 - add scheduler (i.e. only run during business hours)
 - test with 1080p camera 873mm above desk, slightly-smaller-than-A3 surface
 - add nicer feedback for camera not working, or processing pipeline failed
-  (maybe flash?)
+  (maybe flash?), or missing capture box params
 
 ## Ideas
 
