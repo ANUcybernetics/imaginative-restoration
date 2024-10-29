@@ -56,10 +56,13 @@ defmodule ImaginativeRestorationWeb.IndexLive do
 
     # spawn the task which will communicate back to self() via :update_sketch messages
     Task.start(fn ->
-      sketch = ImaginativeRestoration.Sketches.init!(dataurl)
-      send(pid, {:update_sketch, sketch})
-      sketch = ImaginativeRestoration.Sketches.process!(sketch)
-      send(pid, {:update_sketch, sketch})
+      dataurl
+      |> ImaginativeRestoration.Sketches.init!()
+      |> send_update_sketch_message(pid)
+      |> ImaginativeRestoration.Sketches.crop_and_set_prompt!()
+      |> send_update_sketch_message(pid)
+      |> ImaginativeRestoration.Sketches.process!()
+      |> send_update_sketch_message(pid)
     end)
 
     {:noreply, socket}
@@ -68,5 +71,12 @@ defmodule ImaginativeRestorationWeb.IndexLive do
   @impl true
   def handle_info({:update_sketch, sketch}, socket) do
     {:noreply, assign(socket, sketch: sketch)}
+  end
+
+  defp send_update_sketch_message(sketch, pid) do
+    send(pid, {:update_sketch, sketch})
+
+    # pass the sketch back out; useful for pipelining
+    sketch
   end
 end

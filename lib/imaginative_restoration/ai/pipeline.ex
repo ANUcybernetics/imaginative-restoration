@@ -20,7 +20,7 @@ defmodule ImaginativeRestoration.AI.Pipeline do
   def change(changeset, opts, _context) do
     case Keyword.fetch!(opts, :stage) do
       :crop_and_set_prompt ->
-        raw = changeset.attributes.raw
+        raw = changeset.data.raw
 
         case Replicate.invoke("lucataco/florence-2-large", raw) do
           {:ok, {label, [x, y, w, h]}} ->

@@ -6,6 +6,7 @@ defmodule ImaginativeRestoration.Sketches do
     resource ImaginativeRestoration.Sketches.Sketch do
       define :init, args: [:raw]
       define :init_with_model, args: [:raw, :model], action: :init
+      define :crop_and_set_prompt
       define :process
     end
   end
