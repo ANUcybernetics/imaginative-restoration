@@ -18,32 +18,87 @@ import { distSq2, randMinMax2, randNorm2 } from "@thi.ng/vectors";
 
 const BoidCanvasHook = {
   mounted() {
-    // Initialize canvas dimensions
-    this.width = this.el.clientWidth;
-    this.height = this.el.clientHeight;
-    this.pad = -40;
-    this.bmin = [this.pad, this.pad];
-    this.bmax = [this.width - this.pad, this.height - this.pad];
+    // Create and setup background video
+    this.video = document.createElement("video");
+    this.video.style.display = "none";
+    this.video.autoplay = true;
+    this.video.loop = true;
+    this.video.muted = true;
+    this.video.playsInline = true; // Add this for better mobile support
 
-    // Set canvas size
-    this.el.width = this.width;
-    this.el.height = this.height;
-    this.ctx = this.el.getContext("2d");
+    // Wait for video to be ready and playing
+    this.video.addEventListener("canplay", () => {
+      console.log("Video can play");
+      this.video
+        .play()
+        .then(() => {
+          console.log("Video is playing");
+          this.startAnimation();
+        })
+        .catch((error) => {
+          console.error("Error playing video:", error);
+        });
+    });
+
+    this.video.src =
+      "https://fly.storage.tigris.dev/imaginative-restoration-sketches/IMGRES_FirstRoughEdit_V1.0_DH_11.09.24.mp4";
+    document.body.appendChild(this.video);
 
     // Configure boids
     this.numBoids = 50;
     this.accel = new HashGrid2((x) => x.pos.prev, 64, this.numBoids);
     this.maxRadius = 400;
 
-    // Boid behavior options
+    // Setup other configurations that don't depend on size
+    this.setupBoidConfigs();
+
+    // Setup resize observer
+    this.resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        this.updateCanvasSize(width, height);
+      }
+    });
+
+    this.resizeObserver.observe(this.el);
+  },
+
+  // This LiveView lifecycle hook will fire after the DOM is updated
+  updated() {
+    const rect = this.el.getBoundingClientRect();
+    console.log("Updated hook - canvas size:", rect.width, rect.height);
+    this.updateCanvasSize(rect.width, rect.height);
+  },
+
+  updateCanvasSize(width, height) {
+    this.width = width;
+    this.height = height;
+    this.el.width = width;
+    this.el.height = height;
+
+    this.ctx = this.el.getContext("2d");
+
+    // Update size-dependent configurations
+    this.pad = -40;
+    this.bmin = [this.pad, this.pad];
+    this.bmax = [this.width - this.pad, this.height - this.pad];
+
+    // Update boid constraints
+    this.opts.constrain = wrap2(this.bmin, this.bmax);
+
+    // Reinitialize flock with new boundaries if needed
+    this.initializeFlock();
+  },
+
+  setupBoidConfigs() {
+    // Setup configurations that don't depend on size
     this.opts = {
       accel: this.accel,
       behaviors: [separation(40, 1.2), alignment(80, 0.5), cohesion(80, 0.8)],
       maxSpeed: 50,
-      constrain: wrap2(this.bmin, this.bmax),
+      // constrain will be set in updateCanvasSize
     };
 
-    // Setup gradient
     this.gradient = multiCosineGradient({
       num: this.maxRadius + 1,
       stops: [
@@ -54,10 +109,10 @@ const BoidCanvasHook = {
       ],
     });
 
-    // Setup simulation
     this.sim = defTimeStep();
+  },
 
-    // Initialize flock
+  initializeFlock() {
     this.flock = defFlock(this.accel, [
       ...repeatedly(
         () =>
@@ -72,15 +127,18 @@ const BoidCanvasHook = {
         this.numBoids,
       ),
     ]);
+  },
 
+  startAnimation() {
+    console.log("starting animation");
     // Animation loop
     this.subscription = fromRAF({ timestamp: true }).subscribe({
       next: (t) => {
         // Update simulation
         this.sim.update(t, [this.flock]);
 
-        // Clear canvas
-        this.ctx.clearRect(0, 0, this.width, this.height);
+        // Draw video frame to canvas
+        this.ctx.drawImage(this.video, 0, 0, this.width, this.height);
 
         // Draw boids
         this.flock.boids.forEach((boid) => {
@@ -123,6 +181,12 @@ const BoidCanvasHook = {
   destroyed() {
     if (this.subscription) {
       this.subscription.unsubscribe();
+    }
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+    if (this.video) {
+      this.video.remove();
     }
   },
 };
