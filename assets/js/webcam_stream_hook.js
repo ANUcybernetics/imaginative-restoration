@@ -57,8 +57,8 @@ const WebcamStreamHook = {
           // init "frame capture" canvas
           this.canvas = document.createElement("canvas");
           this.context = this.canvas.getContext("2d");
-          this.canvas.width = video.videoWidth;
-          this.canvas.height = video.videoHeight;
+          this.canvas.width = this.captureBox[2];
+          this.canvas.height = this.captureBox[3];
 
           // Start frame capture
           this.captureFrame();
