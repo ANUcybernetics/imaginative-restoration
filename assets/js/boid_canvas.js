@@ -78,8 +78,7 @@ const BoidCanvasHook = {
         sim.update(t, [flock]);
 
         // Clear canvas
-        ctx.fillStyle = "#112";
-        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
         // Draw boids
         flock.boids.forEach((boid) => {
