@@ -1,6 +1,7 @@
 const WebcamStreamHook = {
   mounted() {
     this.captureInterval = parseInt(this.el.dataset.captureInterval) || 60000;
+    this.captureBox = JSON.parse(this.el.dataset.captureBox || "[0,0,400,300]");
 
     this.logDevices();
     this.initWebcam();
@@ -71,7 +72,7 @@ const WebcamStreamHook = {
 
   captureFrame() {
     const video = this.el;
-    const captureSize = this.canvas.width;
+    const captureBox = this.captureBox;
 
     // assume portrait mode, i.e. w > h
     const videoSize = video.videoHeight;
@@ -80,14 +81,14 @@ const WebcamStreamHook = {
     // Draw the current video frame to the canvas, cropping to square and resizing
     this.context.drawImage(
       video,
-      startX,
+      captureBox[0],
+      captureBox[1],
+      captureBox[2],
+      captureBox[3],
       0,
-      videoSize,
-      videoSize,
       0,
-      0,
-      captureSize,
-      captureSize,
+      captureBox[2],
+      captureBox[3],
     );
 
     const dataUrl = this.canvas.toDataURL("image/jpeg");

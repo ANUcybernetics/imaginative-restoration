@@ -10,7 +10,12 @@ defmodule ImaginativeRestorationWeb.ConfigLive do
   def render(assigns) do
     ~H"""
     <div class="relative flex items-center justify-center size-full">
-      <video id="video" phx-hook="WebcamStream" data-capture-interval="1000">
+      <video
+        id="video"
+        phx-hook="WebcamStream"
+        data-capture-box={@capture_box && Jason.encode!(@capture_box)}
+        data-capture-interval="1000"
+      >
         Video stream not available.
       </video>
       <img src={@frame} />
