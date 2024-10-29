@@ -19,33 +19,33 @@ import { distSq2, randMinMax2, randNorm2 } from "@thi.ng/vectors";
 const BoidCanvasHook = {
   mounted() {
     // Initialize canvas dimensions
-    const WIDTH = this.el.clientWidth;
-    const HEIGHT = this.el.clientHeight;
-    const PAD = -40;
-    const BMIN = [PAD, PAD];
-    const BMAX = [WIDTH - PAD, HEIGHT - PAD];
+    this.width = this.el.clientWidth;
+    this.height = this.el.clientHeight;
+    this.pad = -40;
+    this.bmin = [this.pad, this.pad];
+    this.bmax = [this.width - this.pad, this.height - this.pad];
 
     // Set canvas size
-    this.el.width = WIDTH;
-    this.el.height = HEIGHT;
-    const ctx = this.el.getContext("2d");
+    this.el.width = this.width;
+    this.el.height = this.height;
+    this.ctx = this.el.getContext("2d");
 
     // Configure boids
-    const NUM = 50;
-    const ACCEL = new HashGrid2((x) => x.pos.prev, 64, NUM);
-    const MAX_RADIUS = 400;
+    this.numBoids = 50;
+    this.accel = new HashGrid2((x) => x.pos.prev, 64, this.numBoids);
+    this.maxRadius = 400;
 
     // Boid behavior options
-    const OPTS = {
-      accel: ACCEL,
+    this.opts = {
+      accel: this.accel,
       behaviors: [separation(40, 1.2), alignment(80, 0.5), cohesion(80, 0.8)],
       maxSpeed: 50,
-      constrain: wrap2(BMIN, BMAX),
+      constrain: wrap2(this.bmin, this.bmax),
     };
 
     // Setup gradient
-    const gradient = multiCosineGradient({
-      num: MAX_RADIUS + 1,
+    this.gradient = multiCosineGradient({
+      num: this.maxRadius + 1,
       stops: [
         [0.2, [0.8, 1, 1]],
         [0.4, [0.8, 1, 0.7]],
@@ -55,39 +55,43 @@ const BoidCanvasHook = {
     });
 
     // Setup simulation
-    const sim = defTimeStep();
+    this.sim = defTimeStep();
 
     // Initialize flock
-    const flock = defFlock(ACCEL, [
+    this.flock = defFlock(this.accel, [
       ...repeatedly(
         () =>
-          defBoid2(randMinMax2([], BMIN, BMAX), randNorm2([], OPTS.maxSpeed), {
-            ...OPTS,
-            maxSpeed: weightedRandom([20, 50, 100], [1, 4, 2])(),
-          }),
-        NUM,
+          defBoid2(
+            randMinMax2([], this.bmin, this.bmax),
+            randNorm2([], this.opts.maxSpeed),
+            {
+              ...this.opts,
+              maxSpeed: weightedRandom([20, 50, 100], [1, 4, 2])(),
+            },
+          ),
+        this.numBoids,
       ),
     ]);
 
     // Animation loop
-    const subscription = fromRAF({ timestamp: true }).subscribe({
+    this.subscription = fromRAF({ timestamp: true }).subscribe({
       next: (t) => {
         // Update simulation
-        sim.update(t, [flock]);
+        this.sim.update(t, [this.flock]);
 
         // Clear canvas
-        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        this.ctx.clearRect(0, 0, this.width, this.height);
 
         // Draw boids
-        flock.boids.forEach((boid) => {
+        this.flock.boids.forEach((boid) => {
           const pos = boid.pos.value;
-          let radius = MAX_RADIUS;
+          let radius = this.maxRadius;
 
           // Find neighbors
           const neighbors = boid.neighbors(radius, pos);
           if (neighbors.length > 1) {
             let closest = null;
-            let minD = MAX_RADIUS ** 2;
+            let minD = this.maxRadius ** 2;
             for (let n of neighbors) {
               if (n === boid) continue;
               const d = distSq2(pos, n.pos.value);
@@ -104,13 +108,16 @@ const BoidCanvasHook = {
           img.src =
             "https://cdn.pixabay.com/photo/2016/09/01/08/24/smiley-1635449__180.png";
           const size = radius / 2;
-          ctx.drawImage(img, pos[0] - size / 2, pos[1] - size / 2, size, size);
+          this.ctx.drawImage(
+            img,
+            pos[0] - size / 2,
+            pos[1] - size / 2,
+            size,
+            size,
+          );
         });
       },
     });
-
-    // Cleanup on destroy
-    this.subscription = subscription;
   },
 
   destroyed() {
