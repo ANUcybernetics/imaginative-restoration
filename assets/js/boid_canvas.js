@@ -1,0 +1,126 @@
+// assets/js/hooks/boid_canvas.js
+// import { Nullable } from "@thi.ng/api";
+import {
+  alignment,
+  cohesion,
+  defBoid2,
+  defFlock,
+  separation,
+  wrap2,
+} from "@thi.ng/boids";
+import { isMobile } from "@thi.ng/checks";
+import { multiCosineGradient } from "@thi.ng/color";
+import { circle, group } from "@thi.ng/geom";
+import { HashGrid2 } from "@thi.ng/geom-accel/hash-grid";
+import { weightedRandom } from "@thi.ng/random";
+import { fromRAF } from "@thi.ng/rstream";
+import { defTimeStep } from "@thi.ng/timestep";
+import { repeatedly } from "@thi.ng/transducers";
+import { distSq2, randMinMax2, randNorm2 } from "@thi.ng/vectors";
+
+const BoidCanvasHook = {
+  mounted() {
+    // Initialize canvas dimensions
+    const WIDTH = this.el.clientWidth;
+    const HEIGHT = this.el.clientHeight;
+    const PAD = -40;
+    const BMIN = [PAD, PAD];
+    const BMAX = [WIDTH - PAD, HEIGHT - PAD];
+
+    // Set canvas size
+    this.el.width = WIDTH;
+    this.el.height = HEIGHT;
+    const ctx = this.el.getContext("2d");
+
+    // Configure boids
+    const NUM = isMobile() ? 500 : 800;
+    const ACCEL = new HashGrid2((x) => x.pos.prev, 64, NUM);
+    const MAX_RADIUS = 50;
+
+    // Boid behavior options
+    const OPTS = {
+      accel: ACCEL,
+      behaviors: [separation(40, 1.2), alignment(80, 0.5), cohesion(80, 0.8)],
+      maxSpeed: 50,
+      constrain: wrap2(BMIN, BMAX),
+    };
+
+    // Setup gradient
+    const gradient = multiCosineGradient({
+      num: MAX_RADIUS + 1,
+      stops: [
+        [0.2, [0.8, 1, 1]],
+        [0.4, [0.8, 1, 0.7]],
+        [0.6, [1, 0.7, 0.1]],
+        [1, [0.6, 0, 0.6]],
+      ],
+    });
+
+    // Setup simulation
+    const sim = defTimeStep();
+
+    // Initialize flock
+    const flock = defFlock(ACCEL, [
+      ...repeatedly(
+        () =>
+          defBoid2(randMinMax2([], BMIN, BMAX), randNorm2([], OPTS.maxSpeed), {
+            ...OPTS,
+            maxSpeed: weightedRandom([20, 50, 100], [1, 4, 2])(),
+          }),
+        NUM,
+      ),
+    ]);
+
+    // Animation loop
+    const subscription = fromRAF({ timestamp: true }).subscribe({
+      next: (t) => {
+        // Update simulation
+        sim.update(t, [flock]);
+
+        // Clear canvas
+        ctx.fillStyle = "#112";
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+        // Draw boids
+        flock.boids.forEach((boid) => {
+          const pos = boid.pos.value;
+          let radius = MAX_RADIUS;
+
+          // Find neighbors
+          const neighbors = boid.neighbors(radius, pos);
+          if (neighbors.length > 1) {
+            let closest = null;
+            let minD = MAX_RADIUS ** 2;
+            for (let n of neighbors) {
+              if (n === boid) continue;
+              const d = distSq2(pos, n.pos.value);
+              if (d < minD) {
+                closest = n;
+                minD = d;
+              }
+            }
+            if (closest) radius = Math.sqrt(minD);
+          }
+
+          // Draw boid
+          ctx.beginPath();
+          ctx.arc(pos[0], pos[1], radius / 2, 0, Math.PI * 2);
+          const color = gradient[Math.min(radius | 0, MAX_RADIUS)];
+          ctx.fillStyle = `rgb(${color[0] * 255},${color[1] * 255},${color[2] * 255})`;
+          ctx.fill();
+        });
+      },
+    });
+
+    // Cleanup on destroy
+    this.subscription = subscription;
+  },
+
+  destroyed() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  },
+};
+
+export default BoidCanvasHook;

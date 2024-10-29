@@ -23,9 +23,11 @@ import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
 
 import WebcamStreamHook from "./webcam_stream_hook";
+import BoidCanvasHook from "./boid_canvas";
 
 let Hooks = {};
 Hooks.WebcamStream = WebcamStreamHook;
+Hooks.BoidCanvas = BoidCanvasHook;
 
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")

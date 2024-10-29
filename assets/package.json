@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@thi.ng/boids": "^1.0.51",
+    "@thi.ng/color": "^5.7.8",
+    "@thi.ng/geom": "^8.1.13",
+    "@thi.ng/rstream": "^9.0.7",
+    "hash-grid": "link:@thi.ng/geom-accel/hash-grid"
+  }
+}
