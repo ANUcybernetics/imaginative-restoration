@@ -1,5 +1,4 @@
 // assets/js/hooks/boid_canvas.js
-// import { Nullable } from "@thi.ng/api";
 import {
   alignment,
   cohesion,
@@ -8,9 +7,7 @@ import {
   separation,
   wrap2,
 } from "@thi.ng/boids";
-import { isMobile } from "@thi.ng/checks";
 import { multiCosineGradient } from "@thi.ng/color";
-import { circle, group } from "@thi.ng/geom";
 import { HashGrid2 } from "@thi.ng/geom-accel/hash-grid";
 import { weightedRandom } from "@thi.ng/random";
 import { fromRAF } from "@thi.ng/rstream";
