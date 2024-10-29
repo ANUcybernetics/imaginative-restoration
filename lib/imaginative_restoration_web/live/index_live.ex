@@ -9,12 +9,16 @@ defmodule ImaginativeRestorationWeb.IndexLive do
     ~H"""
     <div class="relative flex items-center justify-center size-full">
       <div class="w-full max-w-[calc(100vh*4/3)] aspect-[4/3]">
-        <video autoplay loop muted class="w-full h-full object-contain">
-          <source
-            src="https://fly.storage.tigris.dev/imaginative-restoration-sketches/IMGRES_FirstRoughEdit_V1.0_DH_11.09.24.mp4"
-            type="video/mp4"
-          /> Your browser does not support the video tag.
-        </video>
+        <div class="relative w-full h-full">
+          <video autoplay loop muted class="w-full h-full object-contain">
+            <source
+              src="https://fly.storage.tigris.dev/imaginative-restoration-sketches/IMGRES_FirstRoughEdit_V1.0_DH_11.09.24.mp4"
+              type="video/mp4"
+            /> Your browser does not support the video tag.
+          </video>
+          <canvas id="boid-canvas" phx-hook="BoidCanvas" class="absolute inset-0 w-full h-full">
+          </canvas>
+        </div>
         <div class="absolute top-8 left-8 flex gap-8 h-[200px]">
           <video
             id="video"
