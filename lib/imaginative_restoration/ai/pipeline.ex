@@ -25,7 +25,7 @@ defmodule ImaginativeRestoration.AI.Pipeline do
         case Replicate.invoke("lucataco/florence-2-large", raw) do
           {:ok, {label, [x, y, w, h]}} ->
             prompt =
-              "1950s scientific color illustration of a lone #{label}, isolated against a plain background"
+              "multicolored 1950s scientific illustration of a lone #{label}, isolated against a plain white background"
 
             cropped = raw |> Utils.crop!(x, y, w, h) |> Utils.to_dataurl!()
 
