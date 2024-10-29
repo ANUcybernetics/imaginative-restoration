@@ -1,4 +1,5 @@
 // assets/js/hooks/boid_canvas.js
+// code based on example code at https://github.com/thi-ng/umbrella/blob/develop/examples/boid-basics/src/index.ts (Apache 2.0 License)
 import {
   alignment,
   cohesion,
