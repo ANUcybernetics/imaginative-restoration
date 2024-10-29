@@ -20,7 +20,7 @@ defmodule ImaginativeRestorationWeb.IndexLive do
             id="video"
             phx-hook="WebcamStream"
             data-capture-box={@capture_box && Jason.encode!(@capture_box)}
-            data-capture-interval="20000"
+            data-capture-interval="30000"
             class="h-full w-auto"
           >
             Video stream not available.
