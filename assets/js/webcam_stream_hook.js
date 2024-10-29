@@ -1,7 +1,7 @@
 const WebcamStreamHook = {
   mounted() {
     this.captureInterval = parseInt(this.el.dataset.captureInterval) || 60000;
-    this.captureBox = JSON.parse(this.el.dataset.captureBox || "[0,0,400,300]");
+    this.captureBox = JSON.parse(this.el.dataset.captureBox);
 
     this.logDevices();
     this.initWebcam();
