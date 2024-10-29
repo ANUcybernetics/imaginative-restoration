@@ -19,6 +19,7 @@ defmodule ImaginativeRestorationWeb.IndexLive do
           <video
             id="video"
             phx-hook="WebcamStream"
+            data-capture-box={@capture_box && Jason.encode!(@capture_box)}
             data-capture-interval="60000"
             class="h-full w-auto"
           >
