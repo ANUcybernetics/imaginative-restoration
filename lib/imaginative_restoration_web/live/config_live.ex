@@ -2,8 +2,6 @@ defmodule ImaginativeRestorationWeb.ConfigLive do
   @moduledoc false
   use ImaginativeRestorationWeb, :live_view
 
-  alias ImaginativeRestoration.AI.Utils
-
   require Logger
 
   @impl true

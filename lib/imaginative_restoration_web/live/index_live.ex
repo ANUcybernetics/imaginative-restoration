@@ -44,6 +44,12 @@ defmodule ImaginativeRestorationWeb.IndexLive do
   end
 
   @impl true
+  def handle_params(%{"capture_box" => capture_box}, _path, socket) do
+    capture_box = capture_box |> String.split(",") |> Enum.map(&String.to_integer/1)
+    {:noreply, assign(socket, capture_box: capture_box)}
+  end
+
+  @impl true
   def handle_event("webcam_frame", %{"frame" => dataurl}, socket) do
     pid = self()
 
