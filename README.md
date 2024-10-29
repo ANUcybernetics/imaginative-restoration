@@ -70,3 +70,5 @@ Not necessarily good ones, but things we might try:
 
 - select at random from the florence-detected objects, not always the first one
 - add read-only views (for outside the grotto, or anywhere in the world)
+
+- current test setup capturebox params: `127.0.0.1:4000/100,120,460,320`
