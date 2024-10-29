@@ -36,14 +36,6 @@ defmodule ImaginativeRestorationWeb.ConfigLive do
 
   @impl true
   def handle_event("webcam_frame", %{"frame" => dataurl}, socket) do
-    [x, y, w, h] = socket.assigns.capture_box
-    image = Utils.to_image!(dataurl)
-
-    dataurl =
-      image
-      |> Image.Draw.rect!(x, y, w, h, color: :red, fill: false, stroke_width: 2)
-      |> Utils.to_dataurl!()
-
     {:noreply, assign(socket, :frame, dataurl)}
   end
 end
