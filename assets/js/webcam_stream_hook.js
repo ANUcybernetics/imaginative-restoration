@@ -104,7 +104,7 @@ const WebcamStreamHook = {
     svg.style.top = `${videoRect.top}px`;
     svg.style.left = `${videoRect.left}px`;
     svg.style.width = `${videoRect.width}px`;
-    svg.style.height = "4px";
+    svg.style.height = "10px";
     svg.style.zIndex = "1000";
 
     // Create progress line
@@ -113,7 +113,7 @@ const WebcamStreamHook = {
     line.setAttribute("y1", "2");
     line.setAttribute("x2", "100%");
     line.setAttribute("y2", "2");
-    line.setAttribute("stroke-width", "4");
+    line.setAttribute("stroke-width", "10");
     line.setAttribute("stroke", "#00ff00");
     line.style.transformOrigin = "center";
     line.classList.add("progress-line");
