@@ -28,11 +28,9 @@ const BoidCanvasHook = {
 
     // Wait for video to be ready and playing
     this.video.addEventListener("canplay", () => {
-      console.log("Video can play");
       this.video
         .play()
         .then(() => {
-          console.log("Video is playing");
           this.startAnimation();
         })
         .catch((error) => {
@@ -66,7 +64,6 @@ const BoidCanvasHook = {
   // This LiveView lifecycle hook will fire after the DOM is updated
   updated() {
     const rect = this.el.getBoundingClientRect();
-    console.log("Updated hook - canvas size:", rect.width, rect.height);
     this.updateCanvasSize(rect.width, rect.height);
   },
 
@@ -130,7 +127,6 @@ const BoidCanvasHook = {
   },
 
   startAnimation() {
-    console.log("starting animation");
     // Animation loop
     this.subscription = fromRAF({ timestamp: true }).subscribe({
       next: (t) => {
