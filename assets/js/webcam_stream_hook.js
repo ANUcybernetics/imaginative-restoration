@@ -3,7 +3,6 @@ const WebcamStreamHook = {
     this.captureInterval = parseInt(this.el.dataset.captureInterval) || 60000;
     this.captureBox = JSON.parse(this.el.dataset.captureBox);
 
-    // this.logDevices();
     this.initWebcam();
   },
 
@@ -19,9 +18,7 @@ const WebcamStreamHook = {
       .then((devices) => {
         devices.forEach((device) => {
           if (device.kind === "videoinput") {
-            console.log(
-              `Camera Name: ${device.label}, Device ID: ${device.deviceId}`,
-            );
+            console.log(device);
           }
         });
       })
@@ -30,44 +27,42 @@ const WebcamStreamHook = {
       });
   },
 
-  initWebcam() {
-    // TODO this should bomb out if the element isn't a <video>
+  async initWebcam() {
     const video = this.el;
 
-    navigator.mediaDevices
-      .getUserMedia({
-        video: async () => {
-          const devices = await navigator.mediaDevices.enumerateDevices();
-          const streamCam = devices.find(
-            (device) =>
-              device.kind === "videoinput" &&
-              device.label === "Logitech StreamCam",
-          );
-          return streamCam ? { deviceId: { exact: streamCam.deviceId } } : true;
-        },
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const streamCam = devices.find(
+        (device) =>
+          device.kind === "videoinput" && device.label === "Logitech StreamCam",
+      );
+
+      const videoConstraints = streamCam
+        ? { deviceId: { exact: streamCam.deviceId } }
+        : true;
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: videoConstraints,
         audio: false,
-      })
-      .then((stream) => {
-        video.srcObject = stream;
-        // flip video horizontally (useful for normal webcam use, not necessarily for overhead setup)
-        // video.style.transform = "scaleX(-1)";
-        video.play();
-
-        video.addEventListener("loadedmetadata", () => {
-          // init "frame capture" canvas
-          this.canvas = document.createElement("canvas");
-          this.context = this.canvas.getContext("2d");
-          this.canvas.width = this.captureBox[2];
-          this.canvas.height = this.captureBox[3];
-
-          // Start frame capture
-          this.captureFrame();
-          setInterval(() => this.captureFrame(), this.captureInterval); // Capture every 60 seconds
-        });
-      })
-      .catch((error) => {
-        console.error("Error accessing the webcam:", error);
       });
+
+      video.srcObject = stream;
+      video.play();
+
+      video.addEventListener("loadedmetadata", () => {
+        // init "frame capture" canvas
+        this.canvas = document.createElement("canvas");
+        this.context = this.canvas.getContext("2d");
+        this.canvas.width = this.captureBox[2];
+        this.canvas.height = this.captureBox[3];
+
+        // Start frame capture
+        this.captureFrame();
+        setInterval(() => this.captureFrame(), this.captureInterval);
+      });
+    } catch (error) {
+      console.error("Error accessing the webcam:", error);
+    }
   },
 
   captureFrame() {
