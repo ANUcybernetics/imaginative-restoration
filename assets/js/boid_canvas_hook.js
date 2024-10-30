@@ -39,7 +39,7 @@ const BoidCanvasHook = {
     });
 
     this.video.src =
-      "https://fly.storage.tigris.dev/imaginative-restoration-sketches/IMGRES_FirstRoughEdit_V1.0_DH_11.09.24.mp4";
+      "https://fly.storage.tigris.dev/imaginative-restoration-sketches/IMGRES_V2.0_29.10.24.mp4";
     document.body.appendChild(this.video);
 
     // Configure boids
