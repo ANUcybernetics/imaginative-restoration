@@ -13,7 +13,6 @@ import { HashGrid2 } from "@thi.ng/geom-accel/hash-grid";
 import { weightedRandom } from "@thi.ng/random";
 import { fromRAF } from "@thi.ng/rstream";
 import { defTimeStep } from "@thi.ng/timestep";
-import { repeatedly } from "@thi.ng/transducers";
 import { distSq2, randMinMax2, randNorm2 } from "@thi.ng/vectors";
 
 const BoidCanvasHook = {
@@ -43,8 +42,8 @@ const BoidCanvasHook = {
     document.body.appendChild(this.video);
 
     // Configure boids
-    this.numBoids = 50;
-    this.accel = new HashGrid2((x) => x.pos.prev, 64, this.numBoids);
+    this.maxBoids = 50;
+    this.accel = new HashGrid2((x) => x.pos.prev, 64, this.maxBoids);
     this.maxRadius = 400;
 
     // Setup other configurations that don't depend on size
@@ -59,6 +58,11 @@ const BoidCanvasHook = {
     });
 
     this.resizeObserver.observe(this.el);
+
+    // Add event handler for new boids
+    this.handleEvent("new_boid", ({ id, dataurl }) => {
+      this.addNewBoid(id, dataurl);
+    });
   },
 
   // This LiveView lifecycle hook will fire after the DOM is updated
@@ -76,15 +80,17 @@ const BoidCanvasHook = {
     this.ctx = this.el.getContext("2d");
 
     // Update size-dependent configurations
-    this.pad = -40;
+    this.pad = -10;
     this.bmin = [this.pad, this.pad];
     this.bmax = [this.width - this.pad, this.height - this.pad];
 
     // Update boid constraints
     this.opts.constrain = wrap2(this.bmin, this.bmax);
 
-    // Reinitialize flock with new boundaries if needed
-    this.initializeFlock();
+    // Only initialize flock if it doesn't exist yet
+    if (!this.flock) {
+      this.initializeFlock();
+    }
   },
 
   setupBoidConfigs() {
@@ -110,66 +116,85 @@ const BoidCanvasHook = {
   },
 
   initializeFlock() {
-    this.flock = defFlock(this.accel, [
-      ...repeatedly(
-        () =>
-          defBoid2(
-            randMinMax2([], this.bmin, this.bmax),
-            randNorm2([], this.opts.maxSpeed),
-            {
-              ...this.opts,
-              maxSpeed: weightedRandom([20, 50, 100], [1, 4, 2])(),
-            },
-          ),
-        this.numBoids,
-      ),
-    ]);
+    this.flock = defFlock(this.accel, []);
+  },
+
+  addNewBoid(id, dataurl) {
+    if (this.flock.boids.length >= this.maxBoids) {
+      const oldestBoid = this.flock.boids[0];
+      this.flock.remove(oldestBoid);
+    }
+
+    const centerPos = [this.width / 2, this.height / 2];
+    const randomVel = randNorm2([], this.opts.maxSpeed);
+
+    const newBoid = defBoid2(centerPos, randomVel, {
+      ...this.opts,
+      maxSpeed: weightedRandom([20, 50, 100], [1, 4, 2])(),
+    });
+
+    newBoid.id = id;
+
+    // Create image and wait for it to load
+    const img = new Image();
+    img.src = dataurl;
+    img.onload = () => {
+      newBoid.img = img;
+      this.flock.add(newBoid);
+    };
   },
 
   startAnimation() {
-    // Animation loop
     this.subscription = fromRAF({ timestamp: true }).subscribe({
       next: (t) => {
-        // Update simulation
-        this.sim.update(t, [this.flock]);
+        try {
+          // Update simulation
+          this.sim.update(t, [this.flock]);
 
-        // Draw video frame to canvas
-        this.ctx.drawImage(this.video, 0, 0, this.width, this.height);
+          // Clear the canvas first
+          this.ctx.clearRect(0, 0, this.width, this.height);
 
-        // Draw boids
-        this.flock.boids.forEach((boid) => {
-          const pos = boid.pos.value;
-          let radius = this.maxRadius;
-
-          // Find neighbors
-          const neighbors = boid.neighbors(radius, pos);
-          if (neighbors.length > 1) {
-            let closest = null;
-            let minD = this.maxRadius ** 2;
-            for (let n of neighbors) {
-              if (n === boid) continue;
-              const d = distSq2(pos, n.pos.value);
-              if (d < minD) {
-                closest = n;
-                minD = d;
-              }
-            }
-            if (closest) radius = Math.sqrt(minD);
+          // Draw video frame to canvas
+          if (this.video.readyState >= this.video.HAVE_CURRENT_DATA) {
+            this.ctx.drawImage(this.video, 0, 0, this.width, this.height);
           }
 
-          // Draw boid
-          const img = new Image();
-          img.src =
-            "https://cdn.pixabay.com/photo/2016/09/01/08/24/smiley-1635449__180.png";
-          const size = radius / 2;
-          this.ctx.drawImage(
-            img,
-            pos[0] - size / 2,
-            pos[1] - size / 2,
-            size,
-            size,
-          );
-        });
+          // Draw boids
+          this.flock.boids.forEach((boid) => {
+            const pos = boid.pos.value;
+            let radius = this.maxRadius;
+
+            // Find neighbors
+            const neighbors = boid.neighbors(radius, pos);
+            if (neighbors.length > 1) {
+              let closest = null;
+              let minD = this.maxRadius ** 2;
+              for (let n of neighbors) {
+                if (n === boid) continue;
+                const d = distSq2(pos, n.pos.value);
+                if (d < minD) {
+                  closest = n;
+                  minD = d;
+                }
+              }
+              if (closest) radius = Math.sqrt(minD);
+            }
+
+            // Draw boid using its specific image
+            if (boid.img && boid.img.complete) {
+              const size = radius / 2;
+              this.ctx.drawImage(
+                boid.img,
+                pos[0] - size / 2,
+                pos[1] - size / 2,
+                size,
+                size,
+              );
+            }
+          });
+        } catch (error) {
+          console.error("Animation error:", error);
+        }
       },
     });
   },

@@ -2,6 +2,8 @@ defmodule ImaginativeRestorationWeb.IndexLive do
   @moduledoc false
   use ImaginativeRestorationWeb, :live_view
 
+  alias ImaginativeRestoration.Sketches.Sketch
+
   require Logger
 
   @impl true
@@ -64,6 +66,15 @@ defmodule ImaginativeRestorationWeb.IndexLive do
     end)
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:update_sketch, %Sketch{processed: processed} = sketch}, socket) when not is_nil(processed) do
+    # Push event to client when we have a processed sketch
+    {:noreply,
+     socket
+     |> assign(sketch: sketch)
+     |> push_event("new_boid", %{id: sketch.id, dataurl: processed})}
   end
 
   @impl true
