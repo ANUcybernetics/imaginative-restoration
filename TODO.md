@@ -1,10 +1,11 @@
 ## TODO
 
-- make sketches flock around the canvas as they come in
-- fade sketches from bg to colour
+- update prompt
+- just use a couple of the clips
 - add "no change to sketch" detection
+- animate pipeline view
+- add an LLM in there to make the pictures conform to the scene a bit more
 - deploy to fly.io
-- get the final cut of the film (including soundtrack)
 - add scheduler (i.e. only run during business hours)
 - test with 1080p camera 873mm above desk, slightly-smaller-than-A3 surface
 - add nicer feedback for camera not working, or processing pipeline failed (e.g.
@@ -14,7 +15,7 @@
 
 Not necessarily good ones, but things we might try:
 
-- trigger the webcam capture from the server
+- fade sketches from bg to colour
 - image->video (because Charlotte has a bee in her bonnet about it)
 - select at random from the florence-detected objects, not always the first one
 - add read-only views (for outside the grotto, or anywhere in the world)
