@@ -20,7 +20,7 @@ defmodule ImaginativeRestoration.AI.Utils do
 
   def to_dataurl!(%Vix.Vips.Image{} = image) do
     image
-    |> Image.write!(:memory, suffix: ".webp")
+    |> Image.write!(:memory, suffix: ".webp", effort: 10)
     |> Base.encode64()
     |> then(&("data:image/webp;base64," <> &1))
   end
