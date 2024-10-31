@@ -106,8 +106,7 @@ defmodule ImaginativeRestoration.AI.Replicate do
     input = %{
       image: input_image,
       prompt: prompt,
-      negative_prompt:
-        "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured, caption, signature, background illustration, poster",
+      negative_prompt: "extra digit, fewer digits, cropped, worst quality, low quality",
       adapter_conditioning_scale: 0.65,
       num_inference_steps: 10,
       # 32-bit INT_MAX
