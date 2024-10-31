@@ -3,12 +3,16 @@ const WebcamStreamHook = {
     this.captureInterval = parseInt(this.el.dataset.captureInterval) || 60000;
     this.captureBox = JSON.parse(this.el.dataset.captureBox);
 
+    // Get references to existing SVG elements
+    this.progressLine = document.getElementById("progress-line");
+    this.flashOverlay = document.getElementById("flash-overlay");
+
     this.initWebcam();
   },
 
   destroyed() {
-    if (this.currentAnimation) {
-      this.currentAnimation.cancel();
+    if (this.currentAnimations) {
+      this.currentAnimations.forEach((animation) => animation.cancel());
     }
   },
 
@@ -46,20 +50,26 @@ const WebcamStreamHook = {
         audio: false,
       });
 
+      // Store the stream
       video.srcObject = stream;
-      video.play();
 
-      video.addEventListener("loadedmetadata", () => {
-        // init "frame capture" canvas
-        this.canvas = document.createElement("canvas");
-        this.context = this.canvas.getContext("2d");
-        this.canvas.width = this.captureBox[2];
-        this.canvas.height = this.captureBox[3];
+      // Wait for both play and metadata to be ready
+      await Promise.all([
+        new Promise((resolve) =>
+          video.addEventListener("loadedmetadata", resolve, { once: true }),
+        ),
+        video.play(),
+      ]);
 
-        // Start frame capture
-        this.captureFrame();
-        setInterval(() => this.captureFrame(), this.captureInterval);
-      });
+      // Initialize frame capture
+      this.canvas = document.createElement("canvas");
+      this.context = this.canvas.getContext("2d");
+      this.canvas.width = this.captureBox[2];
+      this.canvas.height = this.captureBox[3];
+
+      // Start frame capture
+      this.captureFrame();
+      setInterval(() => this.captureFrame(), this.captureInterval);
     } catch (error) {
       console.error("Error accessing the webcam:", error);
     }
@@ -90,51 +100,62 @@ const WebcamStreamHook = {
   },
 
   createProgressOverlay() {
+    // Create wrapper div
+    const wrapper = document.createElement("div");
+    wrapper.style.position = "relative";
+    this.el.parentElement.insertBefore(wrapper, this.el);
+    wrapper.appendChild(this.el);
+
     // Create SVG container
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-
-    // Position SVG based on video element's position
-    const videoRect = this.el.getBoundingClientRect();
     svg.style.position = "absolute";
-    svg.style.top = `${videoRect.top}px`;
-    svg.style.left = `${videoRect.left}px`;
-    svg.style.width = `${videoRect.width}px`;
-    svg.style.height = "10px";
-    svg.style.zIndex = "1000";
+    svg.style.inset = "0";
+    svg.style.width = "100%";
+    svg.style.height = "100%";
+    svg.style.pointerEvents = "none"; // Allow clicking through to video
 
     // Create progress line
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
     line.setAttribute("x1", "0");
-    line.setAttribute("y1", "2");
+    line.setAttribute("y1", "5");
     line.setAttribute("x2", "100%");
-    line.setAttribute("y2", "2");
+    line.setAttribute("y2", "5");
     line.setAttribute("stroke-width", "10");
     line.setAttribute("stroke", "#00ff00");
-    line.style.transformOrigin = "center";
     line.classList.add("progress-line");
 
+    // Create flash rectangle
+    const flash = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "rect",
+    );
+    flash.setAttribute("x", "0");
+    flash.setAttribute("y", "0");
+    flash.setAttribute("width", "100%");
+    flash.setAttribute("height", "100%");
+    flash.setAttribute("fill", "#ffffff");
+    flash.setAttribute("opacity", "0");
+    flash.classList.add("flash-overlay");
+
+    // Add elements to SVG container
     svg.appendChild(line);
+    svg.appendChild(flash);
+    wrapper.appendChild(svg);
 
-    // Add to body
-    this.progressOverlay = svg;
-    document.body.appendChild(svg);
-
-    return line;
+    // Store references
+    this.progressLine = line;
+    this.flashOverlay = flash;
   },
 
   animateCaptureProgress() {
-    // Cancel any existing animation
-    if (this.currentAnimation) {
-      this.currentAnimation.cancel();
+    // Cancel any existing animations
+    if (this.currentAnimations) {
+      this.currentAnimations.forEach((animation) => animation.cancel());
     }
+    this.currentAnimations = [];
 
-    // Create or get the progress line if it doesn't exist
-    const line =
-      this.progressOverlay?.querySelector(".progress-line") ||
-      this.createProgressOverlay();
-
-    // Define keyframes
-    const keyframes = [
+    // Define progress bar keyframes
+    const progressKeyframes = [
       {
         transform: "scaleX(1)",
         stroke: "#00ff00",
@@ -150,15 +171,21 @@ const WebcamStreamHook = {
       },
     ];
 
+    // Define flash keyframes
+    const flashKeyframes = [{ opacity: 1 }, { opacity: 0, offset: 1 / 20 }];
+
     // Define animation options
-    const options = {
+    const animationOptions = {
       duration: this.captureInterval,
       easing: "linear",
       fill: "forwards",
     };
 
-    // Start the animation
-    this.currentAnimation = line.animate(keyframes, options);
+    // Start the animations using the stored references
+    this.currentAnimations = [
+      this.progressLine.animate(progressKeyframes, animationOptions),
+      this.flashOverlay.animate(flashKeyframes, animationOptions),
+    ];
   },
 };
 
