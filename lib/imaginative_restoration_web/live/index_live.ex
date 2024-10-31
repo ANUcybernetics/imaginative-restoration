@@ -4,6 +4,7 @@ defmodule ImaginativeRestorationWeb.IndexLive do
 
   import ImaginativeRestorationWeb.AppComponents
 
+  alias ImaginativeRestoration.AI.Utils
   alias ImaginativeRestoration.Sketches.Sketch
 
   require Logger
@@ -47,6 +48,10 @@ defmodule ImaginativeRestorationWeb.IndexLive do
   @impl true
   def handle_event("webcam_frame", %{"frame" => dataurl}, socket) do
     pid = self()
+
+    if not Utils.changed_recently?(5) do
+      Logger.info("Skipping frame processing")
+    end
 
     # spawn the task which will communicate back to self() via :update_sketch messages
     Task.start(fn ->
