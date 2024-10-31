@@ -67,8 +67,8 @@ const WebcamStreamHook = {
       this.canvas.width = this.captureBox[2];
       this.canvas.height = this.captureBox[3];
 
-      // Start frame capture
-      this.captureFrame();
+      // Start frame capture (in 1s to give the auto-exposure time to adjust)
+      setTimeout(() => this.captureFrame(), 1000);
       setInterval(() => this.captureFrame(), this.captureInterval);
     } catch (error) {
       console.error("Error accessing the webcam:", error);
