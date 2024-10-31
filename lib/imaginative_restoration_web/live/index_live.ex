@@ -2,6 +2,8 @@ defmodule ImaginativeRestorationWeb.IndexLive do
   @moduledoc false
   use ImaginativeRestorationWeb, :live_view
 
+  import ImaginativeRestorationWeb.AppComponents
+
   alias ImaginativeRestoration.Sketches.Sketch
 
   require Logger
@@ -16,17 +18,7 @@ defmodule ImaginativeRestorationWeb.IndexLive do
           </canvas>
         </div>
         <div class="absolute top-8 left-8 flex gap-8 h-[200px]">
-          <div class="relative h-full">
-            <video
-              id="video"
-              phx-hook="WebcamStream"
-              data-capture-box={@capture_box && Jason.encode!(@capture_box)}
-              data-capture-interval="30000"
-              class="h-full w-auto"
-            >
-              Webcam video stream not available.
-            </video>
-          </div>
+          <.webcam_capture capture_box={@capture_box} capture_interval={30_000} />
           <img :if={@sketch} src={@sketch.raw} class="h-full w-auto object-contain" />
           <div :if={@sketch} class="relative h-full">
             <img src={@sketch.cropped} class="h-full w-auto object-contain" />
