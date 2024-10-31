@@ -1,7 +1,5 @@
 ## TODO
 
-- update prompt
-- add "no change to sketch" detection
 - animate pipeline view
 - just use a couple of the clips
 - add an LLM in there to make the pictures conform to the scene a bit more
