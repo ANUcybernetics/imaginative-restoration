@@ -44,7 +44,7 @@ const BoidCanvasHook = {
     // Configure boids
     this.maxBoids = 100;
     this.accel = new HashGrid2((x) => x.pos.prev, 64, this.maxBoids);
-    this.maxRadius = 100;
+    this.maxSize = 400;
 
     // Setup other configurations that don't depend on size
     this.setupBoidConfigs();
@@ -103,7 +103,7 @@ const BoidCanvasHook = {
     };
 
     this.gradient = multiCosineGradient({
-      num: this.maxRadius + 1,
+      num: this.maxSize + 1,
       stops: [
         [0.2, [0.8, 1, 1]],
         [0.4, [0.8, 1, 0.7]],
@@ -162,13 +162,13 @@ const BoidCanvasHook = {
           // Draw boids
           this.flock.boids.forEach((boid) => {
             const pos = boid.pos.value;
-            let radius = this.maxRadius;
+            let size = this.maxSize;
 
             // Find neighbors
-            const neighbors = boid.neighbors(radius, pos);
+            const neighbors = boid.neighbors(size, pos);
             if (neighbors.length > 1) {
               let closest = null;
-              let minD = this.maxRadius ** 2;
+              let minD = this.maxSize ** 2;
               for (let n of neighbors) {
                 if (n === boid) continue;
                 const d = distSq2(pos, n.pos.value);
@@ -177,12 +177,11 @@ const BoidCanvasHook = {
                   minD = d;
                 }
               }
-              if (closest) radius = Math.sqrt(minD);
+              if (closest) size = Math.sqrt(minD);
             }
 
             // Draw boid using its specific image
             if (boid.img && boid.img.complete) {
-              const size = radius / 2;
               this.ctx.drawImage(
                 boid.img,
                 pos[0] - size / 2,
