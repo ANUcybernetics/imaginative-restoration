@@ -42,9 +42,9 @@ const BoidCanvasHook = {
     document.body.appendChild(this.video);
 
     // Configure boids
-    this.maxBoids = 50;
+    this.maxBoids = 100;
     this.accel = new HashGrid2((x) => x.pos.prev, 64, this.maxBoids);
-    this.maxRadius = 400;
+    this.maxRadius = 100;
 
     // Setup other configurations that don't depend on size
     this.setupBoidConfigs();
