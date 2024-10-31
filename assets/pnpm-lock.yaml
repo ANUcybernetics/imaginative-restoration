@@ -17,12 +17,21 @@ importers:
       '@thi.ng/geom':
         specifier: ^8.1.13
         version: 8.1.13
+      '@thi.ng/geom-accel':
+        specifier: ^4.1.10
+        version: 4.1.10
+      '@thi.ng/random':
+        specifier: ^4.1.2
+        version: 4.1.2
       '@thi.ng/rstream':
         specifier: ^9.0.7
         version: 9.0.7
-      hash-grid:
-        specifier: link:@thi.ng/geom-accel/hash-grid
-        version: link:@thi.ng/geom-accel/hash-grid
+      '@thi.ng/timestep':
+        specifier: ^0.5.67
+        version: 0.5.67
+      '@thi.ng/vectors':
+        specifier: ^7.12.5
+        version: 7.12.5
 
 packages:
 

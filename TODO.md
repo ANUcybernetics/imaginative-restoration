@@ -1,5 +1,8 @@
 ## TODO
 
+- create a new imgres app (maybe manually, not from launch, so that the mount
+  stuff doesn't get overridden)
+- make sure the old volumes got deleted (both personal and socy org)
 - animate pipeline view
 - just use a couple of the clips
 - add an LLM in there to make the pictures conform to the scene a bit more
