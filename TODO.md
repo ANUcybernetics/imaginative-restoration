@@ -1,9 +1,9 @@
 ## TODO
 
 - update prompt
-- just use a couple of the clips
 - add "no change to sketch" detection
 - animate pipeline view
+- just use a couple of the clips
 - add an LLM in there to make the pictures conform to the scene a bit more
 - deploy to fly.io
 - add scheduler (i.e. only run during business hours)
