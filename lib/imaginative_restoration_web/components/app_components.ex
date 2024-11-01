@@ -5,7 +5,7 @@ defmodule ImaginativeRestorationWeb.AppComponents do
 
   attr :class, :string, default: nil
   attr :capture_box, :list, required: true
-  attr :capture_interval, :integer, default: 1000
+  attr :capture_interval, :integer, default: 60_000
 
   def webcam_capture(assigns) do
     ~H"""

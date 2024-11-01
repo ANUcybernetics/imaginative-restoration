@@ -1,6 +1,6 @@
 const WebcamStreamHook = {
   mounted() {
-    this.captureInterval = parseInt(this.el.dataset.captureInterval) || 60000;
+    this.captureInterval = parseInt(this.el.dataset.captureInterval);
     this.captureBox = JSON.parse(this.el.dataset.captureBox);
 
     // Get references to existing SVG elements
