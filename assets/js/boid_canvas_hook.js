@@ -13,7 +13,8 @@ import { HashGrid2 } from "@thi.ng/geom-accel/hash-grid";
 import { weightedRandom } from "@thi.ng/random";
 import { fromRAF } from "@thi.ng/rstream";
 import { defTimeStep } from "@thi.ng/timestep";
-import { distSq2, randMinMax2, randNorm2 } from "@thi.ng/vectors";
+import { distSq2, randNorm2 } from "@thi.ng/vectors";
+import { clamp } from "@thi.ng/math";
 
 const BoidCanvasHook = {
   mounted() {
@@ -44,6 +45,7 @@ const BoidCanvasHook = {
     // Configure boids
     this.maxBoids = 100;
     this.accel = new HashGrid2((x) => x.pos.prev, 64, this.maxBoids);
+    this.minSize = 50;
     this.maxSize = 400;
 
     // Setup other configurations that don't depend on size
@@ -162,7 +164,7 @@ const BoidCanvasHook = {
           // Draw boids
           this.flock.boids.forEach((boid) => {
             const pos = boid.pos.value;
-            let size = this.maxSize;
+            let size = clamp(this.minSize, this.maxSize);
 
             // Find neighbors
             const neighbors = boid.neighbors(size, pos);

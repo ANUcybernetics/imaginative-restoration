@@ -20,6 +20,9 @@ importers:
       '@thi.ng/geom-accel':
         specifier: ^4.1.10
         version: 4.1.10
+      '@thi.ng/math':
+        specifier: ^5.11.11
+        version: 5.11.11
       '@thi.ng/random':
         specifier: ^4.1.2
         version: 4.1.2
