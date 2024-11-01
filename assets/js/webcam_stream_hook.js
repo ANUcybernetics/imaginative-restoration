@@ -3,6 +3,18 @@ const WebcamStreamHook = {
     this.captureInterval = parseInt(this.el.dataset.captureInterval);
     this.captureBox = JSON.parse(this.el.dataset.captureBox);
 
+    // Parse capture box from URL query params
+    const urlParams = new URLSearchParams(window.location.search);
+    const captureBoxParam = urlParams.get("capture_box");
+
+    if (captureBoxParam) {
+      // Parse comma-separated values into array of integers
+      this.captureBox = captureBoxParam.split(",").map((num) => parseInt(num));
+    } else {
+      // Will be set to full dimensions once video metadata is loaded
+      this.captureBox = null;
+    }
+
     // Get references to existing SVG elements
     this.progressLine = document.getElementById("progress-line");
     this.flashOverlay = document.getElementById("flash-overlay");
@@ -60,6 +72,11 @@ const WebcamStreamHook = {
         ),
         video.play(),
       ]);
+
+      // If captureBox wasn't set from URL params, set it to full video dimensions
+      if (!this.captureBox) {
+        this.captureBox = [0, 0, video.videoWidth, video.videoHeight];
+      }
 
       // Initialize frame capture
       this.canvas = document.createElement("canvas");

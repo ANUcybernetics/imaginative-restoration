@@ -19,7 +19,7 @@ defmodule ImaginativeRestorationWeb.IndexLive do
           </canvas>
         </div>
         <div class="absolute top-8 left-8 flex gap-8 h-[200px]">
-          <.webcam_capture capture_box={@capture_box} capture_interval={30_000} />
+          <.webcam_capture capture_interval={30_000} />
           <img :if={@sketch} src={@sketch.raw} class="h-full w-auto object-contain" />
           <div :if={@sketch} class="relative h-full">
             <img src={@sketch.cropped} class="h-full w-auto object-contain" />
@@ -37,12 +37,6 @@ defmodule ImaginativeRestorationWeb.IndexLive do
   @impl true
   def mount(_params, _session, socket) do
     {:ok, assign(socket, sketch: nil)}
-  end
-
-  @impl true
-  def handle_params(%{"capture_box" => capture_box}, _path, socket) do
-    capture_box = capture_box |> String.split(",") |> Enum.map(&String.to_integer/1)
-    {:noreply, assign(socket, capture_box: capture_box)}
   end
 
   @impl true

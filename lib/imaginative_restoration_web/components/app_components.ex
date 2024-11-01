@@ -4,7 +4,6 @@ defmodule ImaginativeRestorationWeb.AppComponents do
   use Phoenix.Component
 
   attr :class, :string, default: nil
-  attr :capture_box, :list, required: true
   attr :capture_interval, :integer, default: 60_000
 
   def webcam_capture(assigns) do
@@ -13,7 +12,6 @@ defmodule ImaginativeRestorationWeb.AppComponents do
       <video
         id="video"
         phx-hook="WebcamStream"
-        data-capture-box={Jason.encode!(@capture_box)}
         data-capture-interval={@capture_interval}
         class="h-full w-auto"
       >

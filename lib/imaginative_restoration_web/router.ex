@@ -18,11 +18,9 @@ defmodule ImaginativeRestorationWeb.Router do
   scope "/", ImaginativeRestorationWeb do
     pipe_through :browser
 
-    # test capture box with /config/x,y,w,h, e.g. /config/100,100,400,300
-    live "/:capture_box", IndexLive
+    live "/", IndexLive
 
-    # just display the capture box (useful for testing)
-    live "/config/:capture_box", ConfigLive
+    live "/config", ConfigLive
   end
 
   # Other scopes may use custom stacks.
