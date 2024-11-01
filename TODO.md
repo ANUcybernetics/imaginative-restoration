@@ -1,9 +1,6 @@
 ## TODO
 
 - add test for "changed_recently?" logic
-- animate pipeline view
-- hide y-scrollbar on Chrome
-- up the min size of the boids
 - further animate image size/opacity/tint/filter
 - just use a couple of the clips
 - test with 1080p camera 873mm above desk, slightly-smaller-than-A3 surface
