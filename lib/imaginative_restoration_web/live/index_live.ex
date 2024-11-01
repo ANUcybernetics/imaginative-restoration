@@ -18,18 +18,25 @@ defmodule ImaginativeRestorationWeb.IndexLive do
           <canvas id="boid-canvas" phx-hook="BoidCanvas" class="w-full h-full object-contain">
           </canvas>
         </div>
-        <div class="absolute top-8 left-8 flex gap-8 h-[200px]">
+        <div class="absolute top-8 left-8 flex gap-8 h-[200px] backdrop-blur-md">
           <.webcam_capture capture_interval={30_000} />
-          <img :if={@sketch} src={@sketch.raw} class="h-full w-auto object-contain" />
-          <div :if={@sketch} class="relative h-full">
-            <img src={@sketch.cropped} class="sketch-processing h-full w-auto object-contain" />
-            <div class="absolute inset-0 flex items-center justify-center">
-              <span class="text-4xl font-semibold px-2 py-1 text-white backdrop-blur-md rounded-sm">
-                <%= @sketch.label %>
-              </span>
-            </div>
+          <div :if={@sketch} class="relative">
+            <img
+              src={if pipeline_phase(@sketch) == :labelling, do: @sketch.raw, else: @sketch.cropped}
+              class={[
+                "h-full w-auto object-contain",
+                pipeline_phase(@sketch) != :completed && "sketch-processing"
+              ]}
+            />
+            <span class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl font-semibold px-2 py-1 text-white backdrop-blur-md rounded-sm">
+              <%= @sketch.label %>
+            </span>
           </div>
-          <img :if={@sketch} src={@sketch.processed} class="h-full w-auto object-contain" />
+          <img
+            :if={@sketch && @sketch.processed}
+            src={@sketch.processed}
+            class="h-full w-auto object-contain"
+          />
         </div>
       </div>
     </div>
@@ -75,6 +82,11 @@ defmodule ImaginativeRestorationWeb.IndexLive do
   def handle_info({:update_sketch, sketch}, socket) do
     {:noreply, assign(socket, sketch: sketch)}
   end
+
+  defp pipeline_phase(%Sketch{label: nil}), do: :labelling
+  defp pipeline_phase(%Sketch{processed: nil}), do: :processing
+  defp pipeline_phase(%Sketch{}), do: :completed
+  defp pipeline_phase(nil), do: :waiting
 
   defp send_update_sketch_message(sketch, pid) do
     send(pid, {:update_sketch, sketch})
