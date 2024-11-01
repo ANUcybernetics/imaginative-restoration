@@ -1,23 +1,25 @@
 ## TODO
 
-- create a new imgres app (maybe manually, not from launch, so that the mount
-  stuff doesn't get overridden)
-- make sure the old volumes got deleted (both personal and socy org)
+- add test for "changed_recently?" logic
 - animate pipeline view
+- hide y-scrollbar on Chrome
+- up the min size of the boids
+- further animate image size/opacity/tint/filter
 - just use a couple of the clips
-- add an LLM in there to make the pictures conform to the scene a bit more
-- deploy to fly.io
-- add scheduler (i.e. only run during business hours)
 - test with 1080p camera 873mm above desk, slightly-smaller-than-A3 surface
 - add nicer feedback for camera not working, or processing pipeline failed (e.g.
-  http error), or missing capture box params
+  http error), or missing capture box params, or no AUTH_USERNAME...
 
 ## Ideas
 
 Not necessarily good ones, but things we might try:
 
+- add an LLM in the pipeline to make the pictures conform to the scene a bit
+  more
 - fade sketches from bg to colour
+- randomize the prompts, params, or model (although be careful about coldness)
 - image->video (because Charlotte has a bee in her bonnet about it)
+- see if leo.ai has some secret sauce
 - select at random from the florence-detected objects, not always the first one
 - add read-only views (for outside the grotto, or anywhere in the world)
 
