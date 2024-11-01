@@ -28,7 +28,10 @@ defmodule ImaginativeRestorationWeb.IndexLive do
                 pipeline_phase(@sketch) != :completed && "sketch-processing"
               ]}
             />
-            <span class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl font-semibold px-2 py-1 text-white backdrop-blur-md rounded-sm">
+            <span
+              if={@sketch.label}
+              class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl font-semibold px-2 py-1 text-white backdrop-blur-md rounded-sm"
+            >
               <%= @sketch.label %>
             </span>
           </div>
