@@ -74,8 +74,6 @@ defmodule ImaginativeRestoration.AI.Utils do
 
         mean = Enum.sum(diffs) / length(diffs)
 
-        dbg({diffs, mean})
-
         # the docs say "In general, a hamming distance of less than 10 indicates that the images are very similar."
         mean >= 10
     end

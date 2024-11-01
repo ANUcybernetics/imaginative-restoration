@@ -43,20 +43,19 @@ defmodule ImaginativeRestorationWeb.IndexLive do
   def handle_event("webcam_frame", %{"frame" => dataurl}, socket) do
     pid = self()
 
-    if not Utils.changed_recently?(5) do
-      Logger.info("Skipping frame processing")
+    # only run the AI pipeline if stuff has changed recently
+    if Utils.changed_recently?(5) do
+      # spawn the task which will communicate back to self() via :update_sketch messages
+      Task.start(fn ->
+        dataurl
+        |> ImaginativeRestoration.Sketches.init!()
+        |> send_update_sketch_message(pid)
+        |> ImaginativeRestoration.Sketches.crop_and_set_prompt!()
+        |> send_update_sketch_message(pid)
+        |> ImaginativeRestoration.Sketches.process!()
+        |> send_update_sketch_message(pid)
+      end)
     end
-
-    # spawn the task which will communicate back to self() via :update_sketch messages
-    Task.start(fn ->
-      dataurl
-      |> ImaginativeRestoration.Sketches.init!()
-      |> send_update_sketch_message(pid)
-      |> ImaginativeRestoration.Sketches.crop_and_set_prompt!()
-      |> send_update_sketch_message(pid)
-      |> ImaginativeRestoration.Sketches.process!()
-      |> send_update_sketch_message(pid)
-    end)
 
     {:noreply, socket}
   end
