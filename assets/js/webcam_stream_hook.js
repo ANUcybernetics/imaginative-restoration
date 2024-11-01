@@ -1,7 +1,6 @@
 const WebcamStreamHook = {
   mounted() {
     this.captureInterval = parseInt(this.el.dataset.captureInterval);
-    this.captureBox = JSON.parse(this.el.dataset.captureBox);
 
     // Parse capture box from URL query params
     const urlParams = new URLSearchParams(window.location.search);
