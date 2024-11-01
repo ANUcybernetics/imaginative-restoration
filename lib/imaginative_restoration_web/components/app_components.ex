@@ -21,11 +21,11 @@ defmodule ImaginativeRestorationWeb.AppComponents do
         <line
           id="progress-line"
           x1="0"
-          y1="5"
+          y1="10"
           x2="100%"
-          y2="5"
-          stroke-width="10"
-          stroke="#00ff00"
+          y2="10"
+          stroke-width="20"
+          stroke="#08f"
           transform-origin="center"
         />
         <rect id="flash-overlay" x="0" y="0" width="100%" height="100%" fill="#ffffff" opacity="0" />

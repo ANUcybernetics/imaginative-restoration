@@ -11,7 +11,12 @@ defmodule ImaginativeRestorationWeb.ConfigLive do
     ~H"""
     <div class="relative flex items-center justify-center size-full">
       <.webcam_capture class="h-[300px]" capture_interval={10_000} />
-      <img src={@frame} />
+      <div class="relative">
+        <img src={@frame} />
+        <div class="absolute inset-0 flex items-center justify-center">
+          <span class="text-4xl px-2 py-1 text-white backdrop-blur-md rounded-sm">label</span>
+        </div>
+      </div>
     </div>
     """
   end
