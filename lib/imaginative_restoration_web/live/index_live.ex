@@ -22,9 +22,11 @@ defmodule ImaginativeRestorationWeb.IndexLive do
           <.webcam_capture capture_interval={30_000} />
           <img :if={@sketch} src={@sketch.raw} class="h-full w-auto object-contain" />
           <div :if={@sketch} class="relative h-full">
-            <img src={@sketch.cropped} class="h-full w-auto object-contain" />
+            <img src={@sketch.cropped} class="sketch-processing h-full w-auto object-contain" />
             <div class="absolute inset-0 flex items-center justify-center">
-              <span class="text-black text-lg font-bold"><%= @sketch.label %></span>
+              <span class="text-4xl font-semibold px-2 py-1 text-white backdrop-blur-md rounded-sm">
+                <%= @sketch.label %>
+              </span>
             </div>
           </div>
           <img :if={@sketch} src={@sketch.processed} class="h-full w-auto object-contain" />
