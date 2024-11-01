@@ -1,6 +1,8 @@
 defmodule ImaginativeRestoration.AI.Utils do
   @moduledoc false
 
+  require Ash.Query
+
   def to_image!(%Vix.Vips.Image{} = image), do: image
 
   def to_image!("http" <> _ = url) do
@@ -50,18 +52,21 @@ defmodule ImaginativeRestoration.AI.Utils do
     Image.crop!(image, x, y, w, h)
   end
 
-  def changed_recently?(n) do
+  def changed_recently? do
+    num_minutes = 5
+    num_sketches = 5
+
     sketches =
       ImaginativeRestoration.Sketches.Sketch
+      |> Ash.Query.filter(inserted_at > ago(^num_minutes, :minute))
       |> Ash.Query.sort(inserted_at: :desc)
-      |> Ash.Query.limit(n)
       |> Ash.read!()
 
     images = Enum.map(sketches, &to_image!(&1.raw))
 
     case images do
       # if there's fewer than n images, then we count it as "has changed recently"
-      images when length(images) < n ->
+      images when length(images) < num_sketches ->
         true
 
       # otherwise look at the average hash difference between the latest and previous images

@@ -44,7 +44,7 @@ defmodule ImaginativeRestorationWeb.IndexLive do
     pid = self()
 
     # only run the AI pipeline if stuff has changed recently
-    if Utils.changed_recently?(5) do
+    if Utils.changed_recently?() do
       # spawn the task which will communicate back to self() via :update_sketch messages
       Task.start(fn ->
         dataurl
