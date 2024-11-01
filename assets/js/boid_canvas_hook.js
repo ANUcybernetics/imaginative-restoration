@@ -100,7 +100,7 @@ const BoidCanvasHook = {
     this.opts = {
       accel: this.accel,
       behaviors: [separation(40, 1.2), alignment(80, 0.5), cohesion(80, 0.8)],
-      maxSpeed: 50,
+      maxSpeed: 300,
       // constrain will be set in updateCanvasSize
     };
 
@@ -164,7 +164,7 @@ const BoidCanvasHook = {
           // Draw boids
           this.flock.boids.forEach((boid) => {
             const pos = boid.pos.value;
-            let size = clamp(this.minSize, this.maxSize);
+            let size = this.maxSize;
 
             // Find neighbors
             const neighbors = boid.neighbors(size, pos);
@@ -179,7 +179,8 @@ const BoidCanvasHook = {
                   minD = d;
                 }
               }
-              if (closest) size = Math.sqrt(minD);
+              if (closest)
+                size = clamp(Math.sqrt(minD), this.minSize, this.maxSize);
             }
 
             // Draw boid using its specific image
