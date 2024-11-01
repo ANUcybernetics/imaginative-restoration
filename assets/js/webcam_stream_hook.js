@@ -115,54 +115,6 @@ const WebcamStreamHook = {
     this.animateCaptureProgress();
   },
 
-  createProgressOverlay() {
-    // Create wrapper div
-    const wrapper = document.createElement("div");
-    wrapper.style.position = "relative";
-    this.el.parentElement.insertBefore(wrapper, this.el);
-    wrapper.appendChild(this.el);
-
-    // Create SVG container
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.style.position = "absolute";
-    svg.style.inset = "0";
-    svg.style.width = "100%";
-    svg.style.height = "100%";
-    svg.style.pointerEvents = "none"; // Allow clicking through to video
-
-    // Create progress line
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", "0");
-    line.setAttribute("y1", "5");
-    line.setAttribute("x2", "100%");
-    line.setAttribute("y2", "5");
-    line.setAttribute("stroke-width", "10");
-    line.setAttribute("stroke", "#00ff00");
-    line.classList.add("progress-line");
-
-    // Create flash rectangle
-    const flash = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "rect",
-    );
-    flash.setAttribute("x", "0");
-    flash.setAttribute("y", "0");
-    flash.setAttribute("width", "100%");
-    flash.setAttribute("height", "100%");
-    flash.setAttribute("fill", "#ffffff");
-    flash.setAttribute("opacity", "0");
-    flash.classList.add("flash-overlay");
-
-    // Add elements to SVG container
-    svg.appendChild(line);
-    svg.appendChild(flash);
-    wrapper.appendChild(svg);
-
-    // Store references
-    this.progressLine = line;
-    this.flashOverlay = flash;
-  },
-
   animateCaptureProgress() {
     // Cancel any existing animations
     if (this.currentAnimations) {
