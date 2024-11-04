@@ -49,7 +49,8 @@ const WebcamStreamHook = {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const streamCam = devices.find(
         (device) =>
-          device.kind === "videoinput" && device.label === "Logitech StreamCam",
+          device.kind === "videoinput" &&
+          device.label.includes("Logitech StreamCam"),
       );
 
       const videoConstraints = streamCam
