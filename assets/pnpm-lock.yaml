@@ -1,611 +1,761 @@
-lockfileVersion: '9.0'
+lockfileVersion: "9.0"
 
 settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
 importers:
-
   .:
     dependencies:
-      '@thi.ng/boids':
+      "@thi.ng/boids":
         specifier: ^1.0.51
         version: 1.0.51
-      '@thi.ng/color':
+      "@thi.ng/color":
         specifier: ^5.7.8
         version: 5.7.8
-      '@thi.ng/geom':
+      "@thi.ng/geom":
         specifier: ^8.1.13
         version: 8.1.13
-      '@thi.ng/geom-accel':
+      "@thi.ng/geom-accel":
         specifier: ^4.1.10
         version: 4.1.10
-      '@thi.ng/math':
+      "@thi.ng/math":
         specifier: ^5.11.11
         version: 5.11.11
-      '@thi.ng/random':
+      "@thi.ng/random":
         specifier: ^4.1.2
         version: 4.1.2
-      '@thi.ng/rstream':
+      "@thi.ng/rstream":
         specifier: ^9.0.7
         version: 9.0.7
-      '@thi.ng/timestep':
+      "@thi.ng/timestep":
         specifier: ^0.5.67
         version: 0.5.67
-      '@thi.ng/vectors':
+      "@thi.ng/vectors":
         specifier: ^7.12.5
         version: 7.12.5
 
 packages:
+  "@thi.ng/adjacency@3.0.12":
+    resolution:
+      {
+        integrity: sha512-DYqxpxdP8JQ09D2mpzBh2OlICYU0TFPvo4GAvDoTYq4wclJqHv7fUBOChllREl2RPVvdJ6tcNPqw2D+FcDm2ow==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/adjacency@3.0.12':
-    resolution: {integrity: sha512-DYqxpxdP8JQ09D2mpzBh2OlICYU0TFPvo4GAvDoTYq4wclJqHv7fUBOChllREl2RPVvdJ6tcNPqw2D+FcDm2ow==}
-    engines: {node: '>=18'}
+  "@thi.ng/api@8.11.11":
+    resolution:
+      {
+        integrity: sha512-/GKDIgyQXA7JKxwgJ6W5xgQVHIWXmoPnWHsNqfg7aIyYNpfMYtjLjao2+nXmZhwjizullMahJPH7Xrrm6o/vyg==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/api@8.11.11':
-    resolution: {integrity: sha512-/GKDIgyQXA7JKxwgJ6W5xgQVHIWXmoPnWHsNqfg7aIyYNpfMYtjLjao2+nXmZhwjizullMahJPH7Xrrm6o/vyg==}
-    engines: {node: '>=18'}
+  "@thi.ng/arrays@2.10.4":
+    resolution:
+      {
+        integrity: sha512-O3njL0GvhHwqxF03pXTpZbZlHcD1lyeAk6/+I4KMES5ff2hz8uYyT42naJ4zsrdq+6nxf/HQ+zuzYbky/1Llng==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/arrays@2.10.4':
-    resolution: {integrity: sha512-O3njL0GvhHwqxF03pXTpZbZlHcD1lyeAk6/+I4KMES5ff2hz8uYyT42naJ4zsrdq+6nxf/HQ+zuzYbky/1Llng==}
-    engines: {node: '>=18'}
+  "@thi.ng/associative@7.0.13":
+    resolution:
+      {
+        integrity: sha512-5yqxL3nVbaeVuwgA/hy0vdJyQ4zSc10qQ1rMqS59onWKt3qJCV4z8nTSxyN/DhGNxT6kiWTSjl+Zgfb13sccuQ==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/associative@7.0.13':
-    resolution: {integrity: sha512-5yqxL3nVbaeVuwgA/hy0vdJyQ4zSc10qQ1rMqS59onWKt3qJCV4z8nTSxyN/DhGNxT6kiWTSjl+Zgfb13sccuQ==}
-    engines: {node: '>=18'}
+  "@thi.ng/atom@5.3.11":
+    resolution:
+      {
+        integrity: sha512-04UIPB4ncSRhI0Sbfd9SgYOzGk3UING3pQGa/onl0AoghBeAOauUI8BMA5J4M32R4QCg8GLFkEgBa7IU1CWXAQ==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/atom@5.3.11':
-    resolution: {integrity: sha512-04UIPB4ncSRhI0Sbfd9SgYOzGk3UING3pQGa/onl0AoghBeAOauUI8BMA5J4M32R4QCg8GLFkEgBa7IU1CWXAQ==}
-    engines: {node: '>=18'}
+  "@thi.ng/binary@3.4.34":
+    resolution:
+      {
+        integrity: sha512-yfHoERldOYgbXoAGbQFYjmHKudxvEikey5Rja/N2zHawdYM6GwHQwfp0GdU6L/7G17l8v/pqLKvrpJMMzaV0ug==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/binary@3.4.34':
-    resolution: {integrity: sha512-yfHoERldOYgbXoAGbQFYjmHKudxvEikey5Rja/N2zHawdYM6GwHQwfp0GdU6L/7G17l8v/pqLKvrpJMMzaV0ug==}
-    engines: {node: '>=18'}
+  "@thi.ng/bitfield@2.3.52":
+    resolution:
+      {
+        integrity: sha512-iXyBuTbOr+j8bj80pMho9e1rqopoXFs5uE4UtsCL37wgLKECeWRJ6JsHlX8Fh8GQ3d9svfh4NxBS86/0dbJ3fQ==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/bitfield@2.3.52':
-    resolution: {integrity: sha512-iXyBuTbOr+j8bj80pMho9e1rqopoXFs5uE4UtsCL37wgLKECeWRJ6JsHlX8Fh8GQ3d9svfh4NxBS86/0dbJ3fQ==}
-    engines: {node: '>=18'}
+  "@thi.ng/boids@1.0.51":
+    resolution:
+      {
+        integrity: sha512-TIb58+ua5nq4WnqWNPCVhYK/ECdEm0MTovNBBNyBm5egy4Eo4aufPHCq6IjnBMeA7CyJfFnPxGqtWg2WL4yWCw==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/boids@1.0.51':
-    resolution: {integrity: sha512-TIb58+ua5nq4WnqWNPCVhYK/ECdEm0MTovNBBNyBm5egy4Eo4aufPHCq6IjnBMeA7CyJfFnPxGqtWg2WL4yWCw==}
-    engines: {node: '>=18'}
+  "@thi.ng/checks@3.6.13":
+    resolution:
+      {
+        integrity: sha512-LUK/S+QOkDMx1SEG3rubLfCu/KVSDTAEqAlwRP32WDPQXpWt95d7OSVI+oKDhAfpEPwdn13VufDSVcQqVNjEgw==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/checks@3.6.13':
-    resolution: {integrity: sha512-LUK/S+QOkDMx1SEG3rubLfCu/KVSDTAEqAlwRP32WDPQXpWt95d7OSVI+oKDhAfpEPwdn13VufDSVcQqVNjEgw==}
-    engines: {node: '>=18'}
+  "@thi.ng/color@5.7.8":
+    resolution:
+      {
+        integrity: sha512-+NyDXUbFVvD4ovxigTFLnr9dHMtfgZWGw+SdRABChZ21hgFUAfLd+Jo1AaJo7ID53rBaIUZrWqaVjrbJUsYcoQ==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/color@5.7.8':
-    resolution: {integrity: sha512-+NyDXUbFVvD4ovxigTFLnr9dHMtfgZWGw+SdRABChZ21hgFUAfLd+Jo1AaJo7ID53rBaIUZrWqaVjrbJUsYcoQ==}
-    engines: {node: '>=18'}
+  "@thi.ng/compare@2.4.3":
+    resolution:
+      {
+        integrity: sha512-iw4xeXXTSBXxWRkVdZwSORVGYJNsC4G5/UsAROJn9pFORbId2gyMov64gmIj2G/LdN679O0ztKv7KE4aBZLC2Q==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/compare@2.4.3':
-    resolution: {integrity: sha512-iw4xeXXTSBXxWRkVdZwSORVGYJNsC4G5/UsAROJn9pFORbId2gyMov64gmIj2G/LdN679O0ztKv7KE4aBZLC2Q==}
-    engines: {node: '>=18'}
+  "@thi.ng/compose@3.0.14":
+    resolution:
+      {
+        integrity: sha512-SnKz69dxAAbtNkyXMTbMMBQgTHSY50/ER4z43se0i4uBTHQmEedcPqzZrxSOwbpMyCLSWfx/9KnOwPpCWXqd3w==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/compose@3.0.14':
-    resolution: {integrity: sha512-SnKz69dxAAbtNkyXMTbMMBQgTHSY50/ER4z43se0i4uBTHQmEedcPqzZrxSOwbpMyCLSWfx/9KnOwPpCWXqd3w==}
-    engines: {node: '>=18'}
+  "@thi.ng/dcons@3.2.131":
+    resolution:
+      {
+        integrity: sha512-kVLpqEOBJ4k/l0ICfMn4NIfrSe8Ac6kKF8hKcB10OI/kdeIGrWEISmv63RiALWpMwWA9nRJy/b1l2uNX0J7vKw==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/dcons@3.2.131':
-    resolution: {integrity: sha512-kVLpqEOBJ4k/l0ICfMn4NIfrSe8Ac6kKF8hKcB10OI/kdeIGrWEISmv63RiALWpMwWA9nRJy/b1l2uNX0J7vKw==}
-    engines: {node: '>=18'}
+  "@thi.ng/defmulti@3.0.49":
+    resolution:
+      {
+        integrity: sha512-yqvA+1axT6lfzqrgDLm47vaJk1WyTdEOxIIc05/wiEcgkghfQNWUnSvUqHq4G2LnCDg7T9sPlFuKLY60u7HH4g==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/defmulti@3.0.49':
-    resolution: {integrity: sha512-yqvA+1axT6lfzqrgDLm47vaJk1WyTdEOxIIc05/wiEcgkghfQNWUnSvUqHq4G2LnCDg7T9sPlFuKLY60u7HH4g==}
-    engines: {node: '>=18'}
+  "@thi.ng/disjoint-set@1.1.4":
+    resolution:
+      {
+        integrity: sha512-bmwyj04/zJLIF1tQLj6IhYQlOuyC32ogId73mTNKjUrF4NyWpHOJGCgscYf03F3TMEB1T25USEZTkaSyEUk8jQ==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/disjoint-set@1.1.4':
-    resolution: {integrity: sha512-bmwyj04/zJLIF1tQLj6IhYQlOuyC32ogId73mTNKjUrF4NyWpHOJGCgscYf03F3TMEB1T25USEZTkaSyEUk8jQ==}
-    engines: {node: '>=18'}
+  "@thi.ng/distance@2.4.91":
+    resolution:
+      {
+        integrity: sha512-+x4MBcNR6C+kxgnnwLMudCWfazgi+YLHXI5aeDCWq9Cleea/yTveagQEBPWa4Zl0jn+L8q1oo9CFaYQ4OfbYjA==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/distance@2.4.91':
-    resolution: {integrity: sha512-+x4MBcNR6C+kxgnnwLMudCWfazgi+YLHXI5aeDCWq9Cleea/yTveagQEBPWa4Zl0jn+L8q1oo9CFaYQ4OfbYjA==}
-    engines: {node: '>=18'}
+  "@thi.ng/equiv@2.1.67":
+    resolution:
+      {
+        integrity: sha512-n1H1MAp981nw7ymugzMWUt1wfo3eJQYXm00LDNtIB6IxGzaSnXV9JaIhMCfhyE9p33g72ChQNALaMjnu5rXCbg==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/equiv@2.1.67':
-    resolution: {integrity: sha512-n1H1MAp981nw7ymugzMWUt1wfo3eJQYXm00LDNtIB6IxGzaSnXV9JaIhMCfhyE9p33g72ChQNALaMjnu5rXCbg==}
-    engines: {node: '>=18'}
+  "@thi.ng/errors@2.5.17":
+    resolution:
+      {
+        integrity: sha512-ohBAZcGNEIEOgJ9BPH4tjIsOjVgsnMGh4a2j63r6El68efr8RRN4G+GNkDaqV/jk9wbHKZZPt2t6suJMliPyxg==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/errors@2.5.17':
-    resolution: {integrity: sha512-ohBAZcGNEIEOgJ9BPH4tjIsOjVgsnMGh4a2j63r6El68efr8RRN4G+GNkDaqV/jk9wbHKZZPt2t6suJMliPyxg==}
-    engines: {node: '>=18'}
+  "@thi.ng/geom-accel@4.1.10":
+    resolution:
+      {
+        integrity: sha512-0OJf18kNpuW1qGz4TUh7C1mRH7s4fcCee2ID8sBOaes7xP6RwrJSqditCaiXxlWw+8Rmt0Fo3u3zKwYoVRlQNw==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/geom-accel@4.1.10':
-    resolution: {integrity: sha512-0OJf18kNpuW1qGz4TUh7C1mRH7s4fcCee2ID8sBOaes7xP6RwrJSqditCaiXxlWw+8Rmt0Fo3u3zKwYoVRlQNw==}
-    engines: {node: '>=18'}
+  "@thi.ng/geom-arc@2.1.150":
+    resolution:
+      {
+        integrity: sha512-r/hL6ZjOq6//n6sTMK84EWq24cqpc6QV4R8ZUZ95S2hzvbjN/QKiGDrPXLGyfw8CXnD48s82eFOsNtoRQoX0eA==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/geom-arc@2.1.150':
-    resolution: {integrity: sha512-r/hL6ZjOq6//n6sTMK84EWq24cqpc6QV4R8ZUZ95S2hzvbjN/QKiGDrPXLGyfw8CXnD48s82eFOsNtoRQoX0eA==}
-    engines: {node: '>=18'}
+  "@thi.ng/geom-clip-line@2.3.107":
+    resolution:
+      {
+        integrity: sha512-H3NzlrwgFN5WgM8ELPeo0Le35WrmoMPtQAhyQLCXMPwOT9gqB6ATWnyeZjAuSS1kXC5TgUNXpI0E2bw1p+d9Sw==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/geom-clip-line@2.3.107':
-    resolution: {integrity: sha512-H3NzlrwgFN5WgM8ELPeo0Le35WrmoMPtQAhyQLCXMPwOT9gqB6ATWnyeZjAuSS1kXC5TgUNXpI0E2bw1p+d9Sw==}
-    engines: {node: '>=18'}
+  "@thi.ng/geom-clip-poly@2.1.149":
+    resolution:
+      {
+        integrity: sha512-VyBvOJaCfxjPAi/JzZkcNtvKdNFE9eLWDAU3m8I12qo/OWT8ci/z5Z9PiX+aQN0bCCsE1M+AaLoTtt9tCVKyKA==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/geom-clip-poly@2.1.149':
-    resolution: {integrity: sha512-VyBvOJaCfxjPAi/JzZkcNtvKdNFE9eLWDAU3m8I12qo/OWT8ci/z5Z9PiX+aQN0bCCsE1M+AaLoTtt9tCVKyKA==}
-    engines: {node: '>=18'}
+  "@thi.ng/geom-closest-point@2.1.145":
+    resolution:
+      {
+        integrity: sha512-UjZWSS6/kfXFUbWz+6+0uWFRad9l/rJNnH7kbmBVqhVMOcOkTu1VeGrPd97u5m9dwtp6wOHYmySbgV6S8qdJEQ==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/geom-closest-point@2.1.145':
-    resolution: {integrity: sha512-UjZWSS6/kfXFUbWz+6+0uWFRad9l/rJNnH7kbmBVqhVMOcOkTu1VeGrPd97u5m9dwtp6wOHYmySbgV6S8qdJEQ==}
-    engines: {node: '>=18'}
+  "@thi.ng/geom-hull@2.1.145":
+    resolution:
+      {
+        integrity: sha512-bCbmnVgRv9g6I1K/9br3r3AjXV2BmYrb389H+TUAf2Fl0MM+vr+V2ioDTjM47SCamXtVK1eW8IMRccHRD8k7Zw==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/geom-hull@2.1.145':
-    resolution: {integrity: sha512-bCbmnVgRv9g6I1K/9br3r3AjXV2BmYrb389H+TUAf2Fl0MM+vr+V2ioDTjM47SCamXtVK1eW8IMRccHRD8k7Zw==}
-    engines: {node: '>=18'}
+  "@thi.ng/geom-isec@4.0.17":
+    resolution:
+      {
+        integrity: sha512-W315/5dTmiSkQQeCG+xSdDM4kuAxHmILCwk/srDI4yhUdgryDCXTSsvgBRSkgMTaXdyW2tOdd5uJJQFmjWDS/w==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/geom-isec@4.0.17':
-    resolution: {integrity: sha512-W315/5dTmiSkQQeCG+xSdDM4kuAxHmILCwk/srDI4yhUdgryDCXTSsvgBRSkgMTaXdyW2tOdd5uJJQFmjWDS/w==}
-    engines: {node: '>=18'}
+  "@thi.ng/geom-poly-utils@3.0.17":
+    resolution:
+      {
+        integrity: sha512-57rctIxg4pzyHf+LKDAtkfbBqq3vnOj0BVSw53sQrZ2t5ff5Y2Vn2vIDkpdK0p1sQOZOiQzTzcoU2JPJpkRjWA==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/geom-poly-utils@3.0.17':
-    resolution: {integrity: sha512-57rctIxg4pzyHf+LKDAtkfbBqq3vnOj0BVSw53sQrZ2t5ff5Y2Vn2vIDkpdK0p1sQOZOiQzTzcoU2JPJpkRjWA==}
-    engines: {node: '>=18'}
+  "@thi.ng/geom-resample@3.0.17":
+    resolution:
+      {
+        integrity: sha512-lwC3Uv/PtoJjJk5HLYce2COdu+4iPM1zC7X+d1Pme7qThJL+t4YI6YApB4sAqXMTIuWCzocfCGGrWLEr7TbSGA==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/geom-resample@3.0.17':
-    resolution: {integrity: sha512-lwC3Uv/PtoJjJk5HLYce2COdu+4iPM1zC7X+d1Pme7qThJL+t4YI6YApB4sAqXMTIuWCzocfCGGrWLEr7TbSGA==}
-    engines: {node: '>=18'}
+  "@thi.ng/geom-splines@2.3.17":
+    resolution:
+      {
+        integrity: sha512-X7tejOKaP4Yoj0xvW1KQ3cz2bVHjkbd0qrdBVxyDbKHWmFOkSkNRTnlor34M495SjpLlORRwC29CkB0xVgPcTQ==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/geom-splines@2.3.17':
-    resolution: {integrity: sha512-X7tejOKaP4Yoj0xvW1KQ3cz2bVHjkbd0qrdBVxyDbKHWmFOkSkNRTnlor34M495SjpLlORRwC29CkB0xVgPcTQ==}
-    engines: {node: '>=18'}
+  "@thi.ng/geom-subdiv-curve@3.0.17":
+    resolution:
+      {
+        integrity: sha512-pHltZCt7bM+WPp9/tXk9EVQDOdooGV0b1XfT+nkox+fyEx3Nc3ucwwLo9BZHKCczXEcqB8jV7cg1am+Bmt3VFA==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/geom-subdiv-curve@3.0.17':
-    resolution: {integrity: sha512-pHltZCt7bM+WPp9/tXk9EVQDOdooGV0b1XfT+nkox+fyEx3Nc3ucwwLo9BZHKCczXEcqB8jV7cg1am+Bmt3VFA==}
-    engines: {node: '>=18'}
+  "@thi.ng/geom-tessellate@3.0.17":
+    resolution:
+      {
+        integrity: sha512-ivr9ZoQxT0MFD5MLcEG07HVNrKNr3pIZM+yXv2GOmkQ1ykfrm2ZEysKkC3AgiSxngwL8paS04Jz79VUqvXJzMQ==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/geom-tessellate@3.0.17':
-    resolution: {integrity: sha512-ivr9ZoQxT0MFD5MLcEG07HVNrKNr3pIZM+yXv2GOmkQ1ykfrm2ZEysKkC3AgiSxngwL8paS04Jz79VUqvXJzMQ==}
-    engines: {node: '>=18'}
+  "@thi.ng/geom@8.1.13":
+    resolution:
+      {
+        integrity: sha512-XB3Lyw8z7Bp1xwtrcz4UESgZ620Gt/O3uKrJdKl+sI7z24ivG/l1oFTz28kX89+xo4BfCyrXRTxYV9nc06e24A==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/geom@8.1.13':
-    resolution: {integrity: sha512-XB3Lyw8z7Bp1xwtrcz4UESgZ620Gt/O3uKrJdKl+sI7z24ivG/l1oFTz28kX89+xo4BfCyrXRTxYV9nc06e24A==}
-    engines: {node: '>=18'}
+  "@thi.ng/heaps@2.1.83":
+    resolution:
+      {
+        integrity: sha512-HpvCNHC0iT5PxanjCSW0H94t+F6bv/JURIDdhQvLpmmmDISE8neEESHDYfVIUYFJexVWjspZ7MivxFGxz/RRdA==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/heaps@2.1.83':
-    resolution: {integrity: sha512-HpvCNHC0iT5PxanjCSW0H94t+F6bv/JURIDdhQvLpmmmDISE8neEESHDYfVIUYFJexVWjspZ7MivxFGxz/RRdA==}
-    engines: {node: '>=18'}
+  "@thi.ng/hex@2.3.55":
+    resolution:
+      {
+        integrity: sha512-ri79s2+YUeNAF62ij5YyYeoUig/4UrDdJztVInOdqnQ5RnWw7/Jyjt/JatNitf+dqdDbCBklLZwONCiedT6SCw==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/hex@2.3.55':
-    resolution: {integrity: sha512-ri79s2+YUeNAF62ij5YyYeoUig/4UrDdJztVInOdqnQ5RnWw7/Jyjt/JatNitf+dqdDbCBklLZwONCiedT6SCw==}
-    engines: {node: '>=18'}
+  "@thi.ng/hiccup-svg@5.4.4":
+    resolution:
+      {
+        integrity: sha512-DITdci3znPjpw2EHfoaEWv37MFgEe5vsSPyMPLULo47ln/IAbzt2q1OwGYgApRFRENprzDXcXGsl0jGsQj744Q==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/hiccup-svg@5.4.4':
-    resolution: {integrity: sha512-DITdci3znPjpw2EHfoaEWv37MFgEe5vsSPyMPLULo47ln/IAbzt2q1OwGYgApRFRENprzDXcXGsl0jGsQj744Q==}
-    engines: {node: '>=18'}
+  "@thi.ng/hiccup@5.2.14":
+    resolution:
+      {
+        integrity: sha512-zXBErMWovmgOZm3NTDesx0bOfIyA3+tt0HsiwA48B/MZpJn1YwRYTaNlYD2H9ZqDEFpl2cIs95SaWFoTE3DqVw==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/hiccup@5.2.14':
-    resolution: {integrity: sha512-zXBErMWovmgOZm3NTDesx0bOfIyA3+tt0HsiwA48B/MZpJn1YwRYTaNlYD2H9ZqDEFpl2cIs95SaWFoTE3DqVw==}
-    engines: {node: '>=18'}
+  "@thi.ng/logger@3.0.21":
+    resolution:
+      {
+        integrity: sha512-J+ou7WXdQAP+E2/ibQrEtfietl5F5hpbyMQVY/1ylivHsWFCPEDOERSvVjN4Dj2amf85mTPZfP9galXkm7N4xQ==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/logger@3.0.21':
-    resolution: {integrity: sha512-J+ou7WXdQAP+E2/ibQrEtfietl5F5hpbyMQVY/1ylivHsWFCPEDOERSvVjN4Dj2amf85mTPZfP9galXkm7N4xQ==}
-    engines: {node: '>=18'}
+  "@thi.ng/math@5.11.11":
+    resolution:
+      {
+        integrity: sha512-0XBmBf80+9JlLGqFR6Ci2bpVoyE5lhl0MwZv4PAgClBXjYz4SPr7fkScOia9TQ6lS56gRggxJiXDQA1kiso59g==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/math@5.11.11':
-    resolution: {integrity: sha512-0XBmBf80+9JlLGqFR6Ci2bpVoyE5lhl0MwZv4PAgClBXjYz4SPr7fkScOia9TQ6lS56gRggxJiXDQA1kiso59g==}
-    engines: {node: '>=18'}
+  "@thi.ng/matrices@2.4.17":
+    resolution:
+      {
+        integrity: sha512-3grgVQav/b2mqSp64IjQpYtYhraHZ7NO/0K62xRO5qI57clC5ZAB+c8oFM//4/i5Sj1XFZHHEK+Mvfc6dYjjpw==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/matrices@2.4.17':
-    resolution: {integrity: sha512-3grgVQav/b2mqSp64IjQpYtYhraHZ7NO/0K62xRO5qI57clC5ZAB+c8oFM//4/i5Sj1XFZHHEK+Mvfc6dYjjpw==}
-    engines: {node: '>=18'}
+  "@thi.ng/memoize@3.3.13":
+    resolution:
+      {
+        integrity: sha512-hrNwi/f2GD1WuPIjTHapS/bDpv+8UUNwOkD5CpD3Q2Hpm1PXmpMSYY36Q3UCN9Ha86jswJZU9YVAR4VhRqx2JQ==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/memoize@3.3.13':
-    resolution: {integrity: sha512-hrNwi/f2GD1WuPIjTHapS/bDpv+8UUNwOkD5CpD3Q2Hpm1PXmpMSYY36Q3UCN9Ha86jswJZU9YVAR4VhRqx2JQ==}
-    engines: {node: '>=18'}
+  "@thi.ng/morton@3.1.98":
+    resolution:
+      {
+        integrity: sha512-vt39A8A2KvENJuHtnnCzap68jX/2HWSl1wPH3oxNQXCSLVce86DLigCP0euEmj/Axxsnq9n2s1IWWxcIekkOzQ==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/morton@3.1.98':
-    resolution: {integrity: sha512-vt39A8A2KvENJuHtnnCzap68jX/2HWSl1wPH3oxNQXCSLVce86DLigCP0euEmj/Axxsnq9n2s1IWWxcIekkOzQ==}
-    engines: {node: '>=18'}
+  "@thi.ng/object-utils@1.1.4":
+    resolution:
+      {
+        integrity: sha512-KK6W6nj4ubw9FwJ/KmDNNSmfOg5iyo4h8JXwRyAh9Sqz35vXOYOabvpK4PscNTCP/k+QdNWMCnUeIOd45KlfDg==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/object-utils@1.1.4':
-    resolution: {integrity: sha512-KK6W6nj4ubw9FwJ/KmDNNSmfOg5iyo4h8JXwRyAh9Sqz35vXOYOabvpK4PscNTCP/k+QdNWMCnUeIOd45KlfDg==}
-    engines: {node: '>=18'}
+  "@thi.ng/paths@5.1.91":
+    resolution:
+      {
+        integrity: sha512-Q/1dTLOw31L4tb76BpOlEWKUmZpot8uVyw+Ll/P/exUQTsMV45EBEfRF3qYiSLISkoNE8UHMz2iiKFqqexpgzA==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/paths@5.1.91':
-    resolution: {integrity: sha512-Q/1dTLOw31L4tb76BpOlEWKUmZpot8uVyw+Ll/P/exUQTsMV45EBEfRF3qYiSLISkoNE8UHMz2iiKFqqexpgzA==}
-    engines: {node: '>=18'}
+  "@thi.ng/prefixes@2.3.28":
+    resolution:
+      {
+        integrity: sha512-17sgUFDkdT3juZuZWy0vFhJz381F+A6Z0NKPzRB5rAEMTcyE0qtxU24/hKtRgiM6mDTWGjQ/Wz1BwPX+oBNhmQ==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/prefixes@2.3.28':
-    resolution: {integrity: sha512-17sgUFDkdT3juZuZWy0vFhJz381F+A6Z0NKPzRB5rAEMTcyE0qtxU24/hKtRgiM6mDTWGjQ/Wz1BwPX+oBNhmQ==}
-    engines: {node: '>=18'}
+  "@thi.ng/random@4.1.2":
+    resolution:
+      {
+        integrity: sha512-PEdZlidlWdCisS3U5MH0Wa5sxdB2aRhkc9h9nBeC291OKMTfuGfIK5jh4EUodRskKuJj1H6UTPuyV9DVkw8rgg==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/random@4.1.2':
-    resolution: {integrity: sha512-PEdZlidlWdCisS3U5MH0Wa5sxdB2aRhkc9h9nBeC291OKMTfuGfIK5jh4EUodRskKuJj1H6UTPuyV9DVkw8rgg==}
-    engines: {node: '>=18'}
+  "@thi.ng/rstream@9.0.7":
+    resolution:
+      {
+        integrity: sha512-CrVG59kHiQPpBpDn0dMjVCwWMieSyAQ6NX8K+tQcfKUmsBipfx6XKkVR1/MkiiIHUrIFcT+bE/EzIUJeyrclOA==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/rstream@9.0.7':
-    resolution: {integrity: sha512-CrVG59kHiQPpBpDn0dMjVCwWMieSyAQ6NX8K+tQcfKUmsBipfx6XKkVR1/MkiiIHUrIFcT+bE/EzIUJeyrclOA==}
-    engines: {node: '>=18'}
+  "@thi.ng/sparse@0.3.136":
+    resolution:
+      {
+        integrity: sha512-zknNCs/KyDFvfHVX4/l+zwj7dOVF4OruoVnQgcfwrY0aocDLhc7iN1Mz8eEi5nkJou/CUUiEVqrxpnbdYEob8g==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/sparse@0.3.136':
-    resolution: {integrity: sha512-zknNCs/KyDFvfHVX4/l+zwj7dOVF4OruoVnQgcfwrY0aocDLhc7iN1Mz8eEi5nkJou/CUUiEVqrxpnbdYEob8g==}
-    engines: {node: '>=18'}
+  "@thi.ng/strings@3.8.6":
+    resolution:
+      {
+        integrity: sha512-y7Sauz16rBGMWNxvP4iVWivk+v2JPVU7mxbyEgH7olhMljHG7UaFh2XlgdC1mqFZ3TzEAHybjfkRrLXBH4DOWw==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/strings@3.8.6':
-    resolution: {integrity: sha512-y7Sauz16rBGMWNxvP4iVWivk+v2JPVU7mxbyEgH7olhMljHG7UaFh2XlgdC1mqFZ3TzEAHybjfkRrLXBH4DOWw==}
-    engines: {node: '>=18'}
+  "@thi.ng/timestep@0.5.67":
+    resolution:
+      {
+        integrity: sha512-+LiS2fGM51+OtHU6KWrKWvU9x/P4I3ULT7zBieJWhwSFkCnP82GGeMt0lPZ+5boyPBB5qm34Rj+1gf/lkwdFNA==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/timestep@0.5.67':
-    resolution: {integrity: sha512-+LiS2fGM51+OtHU6KWrKWvU9x/P4I3ULT7zBieJWhwSFkCnP82GGeMt0lPZ+5boyPBB5qm34Rj+1gf/lkwdFNA==}
-    engines: {node: '>=18'}
+  "@thi.ng/transducers@9.2.7":
+    resolution:
+      {
+        integrity: sha512-Vurzfi8WpZ4M+YJw0RzsaxFphwAGKSBkEWwi9aQGYw7W7cN2yVUTLCWMqslEQ1XQwDURHmLM+m1ygf+jpYBPbw==,
+      }
+    engines: { node: ">=18" }
 
-  '@thi.ng/transducers@9.2.7':
-    resolution: {integrity: sha512-Vurzfi8WpZ4M+YJw0RzsaxFphwAGKSBkEWwi9aQGYw7W7cN2yVUTLCWMqslEQ1XQwDURHmLM+m1ygf+jpYBPbw==}
-    engines: {node: '>=18'}
-
-  '@thi.ng/vectors@7.12.5':
-    resolution: {integrity: sha512-IOj9GH+h1eB8YGqFhpZxPcxb3FL7e96ITDuWVSwERr/o52+vh0f6oIWmlAM5/r5gtgur+maPbnqhlIrqvcrPxg==}
-    engines: {node: '>=18'}
+  "@thi.ng/vectors@7.12.5":
+    resolution:
+      {
+        integrity: sha512-IOj9GH+h1eB8YGqFhpZxPcxb3FL7e96ITDuWVSwERr/o52+vh0f6oIWmlAM5/r5gtgur+maPbnqhlIrqvcrPxg==,
+      }
+    engines: { node: ">=18" }
 
   tslib@2.8.0:
-    resolution: {integrity: sha512-jWVzBLplnCmoaTr13V9dYbiQ99wvZRd0vNWaDRg+aVYRcjDF3nDksxFDE/+fkXnKhpnUUkmx5pK/v8mCtLVqZA==}
+    resolution:
+      {
+        integrity: sha512-jWVzBLplnCmoaTr13V9dYbiQ99wvZRd0vNWaDRg+aVYRcjDF3nDksxFDE/+fkXnKhpnUUkmx5pK/v8mCtLVqZA==,
+      }
 
 snapshots:
-
-  '@thi.ng/adjacency@3.0.12':
+  "@thi.ng/adjacency@3.0.12":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/arrays': 2.10.4
-      '@thi.ng/bitfield': 2.3.52
-      '@thi.ng/dcons': 3.2.131
-      '@thi.ng/disjoint-set': 1.1.4
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/sparse': 0.3.136
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/arrays": 2.10.4
+      "@thi.ng/bitfield": 2.3.52
+      "@thi.ng/dcons": 3.2.131
+      "@thi.ng/disjoint-set": 1.1.4
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/sparse": 0.3.136
 
-  '@thi.ng/api@8.11.11': {}
+  "@thi.ng/api@8.11.11": {}
 
-  '@thi.ng/arrays@2.10.4':
+  "@thi.ng/arrays@2.10.4":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/compare': 2.4.3
-      '@thi.ng/equiv': 2.1.67
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/random': 4.1.2
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/compare": 2.4.3
+      "@thi.ng/equiv": 2.1.67
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/random": 4.1.2
 
-  '@thi.ng/associative@7.0.13':
+  "@thi.ng/associative@7.0.13":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/arrays': 2.10.4
-      '@thi.ng/binary': 3.4.34
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/dcons': 3.2.131
-      '@thi.ng/equiv': 2.1.67
-      '@thi.ng/object-utils': 1.1.4
-      '@thi.ng/transducers': 9.2.7
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/arrays": 2.10.4
+      "@thi.ng/binary": 3.4.34
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/dcons": 3.2.131
+      "@thi.ng/equiv": 2.1.67
+      "@thi.ng/object-utils": 1.1.4
+      "@thi.ng/transducers": 9.2.7
       tslib: 2.8.0
 
-  '@thi.ng/atom@5.3.11':
+  "@thi.ng/atom@5.3.11":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/equiv': 2.1.67
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/paths': 5.1.91
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/equiv": 2.1.67
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/paths": 5.1.91
       tslib: 2.8.0
 
-  '@thi.ng/binary@3.4.34':
+  "@thi.ng/binary@3.4.34":
     dependencies:
-      '@thi.ng/api': 8.11.11
+      "@thi.ng/api": 8.11.11
 
-  '@thi.ng/bitfield@2.3.52':
+  "@thi.ng/bitfield@2.3.52":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/binary': 3.4.34
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/strings': 3.8.6
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/binary": 3.4.34
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/strings": 3.8.6
 
-  '@thi.ng/boids@1.0.51':
+  "@thi.ng/boids@1.0.51":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/distance': 2.4.91
-      '@thi.ng/geom-closest-point': 2.1.145
-      '@thi.ng/geom-resample': 3.0.17
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/timestep': 0.5.67
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/distance": 2.4.91
+      "@thi.ng/geom-closest-point": 2.1.145
+      "@thi.ng/geom-resample": 3.0.17
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/timestep": 0.5.67
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/checks@3.6.13':
+  "@thi.ng/checks@3.6.13":
     dependencies:
       tslib: 2.8.0
 
-  '@thi.ng/color@5.7.8':
+  "@thi.ng/color@5.7.8":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/arrays': 2.10.4
-      '@thi.ng/binary': 3.4.34
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/compare': 2.4.3
-      '@thi.ng/compose': 3.0.14
-      '@thi.ng/defmulti': 3.0.49
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/random': 4.1.2
-      '@thi.ng/strings': 3.8.6
-      '@thi.ng/transducers': 9.2.7
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/arrays": 2.10.4
+      "@thi.ng/binary": 3.4.34
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/compare": 2.4.3
+      "@thi.ng/compose": 3.0.14
+      "@thi.ng/defmulti": 3.0.49
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/random": 4.1.2
+      "@thi.ng/strings": 3.8.6
+      "@thi.ng/transducers": 9.2.7
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/compare@2.4.3':
+  "@thi.ng/compare@2.4.3":
     dependencies:
-      '@thi.ng/api': 8.11.11
+      "@thi.ng/api": 8.11.11
 
-  '@thi.ng/compose@3.0.14':
+  "@thi.ng/compose@3.0.14":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/errors': 2.5.17
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/errors": 2.5.17
 
-  '@thi.ng/dcons@3.2.131':
+  "@thi.ng/dcons@3.2.131":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/compare': 2.4.3
-      '@thi.ng/equiv': 2.1.67
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/random': 4.1.2
-      '@thi.ng/transducers': 9.2.7
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/compare": 2.4.3
+      "@thi.ng/equiv": 2.1.67
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/random": 4.1.2
+      "@thi.ng/transducers": 9.2.7
 
-  '@thi.ng/defmulti@3.0.49':
+  "@thi.ng/defmulti@3.0.49":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/logger': 3.0.21
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/logger": 3.0.21
 
-  '@thi.ng/disjoint-set@1.1.4': {}
+  "@thi.ng/disjoint-set@1.1.4": {}
 
-  '@thi.ng/distance@2.4.91':
+  "@thi.ng/distance@2.4.91":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/heaps': 2.1.83
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/heaps": 2.1.83
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/equiv@2.1.67': {}
+  "@thi.ng/equiv@2.1.67": {}
 
-  '@thi.ng/errors@2.5.17': {}
+  "@thi.ng/errors@2.5.17": {}
 
-  '@thi.ng/geom-accel@4.1.10':
+  "@thi.ng/geom-accel@4.1.10":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/arrays': 2.10.4
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/distance': 2.4.91
-      '@thi.ng/equiv': 2.1.67
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/geom-isec': 4.0.17
-      '@thi.ng/heaps': 2.1.83
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/transducers': 9.2.7
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/arrays": 2.10.4
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/distance": 2.4.91
+      "@thi.ng/equiv": 2.1.67
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/geom-isec": 4.0.17
+      "@thi.ng/heaps": 2.1.83
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/transducers": 9.2.7
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/geom-arc@2.1.150':
+  "@thi.ng/geom-arc@2.1.150":
     dependencies:
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/geom-resample': 3.0.17
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/geom-resample": 3.0.17
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/geom-clip-line@2.3.107':
+  "@thi.ng/geom-clip-line@2.3.107":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/geom-isec': 4.0.17
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/geom-isec": 4.0.17
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/geom-clip-poly@2.1.149':
+  "@thi.ng/geom-clip-poly@2.1.149":
     dependencies:
-      '@thi.ng/geom-isec': 4.0.17
-      '@thi.ng/geom-poly-utils': 3.0.17
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/geom-isec": 4.0.17
+      "@thi.ng/geom-poly-utils": 3.0.17
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/geom-closest-point@2.1.145':
+  "@thi.ng/geom-closest-point@2.1.145":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/geom-hull@2.1.145':
+  "@thi.ng/geom-hull@2.1.145":
     dependencies:
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/geom-isec@4.0.17':
+  "@thi.ng/geom-isec@4.0.17":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/geom-closest-point': 2.1.145
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/geom-closest-point": 2.1.145
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/geom-poly-utils@3.0.17':
+  "@thi.ng/geom-poly-utils@3.0.17":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/geom-resample@3.0.17':
+  "@thi.ng/geom-resample@3.0.17":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/geom-closest-point': 2.1.145
-      '@thi.ng/geom-isec': 4.0.17
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/geom-closest-point": 2.1.145
+      "@thi.ng/geom-isec": 4.0.17
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/geom-splines@2.3.17':
+  "@thi.ng/geom-splines@2.3.17":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/geom-arc': 2.1.150
-      '@thi.ng/geom-resample': 3.0.17
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/geom-arc": 2.1.150
+      "@thi.ng/geom-resample": 3.0.17
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/geom-subdiv-curve@3.0.17':
+  "@thi.ng/geom-subdiv-curve@3.0.17":
     dependencies:
-      '@thi.ng/transducers': 9.2.7
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/transducers": 9.2.7
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/geom-tessellate@3.0.17':
+  "@thi.ng/geom-tessellate@3.0.17":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/geom-accel': 4.1.10
-      '@thi.ng/geom-isec': 4.0.17
-      '@thi.ng/geom-poly-utils': 3.0.17
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/morton': 3.1.98
-      '@thi.ng/transducers': 9.2.7
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/geom-accel": 4.1.10
+      "@thi.ng/geom-isec": 4.0.17
+      "@thi.ng/geom-poly-utils": 3.0.17
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/morton": 3.1.98
+      "@thi.ng/transducers": 9.2.7
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/geom@8.1.13':
+  "@thi.ng/geom@8.1.13":
     dependencies:
-      '@thi.ng/adjacency': 3.0.12
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/arrays': 2.10.4
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/defmulti': 3.0.49
-      '@thi.ng/equiv': 2.1.67
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/geom-arc': 2.1.150
-      '@thi.ng/geom-clip-line': 2.3.107
-      '@thi.ng/geom-clip-poly': 2.1.149
-      '@thi.ng/geom-closest-point': 2.1.145
-      '@thi.ng/geom-hull': 2.1.145
-      '@thi.ng/geom-isec': 4.0.17
-      '@thi.ng/geom-poly-utils': 3.0.17
-      '@thi.ng/geom-resample': 3.0.17
-      '@thi.ng/geom-splines': 2.3.17
-      '@thi.ng/geom-subdiv-curve': 3.0.17
-      '@thi.ng/geom-tessellate': 3.0.17
-      '@thi.ng/hiccup': 5.2.14
-      '@thi.ng/hiccup-svg': 5.4.4
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/matrices': 2.4.17
-      '@thi.ng/object-utils': 1.1.4
-      '@thi.ng/random': 4.1.2
-      '@thi.ng/strings': 3.8.6
-      '@thi.ng/transducers': 9.2.7
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/adjacency": 3.0.12
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/arrays": 2.10.4
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/defmulti": 3.0.49
+      "@thi.ng/equiv": 2.1.67
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/geom-arc": 2.1.150
+      "@thi.ng/geom-clip-line": 2.3.107
+      "@thi.ng/geom-clip-poly": 2.1.149
+      "@thi.ng/geom-closest-point": 2.1.145
+      "@thi.ng/geom-hull": 2.1.145
+      "@thi.ng/geom-isec": 4.0.17
+      "@thi.ng/geom-poly-utils": 3.0.17
+      "@thi.ng/geom-resample": 3.0.17
+      "@thi.ng/geom-splines": 2.3.17
+      "@thi.ng/geom-subdiv-curve": 3.0.17
+      "@thi.ng/geom-tessellate": 3.0.17
+      "@thi.ng/hiccup": 5.2.14
+      "@thi.ng/hiccup-svg": 5.4.4
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/matrices": 2.4.17
+      "@thi.ng/object-utils": 1.1.4
+      "@thi.ng/random": 4.1.2
+      "@thi.ng/strings": 3.8.6
+      "@thi.ng/transducers": 9.2.7
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/heaps@2.1.83':
+  "@thi.ng/heaps@2.1.83":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/compare': 2.4.3
-      '@thi.ng/equiv': 2.1.67
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/compare": 2.4.3
+      "@thi.ng/equiv": 2.1.67
 
-  '@thi.ng/hex@2.3.55': {}
+  "@thi.ng/hex@2.3.55": {}
 
-  '@thi.ng/hiccup-svg@5.4.4':
+  "@thi.ng/hiccup-svg@5.4.4":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/color': 5.7.8
-      '@thi.ng/prefixes': 2.3.28
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/color": 5.7.8
+      "@thi.ng/prefixes": 2.3.28
 
-  '@thi.ng/hiccup@5.2.14':
+  "@thi.ng/hiccup@5.2.14":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/strings': 3.8.6
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/strings": 3.8.6
 
-  '@thi.ng/logger@3.0.21': {}
+  "@thi.ng/logger@3.0.21": {}
 
-  '@thi.ng/math@5.11.11':
+  "@thi.ng/math@5.11.11":
     dependencies:
-      '@thi.ng/api': 8.11.11
+      "@thi.ng/api": 8.11.11
 
-  '@thi.ng/matrices@2.4.17':
+  "@thi.ng/matrices@2.4.17":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/memoize@3.3.13':
+  "@thi.ng/memoize@3.3.13":
     dependencies:
-      '@thi.ng/api': 8.11.11
+      "@thi.ng/api": 8.11.11
 
-  '@thi.ng/morton@3.1.98':
+  "@thi.ng/morton@3.1.98":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/binary': 3.4.34
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/math': 5.11.11
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/binary": 3.4.34
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/math": 5.11.11
 
-  '@thi.ng/object-utils@1.1.4':
+  "@thi.ng/object-utils@1.1.4":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/checks': 3.6.13
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/checks": 3.6.13
 
-  '@thi.ng/paths@5.1.91':
+  "@thi.ng/paths@5.1.91":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/errors': 2.5.17
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/errors": 2.5.17
 
-  '@thi.ng/prefixes@2.3.28': {}
+  "@thi.ng/prefixes@2.3.28": {}
 
-  '@thi.ng/random@4.1.2':
+  "@thi.ng/random@4.1.2":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/errors': 2.5.17
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/errors": 2.5.17
 
-  '@thi.ng/rstream@9.0.7':
+  "@thi.ng/rstream@9.0.7":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/arrays': 2.10.4
-      '@thi.ng/associative': 7.0.13
-      '@thi.ng/atom': 5.3.11
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/logger': 3.0.21
-      '@thi.ng/transducers': 9.2.7
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/arrays": 2.10.4
+      "@thi.ng/associative": 7.0.13
+      "@thi.ng/atom": 5.3.11
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/logger": 3.0.21
+      "@thi.ng/transducers": 9.2.7
 
-  '@thi.ng/sparse@0.3.136':
+  "@thi.ng/sparse@0.3.136":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/transducers': 9.2.7
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/transducers": 9.2.7
 
-  '@thi.ng/strings@3.8.6':
+  "@thi.ng/strings@3.8.6":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/hex': 2.3.55
-      '@thi.ng/memoize': 3.3.13
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/hex": 2.3.55
+      "@thi.ng/memoize": 3.3.13
 
-  '@thi.ng/timestep@0.5.67':
+  "@thi.ng/timestep@0.5.67":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/vectors': 7.12.5
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/vectors": 7.12.5
 
-  '@thi.ng/transducers@9.2.7':
+  "@thi.ng/transducers@9.2.7":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/arrays': 2.10.4
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/compare': 2.4.3
-      '@thi.ng/compose': 3.0.14
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/random': 4.1.2
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/arrays": 2.10.4
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/compare": 2.4.3
+      "@thi.ng/compose": 3.0.14
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/random": 4.1.2
 
-  '@thi.ng/vectors@7.12.5':
+  "@thi.ng/vectors@7.12.5":
     dependencies:
-      '@thi.ng/api': 8.11.11
-      '@thi.ng/binary': 3.4.34
-      '@thi.ng/checks': 3.6.13
-      '@thi.ng/equiv': 2.1.67
-      '@thi.ng/errors': 2.5.17
-      '@thi.ng/math': 5.11.11
-      '@thi.ng/memoize': 3.3.13
-      '@thi.ng/random': 4.1.2
-      '@thi.ng/strings': 3.8.6
-      '@thi.ng/transducers': 9.2.7
+      "@thi.ng/api": 8.11.11
+      "@thi.ng/binary": 3.4.34
+      "@thi.ng/checks": 3.6.13
+      "@thi.ng/equiv": 2.1.67
+      "@thi.ng/errors": 2.5.17
+      "@thi.ng/math": 5.11.11
+      "@thi.ng/memoize": 3.3.13
+      "@thi.ng/random": 4.1.2
+      "@thi.ng/strings": 3.8.6
+      "@thi.ng/transducers": 9.2.7
 
   tslib@2.8.0: {}
