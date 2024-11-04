@@ -11,13 +11,17 @@
 
 Not necessarily good ones, but things we might try:
 
+- "float" animals across the screen
+- over time: fade from bw to colour, shrink, modulate size
+- pre-load last _n_ (even on startup)
+- change prompt in the web ui, change model in the web ui
 - add an LLM in the pipeline to make the pictures conform to the scene a bit
   more
-- fade sketches from bg to colour
 - randomize the prompts, params, or model (although be careful about coldness)
-- image->video (because Charlotte has a bee in her bonnet about it)
-- see if leo.ai has some secret sauce
 - select at random from the florence-detected objects, not always the first one
+- see if leo.ai has some secret sauce
+- image->video (because Charlotte has a bee in her bonnet about it)
+
 - add read-only views (for outside the grotto, or anywhere in the world)
 
 ## Helpful scripts
