@@ -57,7 +57,6 @@ defmodule ImaginativeRestoration.MixProject do
       {:styler, "~> 1.1", only: [:dev, :test], runtime: false},
       {:req, "~> 0.5"},
       {:req_s3, "~> 0.2"},
-      {:oban, "~> 2.18"},
       {:image, "~> 0.54"}
     ]
   end

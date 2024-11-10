@@ -10,7 +10,6 @@ defmodule ImaginativeRestoration.Application do
     children = [
       ImaginativeRestorationWeb.Telemetry,
       ImaginativeRestoration.Repo,
-      {Oban, Application.fetch_env!(:imaginative_restoration, Oban)},
       {Ecto.Migrator, repos: Application.fetch_env!(:imaginative_restoration, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:imaginative_restoration, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: ImaginativeRestoration.PubSub},

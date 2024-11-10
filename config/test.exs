@@ -14,8 +14,6 @@ config :imaginative_restoration, ImaginativeRestorationWeb.Endpoint,
   secret_key_base: "Sa/NkY7mcze1duwlfbIO6Kj9Iqx3JuJMURw1Jl5t0CCopSJwUalMbqMBNDGKvVRR",
   server: false
 
-config :imaginative_restoration, Oban, testing: :inline
-
 # Print only warnings and errors during test
 config :logger, level: :warning
 
