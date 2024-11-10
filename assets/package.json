@@ -1,13 +1,5 @@
 {
   "dependencies": {
-    "@thi.ng/boids": "^1.0.51",
-    "@thi.ng/color": "^5.7.8",
-    "@thi.ng/geom": "^8.1.13",
-    "@thi.ng/geom-accel": "^4.1.10",
-    "@thi.ng/math": "^5.11.11",
-    "@thi.ng/random": "^4.1.2",
-    "@thi.ng/rstream": "^9.0.7",
-    "@thi.ng/timestep": "^0.5.67",
-    "@thi.ng/vectors": "^7.12.5"
+    "fastnoise-lite": "^1.1.1"
   }
 }

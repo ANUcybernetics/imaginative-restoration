@@ -15,7 +15,7 @@ defmodule ImaginativeRestorationWeb.IndexLive do
     <div class="relative flex items-center justify-center size-full">
       <div class="w-full max-w-[calc(100vh*4/3)] aspect-[4/3]">
         <div class="relative w-full h-full">
-          <canvas id="boid-canvas" phx-hook="BoidCanvas" class="w-full h-full object-contain">
+          <canvas id="boid-canvas" phx-hook="SketchCanvas" class="w-full h-full object-contain">
           </canvas>
         </div>
         <div class="absolute top-8 left-8 flex gap-8 h-[200px] backdrop-blur-md">
@@ -78,7 +78,7 @@ defmodule ImaginativeRestorationWeb.IndexLive do
     {:noreply,
      socket
      |> assign(sketch: sketch)
-     |> push_event("new_boid", %{id: sketch.id, dataurl: processed})}
+     |> push_event("new_sketch", %{id: sketch.id, dataurl: processed})}
   end
 
   @impl true
