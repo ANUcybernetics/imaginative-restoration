@@ -2,6 +2,8 @@ defmodule ImaginativeRestorationWeb.PromptLive do
   @moduledoc false
   use ImaginativeRestorationWeb, :live_view
 
+  import ImaginativeRestorationWeb.AppComponents
+
   alias ImaginativeRestoration.Sketches.Prompt
   alias ImaginativeRestoration.Sketches.Sketch
 
@@ -29,11 +31,7 @@ defmodule ImaginativeRestorationWeb.PromptLive do
       <section class="grid grid-cols-1 gap-4">
         <h2 class="text-lg font-semibold">Last 5 captures</h2>
         <%= for sketch <- @sketches do %>
-          <div class="flex h-[150px] justify-between">
-            <img src={sketch.raw} class="h-full" />
-            <img src={sketch.cropped} class="h-full" />
-            <img src={sketch.processed} class="h-full" />
-          </div>
+          <.sketch sketch={sketch} />
         <% end %>
       </section>
     </div>
