@@ -9,7 +9,7 @@ defmodule ImaginativeRestorationWeb.PromptLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-80 min-h-full space-y-4">
+    <div class="space-y-4">
       <div>
         Prompt engineering time!
       </div>

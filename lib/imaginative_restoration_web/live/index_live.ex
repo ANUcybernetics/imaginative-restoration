@@ -48,7 +48,7 @@ defmodule ImaginativeRestorationWeb.IndexLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, sketch: nil)}
+    {:ok, assign(socket, sketch: nil), layout: {ImaginativeRestorationWeb.Layouts, :canvas}}
   end
 
   @impl true

@@ -23,7 +23,7 @@ defmodule ImaginativeRestorationWeb.ConfigLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, frame: nil)}
+    {:ok, assign(socket, frame: nil, layout: {ImaginativeRestorationWeb.Layouts, :canvas})}
   end
 
   @impl true
