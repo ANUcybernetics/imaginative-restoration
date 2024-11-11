@@ -4,6 +4,7 @@ defmodule ImaginativeRestoration.AI.Pipeline do
 
   alias ImaginativeRestoration.AI.Replicate
   alias ImaginativeRestoration.AI.Utils
+  alias ImaginativeRestoration.Sketches.Prompt
 
   @impl true
   def init(opts) do
@@ -25,7 +26,7 @@ defmodule ImaginativeRestoration.AI.Pipeline do
         case Replicate.invoke("lucataco/florence-2-large", raw) do
           {:ok, {label, [x, y, w, h]}} ->
             # latest prompt (TODO fail gracefully if none exist)
-            %{template: template} = ImaginativeRestoration.Sketches.latest_prompt!()
+            %Prompt{template: template} = ImaginativeRestoration.Sketches.latest_prompt!()
             prompt = String.replace(template, "LABEL", label)
 
             cropped = raw |> Utils.crop!(x, y, w, h) |> Utils.to_dataurl!()
