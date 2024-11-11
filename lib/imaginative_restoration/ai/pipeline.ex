@@ -24,8 +24,9 @@ defmodule ImaginativeRestoration.AI.Pipeline do
 
         case Replicate.invoke("lucataco/florence-2-large", raw) do
           {:ok, {label, [x, y, w, h]}} ->
-            prompt =
-              "beautiful multicolored scientific illustration of a lone #{label}, isolated against a plain white background, vivid detail"
+            # latest prompt (TODO fail gracefully if none exist)
+            %{template: template} = ImaginativeRestoration.Sketches.latest_prompt!()
+            prompt = String.replace(template, "LABEL", label)
 
             cropped = raw |> Utils.crop!(x, y, w, h) |> Utils.to_dataurl!()
 

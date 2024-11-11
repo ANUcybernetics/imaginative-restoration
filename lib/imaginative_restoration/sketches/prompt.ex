@@ -23,7 +23,7 @@ defmodule ImaginativeRestoration.Sketches.Prompt do
   actions do
     defaults [:read]
 
-    read :get_latest do
+    read :latest do
       get? true
 
       prepare fn query, _context ->

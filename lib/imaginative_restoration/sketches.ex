@@ -11,7 +11,7 @@ defmodule ImaginativeRestoration.Sketches do
     end
 
     resource ImaginativeRestoration.Sketches.Prompt do
-      define :get_latest
+      define :latest_prompt, action: :latest
     end
   end
 end
