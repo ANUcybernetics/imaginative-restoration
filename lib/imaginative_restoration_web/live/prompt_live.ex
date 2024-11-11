@@ -3,13 +3,14 @@ defmodule ImaginativeRestorationWeb.PromptLive do
   use ImaginativeRestorationWeb, :live_view
 
   alias ImaginativeRestoration.Sketches.Prompt
+  alias ImaginativeRestoration.Sketches.Sketch
 
   require Logger
 
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="space-y-4">
+    <div class="space-y-8">
       <div>
         Current prompt template: <span class="font-semibold"><%= @template %></span>
       </div>
@@ -25,6 +26,16 @@ defmodule ImaginativeRestorationWeb.PromptLive do
           <.button>Save Template</.button>
         </:actions>
       </.simple_form>
+      <section class="grid grid-cols-1 gap-4">
+        <h2 class="text-lg font-semibold">Last 5 captures</h2>
+        <%= for sketch <- @sketches do %>
+          <div class="flex h-[150px] justify-between">
+            <img src={sketch.raw} class="h-full" />
+            <img src={sketch.cropped} class="h-full" />
+            <img src={sketch.processed} class="h-full" />
+          </div>
+        <% end %>
+      </section>
     </div>
     """
   end
@@ -34,7 +45,14 @@ defmodule ImaginativeRestorationWeb.PromptLive do
     form = Prompt |> AshPhoenix.Form.for_create(:create) |> to_form()
     %Prompt{template: template} = ImaginativeRestoration.Sketches.latest_prompt!()
 
-    {:ok, assign(socket, template: template, form: form)}
+    sketches =
+      Sketch
+      |> Ash.Query.for_read(:read)
+      |> Ash.Query.sort(inserted_at: :desc)
+      |> Ash.Query.limit(5)
+      |> Ash.read!()
+
+    {:ok, assign(socket, template: template, form: form, sketches: sketches)}
   end
 
   @impl true
