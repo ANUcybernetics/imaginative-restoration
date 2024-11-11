@@ -4,6 +4,7 @@ const SketchCanvasHook = {
   mounted() {
     // Configure sketches
     this.maxSketches = 100;
+    this.sketchHPad = 100;
     this.noise = new FastNoiseLite();
     this.noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
 
@@ -77,10 +78,11 @@ const SketchCanvasHook = {
       id: id,
       dataurl: dataurl,
       img: new Image(),
-      x: -100,
+      x: -this.sketchHPad,
       y: Math.random() * this.height,
       xVel: Math.random() * 2 + 1,
-      size: 250 * Math.random() + 50,
+      yRange: Math.random() * 200,
+      size: 300 * Math.random() + 200,
       addedAt: Date.now(),
     };
 
@@ -115,7 +117,7 @@ const SketchCanvasHook = {
   updateSketch(sketch) {
     // Get time component for noise
     const timeScale = 0.001; // Adjust this to change how quickly the movement pattern changes
-    const time = (Date.now() - sketch.addedAt) * timeScale;
+    // const time = (Date.now() - sketch.addedAt) * timeScale;
 
     // Get position component for noise
     const positionScale = 0.005; // Adjust this to change how much position affects movement
@@ -123,21 +125,17 @@ const SketchCanvasHook = {
     const noiseY = sketch.y * positionScale;
 
     // Get noise value between -1 and 1
-    const noiseValue = this.noise.GetNoise(time, noiseY);
-
-    // Base velocity (constant rightward movement)
-    const baseVelocity = 2;
-
-    // Add noise-based variation to velocity
-    const velocityVariation = 1.5; // Adjust this to change how much the velocity varies
-    const finalVelocity = baseVelocity + noiseValue * velocityVariation;
+    const noiseValue = this.noise.GetNoise(noiseX, noiseY);
 
     // Update position
-    sketch.x += finalVelocity;
+    sketch.x += sketch.xVel * (1 + noiseValue);
 
     // Reset position when off screen
-    if (sketch.x > this.width + 100) {
-      sketch.x = -100;
+    if (sketch.x > this.width + this.sketchHPad) {
+      sketch.x = -this.sketchHPad;
+      if (sketch.size > 100) {
+        sketch.size *= 0.9;
+      }
     }
   },
 
