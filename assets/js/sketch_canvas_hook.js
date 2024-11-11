@@ -5,6 +5,7 @@ const SketchCanvasHook = {
     // Configure sketches
     this.maxSketches = 100;
     this.noise = new FastNoiseLite();
+    this.noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
 
     // Create and setup background video
     this.video = document.createElement("video");
@@ -110,7 +111,9 @@ const SketchCanvasHook = {
       }
 
       // then, update the properties to animate the sketch across the screen
-      sketch.x += sketch.xVel;
+      sketch.x +=
+        sketch.xVel *
+        this.noise.GetNoise((Date.now() - sketch.addedAt) / 1000, 0);
       if (sketch.x > this.width + 100) {
         sketch.x = -100;
       }
