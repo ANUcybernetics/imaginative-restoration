@@ -21,6 +21,8 @@ defmodule ImaginativeRestorationWeb.Router do
     live "/", IndexLive
 
     live "/config", ConfigLive
+
+    live "/prompts", PromptLive
   end
 
   # Other scopes may use custom stacks.

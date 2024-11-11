@@ -9,5 +9,9 @@ defmodule ImaginativeRestoration.Sketches do
       define :crop_and_set_prompt
       define :process
     end
+
+    resource ImaginativeRestoration.Sketches.Prompt do
+      define :get_latest
+    end
   end
 end
