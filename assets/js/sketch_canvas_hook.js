@@ -91,6 +91,56 @@ const SketchCanvasHook = {
     newSketch.img.src = dataurl;
   },
 
+  drawSketch(sketch) {
+    // Save the current context state
+    this.ctx.save();
+
+    // Apply grayscale filter - gradually reduce over 100 seconds
+    const secondsElapsed = (Date.now() - sketch.addedAt) / 1000;
+    const grayscaleAmount = Math.max(0, 100 - secondsElapsed);
+    this.ctx.filter = `grayscale(${grayscaleAmount}%)`;
+
+    // Draw the image
+    this.ctx.drawImage(
+      sketch.img,
+      sketch.x,
+      sketch.y,
+      sketch.size,
+      sketch.size,
+    );
+    // Restore the context state
+    this.ctx.restore();
+  },
+
+  updateSketch(sketch) {
+    // Get time component for noise
+    const timeScale = 0.001; // Adjust this to change how quickly the movement pattern changes
+    const time = (Date.now() - sketch.addedAt) * timeScale;
+
+    // Get position component for noise
+    const positionScale = 0.005; // Adjust this to change how much position affects movement
+    const noiseX = sketch.x * positionScale;
+    const noiseY = sketch.y * positionScale;
+
+    // Get noise value between -1 and 1
+    const noiseValue = this.noise.GetNoise(time, noiseY);
+
+    // Base velocity (constant rightward movement)
+    const baseVelocity = 2;
+
+    // Add noise-based variation to velocity
+    const velocityVariation = 1.5; // Adjust this to change how much the velocity varies
+    const finalVelocity = baseVelocity + noiseValue * velocityVariation;
+
+    // Update position
+    sketch.x += finalVelocity;
+
+    // Reset position when off screen
+    if (sketch.x > this.width + 100) {
+      sketch.x = -100;
+    }
+  },
+
   animateFrame() {
     // Draw video frame to canvas
     if (this.ctx && this.video.readyState >= this.video.HAVE_CURRENT_DATA) {
@@ -101,32 +151,8 @@ const SketchCanvasHook = {
     this.sketches.forEach((sketch) => {
       // first, draw sketch onto the canvas (on top of video)
       if (sketch.img && sketch.img.complete) {
-        // Save the current context state
-        this.ctx.save();
-
-        // Apply grayscale filter - gradually reduce over 100 seconds
-        const secondsElapsed = (Date.now() - sketch.addedAt) / 1000;
-        const grayscaleAmount = Math.max(0, 100 - secondsElapsed);
-        this.ctx.filter = `grayscale(${grayscaleAmount}%)`;
-
-        // Draw the image
-        this.ctx.drawImage(
-          sketch.img,
-          sketch.x,
-          sketch.y,
-          sketch.size,
-          sketch.size,
-        );
-        // Restore the context state
-        this.ctx.restore();
-      }
-
-      // then, update the properties to animate the sketch across the screen
-      sketch.x +=
-        sketch.xVel *
-        this.noise.GetNoise((Date.now() - sketch.addedAt) / 1000, 0);
-      if (sketch.x > this.width + 100) {
-        sketch.x = -100;
+        this.drawSketch(sketch);
+        this.updateSketch(sketch);
       }
     });
   },
