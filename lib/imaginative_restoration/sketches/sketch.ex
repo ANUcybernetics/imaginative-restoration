@@ -72,7 +72,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
       # Validate that we have an raw image to work with
       validate fn changeset, _context ->
         case Ash.Changeset.get_attribute(changeset, :cropped) do
-          nil -> {:error, raw: "cannot process without a cropped image"}
+          nil -> {:error, cropped: "cannot process without a cropped image"}
           _ -> :ok
         end
       end
