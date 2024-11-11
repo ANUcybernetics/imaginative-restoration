@@ -101,6 +101,15 @@ const SketchCanvasHook = {
     this.sketches.forEach((sketch) => {
       // first, draw sketch onto the canvas (on top of video)
       if (sketch.img && sketch.img.complete) {
+        // Save the current context state
+        this.ctx.save();
+
+        // Apply grayscale filter - gradually reduce over 100 seconds
+        const secondsElapsed = (Date.now() - sketch.addedAt) / 1000;
+        const grayscaleAmount = Math.max(0, 100 - secondsElapsed);
+        this.ctx.filter = `grayscale(${grayscaleAmount}%)`;
+
+        // Draw the image
         this.ctx.drawImage(
           sketch.img,
           sketch.x,
@@ -108,6 +117,8 @@ const SketchCanvasHook = {
           sketch.size,
           sketch.size,
         );
+        // Restore the context state
+        this.ctx.restore();
       }
 
       // then, update the properties to animate the sketch across the screen
