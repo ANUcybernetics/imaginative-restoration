@@ -18,7 +18,7 @@ defmodule ImaginativeRestorationWeb.Router do
   scope "/", ImaginativeRestorationWeb do
     pipe_through :browser
 
-    live "/", IndexLive
+    live "/", AppLive
 
     live "/config", ConfigLive
 

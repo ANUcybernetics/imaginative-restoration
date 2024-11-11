@@ -1,4 +1,4 @@
-defmodule ImaginativeRestorationWeb.IndexLive do
+defmodule ImaginativeRestorationWeb.AppLive do
   @moduledoc false
   use ImaginativeRestorationWeb, :live_view
 
