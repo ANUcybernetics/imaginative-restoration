@@ -80,10 +80,8 @@ const SketchCanvasHook = {
       id: id,
       dataurl: dataurl,
       img: new Image(),
-      x: -this.sketchHPad,
       y: Math.random() * this.height,
-      xVel: Math.random() * 2 + 1,
-      yRange: Math.random() * 200,
+      xVel: Math.random() * 10,
       size: 300 * Math.random() + 200,
       addedAt: Date.now(),
     };
@@ -101,44 +99,30 @@ const SketchCanvasHook = {
 
     // Apply grayscale filter - gradually reduce over 100 seconds
     const secondsElapsed = (Date.now() - sketch.addedAt) / 1000;
+
+    // calculate image size params
+    const aspectRatio = sketch.img.width / sketch.img.height;
+    const drawWidth = sketch.size * aspectRatio;
+
+    // calculate image position
+    const wrapRange = this.width + 2 * this.sketchHPad;
+    const x =
+      ((secondsElapsed * sketch.xVel * 60) % wrapRange) - this.sketchHPad;
+    const y = sketch.y + 1000 * this.noise.GetNoise(x * 0.1, sketch.y);
+
+    // set the filters
     const grayscaleAmount = Math.max(0, 100 - secondsElapsed);
     this.ctx.filter = `grayscale(${grayscaleAmount}%)`;
+    // Apply scale transform based on secondsElapsed
+    const scale = Math.max(0.2, 1 - secondsElapsed * 0.01);
+    this.ctx.translate(x, y);
+    this.ctx.scale(scale, scale);
+    this.ctx.translate(-x, -y);
 
     // Draw the image
-    this.ctx.drawImage(
-      sketch.img,
-      sketch.x,
-      sketch.y,
-      sketch.size,
-      sketch.size,
-    );
+    this.ctx.drawImage(sketch.img, x, y, drawWidth, sketch.size);
     // Restore the context state
     this.ctx.restore();
-  },
-
-  updateSketch(sketch) {
-    // Get time component for noise
-    const timeScale = 0.001; // Adjust this to change how quickly the movement pattern changes
-    // const time = (Date.now() - sketch.addedAt) * timeScale;
-
-    // Get position component for noise
-    const positionScale = 0.005; // Adjust this to change how much position affects movement
-    const noiseX = sketch.x * positionScale;
-    const noiseY = sketch.y * positionScale;
-
-    // Get noise value between -1 and 1
-    const noiseValue = this.noise.GetNoise(noiseX, noiseY);
-
-    // Update position
-    sketch.x += sketch.xVel * (1 + noiseValue);
-
-    // Reset position when off screen
-    if (sketch.x > this.width + this.sketchHPad) {
-      sketch.x = -this.sketchHPad;
-      if (sketch.size > 100) {
-        sketch.size *= 0.9;
-      }
-    }
   },
 
   animateFrame() {
@@ -152,7 +136,6 @@ const SketchCanvasHook = {
       // first, draw sketch onto the canvas (on top of video)
       if (sketch.img && sketch.img.complete) {
         this.drawSketch(sketch);
-        this.updateSketch(sketch);
       }
     });
   },
