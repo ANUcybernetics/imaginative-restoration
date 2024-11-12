@@ -31,9 +31,7 @@ defmodule ImaginativeRestorationWeb.PromptLive do
       <section class="grid grid-cols-1 gap-4">
         <h2 class="text-lg font-semibold">Last 5 captures</h2>
         <div id="sketches" phx-update="stream">
-          <div :for={{dom_id, sketch} <- @streams.sketches}>
-            <.sketch sketch={sketch} id={dom_id} />
-          </div>
+          <.sketch :for={{dom_id, sketch} <- @streams.sketches} sketch={sketch} id={dom_id} />
         </div>
       </section>
     </div>
