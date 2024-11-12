@@ -36,7 +36,7 @@ defmodule ImaginativeRestorationWeb.AppComponents do
 
   def sketch(assigns) do
     ~H"""
-    <div class="flex h-[150px] justify-between">
+    <div id={@id} class="flex h-[150px] justify-between">
       <img src={@sketch.raw} class="h-full" />
       <img src={@sketch.cropped} class="h-full" />
       <img src={@sketch.processed} class="h-full" />

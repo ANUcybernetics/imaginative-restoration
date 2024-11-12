@@ -30,9 +30,11 @@ defmodule ImaginativeRestorationWeb.PromptLive do
       </.simple_form>
       <section class="grid grid-cols-1 gap-4">
         <h2 class="text-lg font-semibold">Last 5 captures</h2>
-        <%= for sketch <- @sketches do %>
-          <.sketch sketch={sketch} />
-        <% end %>
+        <div id="sketches" phx-update="stream">
+          <div :for={{dom_id, sketch} <- @streams.sketches}>
+            <.sketch sketch={sketch} id={dom_id} />
+          </div>
+        </div>
       </section>
     </div>
     """
@@ -40,6 +42,10 @@ defmodule ImaginativeRestorationWeb.PromptLive do
 
   @impl true
   def mount(_params, _session, socket) do
+    if connected?(socket) do
+      ImaginativeRestorationWeb.Endpoint.subscribe("sketch:updated")
+    end
+
     form = Prompt |> AshPhoenix.Form.for_create(:create) |> to_form()
     %Prompt{template: template} = ImaginativeRestoration.Sketches.latest_prompt!()
 
@@ -50,7 +56,10 @@ defmodule ImaginativeRestorationWeb.PromptLive do
       |> Ash.Query.limit(5)
       |> Ash.read!()
 
-    {:ok, assign(socket, template: template, form: form, sketches: sketches)}
+    {:ok,
+     socket
+     |> stream(:sketches, sketches)
+     |> assign(template: template, form: form)}
   end
 
   @impl true
@@ -82,5 +91,11 @@ defmodule ImaginativeRestorationWeb.PromptLive do
          |> put_flash(:error, "Error saving prompt template")
          |> assign(form: to_form(form))}
     end
+  end
+
+  @impl true
+  def handle_info(%Phoenix.Socket.Broadcast{topic: "sketch:updated"} = message, socket) do
+    sketch = message.payload.data
+    {:noreply, stream_insert(socket, :sketches, sketch, at: 0, limit: 5)}
   end
 end
