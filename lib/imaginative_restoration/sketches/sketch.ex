@@ -2,7 +2,8 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
   @moduledoc false
   use Ash.Resource,
     domain: ImaginativeRestoration.Sketches,
-    data_layer: AshSqlite.DataLayer
+    data_layer: AshSqlite.DataLayer,
+    notifiers: [Ash.Notifier.PubSub]
 
   alias ImaginativeRestoration.AI.Pipeline
 
@@ -79,5 +80,12 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
       change {Pipeline, stage: :process}
     end
+  end
+
+  pub_sub do
+    module ImaginativeRestorationWeb.Endpoint
+    prefix "sketch"
+    publish_all :create, "updated"
+    publish_all :update, "updated"
   end
 end

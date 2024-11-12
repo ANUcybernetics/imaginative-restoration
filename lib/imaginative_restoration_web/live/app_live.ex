@@ -6,6 +6,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
 
   alias ImaginativeRestoration.AI.Utils
   alias ImaginativeRestoration.Sketches.Sketch
+  alias Phoenix.Socket.Broadcast
 
   require Logger
 
@@ -48,24 +49,23 @@ defmodule ImaginativeRestorationWeb.AppLive do
 
   @impl true
   def mount(_params, _session, socket) do
+    if connected?(socket) do
+      ImaginativeRestorationWeb.Endpoint.subscribe("sketch:updated")
+    end
+
     {:ok, assign(socket, sketch: nil), layout: {ImaginativeRestorationWeb.Layouts, :canvas}}
   end
 
   @impl true
   def handle_event("webcam_frame", %{"frame" => dataurl}, socket) do
-    pid = self()
-
     # only run the AI pipeline if stuff has changed recently
     if Utils.changed_recently?() do
       # spawn the task which will communicate back to self() via :update_sketch messages
       Task.start(fn ->
         dataurl
         |> ImaginativeRestoration.Sketches.init!()
-        |> send_update_sketch_message(pid)
         |> ImaginativeRestoration.Sketches.crop_and_set_prompt!()
-        |> send_update_sketch_message(pid)
         |> ImaginativeRestoration.Sketches.process!()
-        |> send_update_sketch_message(pid)
       end)
     end
 
@@ -73,16 +73,18 @@ defmodule ImaginativeRestorationWeb.AppLive do
   end
 
   @impl true
-  def handle_info({:update_sketch, %Sketch{processed: processed} = sketch}, socket) when not is_nil(processed) do
-    # Push event to client when we have a processed sketch
+  def handle_info(%Broadcast{topic: "sketch:updated", event: "process"} = message, socket) do
+    sketch = message.payload.data
+
     {:noreply,
      socket
      |> assign(sketch: sketch)
-     |> push_event("new_sketch", %{id: sketch.id, dataurl: processed})}
+     |> push_event("new_sketch", %{id: sketch.id, dataurl: sketch.processed})}
   end
 
   @impl true
-  def handle_info({:update_sketch, sketch}, socket) do
+  def handle_info(%Broadcast{topic: "sketch:updated"} = message, socket) do
+    sketch = message.payload.data
     {:noreply, assign(socket, sketch: sketch)}
   end
 
@@ -90,11 +92,4 @@ defmodule ImaginativeRestorationWeb.AppLive do
   defp pipeline_phase(%Sketch{processed: nil}), do: :processing
   defp pipeline_phase(%Sketch{}), do: :completed
   defp pipeline_phase(nil), do: :waiting
-
-  defp send_update_sketch_message(sketch, pid) do
-    send(pid, {:update_sketch, sketch})
-
-    # pass the sketch back out; useful for pipelining
-    sketch
-  end
 end
