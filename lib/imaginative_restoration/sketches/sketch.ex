@@ -53,7 +53,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
       change set_attribute(:model, arg(:model))
     end
 
-    update :crop_and_set_prompt do
+    update :crop_and_label do
       # No attributes needed - will process the sketch's existing raw image
 
       # Validate that we have an raw image to work with
@@ -64,7 +64,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
         end
       end
 
-      change {Pipeline, stage: :crop_and_set_prompt}
+      change {Pipeline, stage: :crop_and_label}
     end
 
     update :process do

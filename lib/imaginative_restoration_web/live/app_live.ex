@@ -64,7 +64,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
       Task.start(fn ->
         dataurl
         |> ImaginativeRestoration.Sketches.init!()
-        |> ImaginativeRestoration.Sketches.crop_and_set_prompt!()
+        |> ImaginativeRestoration.Sketches.crop_and_label!()
         |> ImaginativeRestoration.Sketches.process!()
       end)
     end

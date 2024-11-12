@@ -10,30 +10,25 @@ defmodule ImaginativeRestoration.AI.Pipeline do
   def init(opts) do
     stage = Keyword.get(opts, :stage)
 
-    if stage in [:crop_and_set_prompt, :process] do
+    if stage in [:crop_and_label, :process] do
       {:ok, opts}
     else
-      {:error, "stage must be either :crop_and_set_prompt or :process"}
+      {:error, "stage must be either :crop_and_label or :process"}
     end
   end
 
   @impl true
   def change(changeset, opts, _context) do
     case Keyword.fetch!(opts, :stage) do
-      :crop_and_set_prompt ->
+      :crop_and_label ->
         raw = changeset.data.raw
 
         case Replicate.invoke("lucataco/florence-2-large", raw) do
           {:ok, {label, [x, y, w, h]}} ->
-            # latest prompt (TODO fail gracefully if none exist)
-            %Prompt{template: template} = ImaginativeRestoration.Sketches.latest_prompt!()
-            prompt = String.replace(template, "LABEL", label)
-
             cropped = raw |> Utils.crop!(x, y, w, h) |> Utils.to_dataurl!()
 
             changeset
             |> Ash.Changeset.force_change_attribute(:label, label)
-            |> Ash.Changeset.force_change_attribute(:prompt, prompt)
             |> Ash.Changeset.force_change_attribute(:cropped, cropped)
 
           _ ->
@@ -43,7 +38,10 @@ defmodule ImaginativeRestoration.AI.Pipeline do
       :process ->
         cropped = changeset.data.cropped
         model = changeset.data.model
-        prompt = changeset.data.prompt
+
+        # latest prompt (TODO fail gracefully if none exist)
+        %Prompt{template: template} = ImaginativeRestoration.Sketches.latest_prompt!()
+        prompt = String.replace(template, "LABEL", changeset.data.label)
 
         with {:ok, ai_image} <- Replicate.invoke(model, cropped, prompt),
              {:ok, final_image_url} <- Replicate.invoke("lucataco/remove-bg", ai_image) do

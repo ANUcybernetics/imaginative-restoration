@@ -30,6 +30,9 @@ defmodule ImaginativeRestorationWeb.PromptLive do
       </.simple_form>
       <section class="grid grid-cols-1 gap-4">
         <h2 class="text-lg font-semibold">Last 5 captures</h2>
+        <div class="mb-4">
+          <.button phx-click="process_recent">Process Recent Sketches</.button>
+        </div>
         <div id="sketches" phx-update="stream">
           <.sketch :for={{dom_id, sketch} <- @streams.sketches} sketch={sketch} id={dom_id} />
         </div>
@@ -64,6 +67,27 @@ defmodule ImaginativeRestorationWeb.PromptLive do
   def handle_event("validate", %{"form" => params}, socket) do
     form = socket.assigns.form |> AshPhoenix.Form.validate(params) |> to_form()
     {:noreply, assign(socket, form: form)}
+  end
+
+  @impl true
+  def handle_event("process_recent", _params, socket) do
+    sketches =
+      Sketch
+      |> Ash.Query.for_read(:read)
+      |> Ash.Query.sort(inserted_at: :desc)
+      |> Ash.Query.limit(5)
+      |> Ash.read!()
+
+    sketches
+    |> Task.async_stream(
+      fn sketch ->
+        ImaginativeRestoration.Sketches.process!(sketch)
+      end,
+      timeout: :infinity
+    )
+    |> Stream.run()
+
+    {:noreply, put_flash(socket, :info, "Processing recent sketches...")}
   end
 
   @impl true
