@@ -21,7 +21,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
           </canvas>
         </div>
         <div class="absolute top-8 left-8 flex gap-8 h-[200px] backdrop-blur-md">
-          <.webcam_capture capture_interval={30_000} />
+          <.webcam_capture :if={@capture} capture_interval={30_000} />
           <div :if={@sketch} class="relative">
             <img
               src={if pipeline_phase(@sketch) == :labelling, do: @sketch.raw, else: @sketch.cropped}
@@ -49,13 +49,14 @@ defmodule ImaginativeRestorationWeb.AppLive do
   end
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
     if connected?(socket) do
       ImaginativeRestorationWeb.Endpoint.subscribe("sketch:updated")
       Process.send_after(self(), :pre_populate_sketches, 1000)
     end
 
-    {:ok, assign(socket, sketch: nil), layout: {ImaginativeRestorationWeb.Layouts, :canvas}}
+    {:ok, assign(socket, sketch: nil, capture: Map.has_key?(params, "capture")),
+     layout: {ImaginativeRestorationWeb.Layouts, :canvas}}
   end
 
   @impl true
