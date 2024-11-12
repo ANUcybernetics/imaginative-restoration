@@ -8,6 +8,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
   alias ImaginativeRestoration.Sketches.Sketch
   alias Phoenix.Socket.Broadcast
 
+  require Ash.Query
   require Logger
 
   @impl true
@@ -51,6 +52,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
   def mount(_params, _session, socket) do
     if connected?(socket) do
       ImaginativeRestorationWeb.Endpoint.subscribe("sketch:updated")
+      Process.send_after(self(), :pre_populate_sketches, 1000)
     end
 
     {:ok, assign(socket, sketch: nil), layout: {ImaginativeRestorationWeb.Layouts, :canvas}}
@@ -79,7 +81,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
     {:noreply,
      socket
      |> assign(sketch: sketch)
-     |> push_event("new_sketch", %{id: sketch.id, dataurl: sketch.processed})}
+     |> push_event("add_sketches", %{sketches: [%{id: sketch.id, dataurl: sketch.processed}]})}
   end
 
   @impl true
@@ -88,8 +90,25 @@ defmodule ImaginativeRestorationWeb.AppLive do
     {:noreply, assign(socket, sketch: sketch)}
   end
 
+  @impl true
+  def handle_info(:pre_populate_sketches, socket) do
+    sketches =
+      Enum.map(recent_sketches(), fn %Sketch{id: id, processed: processed} -> %{id: id, dataurl: processed} end)
+
+    {:noreply, push_event(socket, "add_sketches", %{sketches: sketches})}
+  end
+
   defp pipeline_phase(%Sketch{label: nil}), do: :labelling
   defp pipeline_phase(%Sketch{processed: nil}), do: :processing
   defp pipeline_phase(%Sketch{}), do: :completed
   defp pipeline_phase(nil), do: :waiting
+
+  defp recent_sketches do
+    Sketch
+    |> Ash.Query.for_read(:read)
+    |> Ash.Query.filter(not is_nil(processed))
+    |> Ash.Query.sort(inserted_at: :desc)
+    |> Ash.Query.limit(10)
+    |> Ash.read!()
+  end
 end

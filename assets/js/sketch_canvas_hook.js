@@ -43,8 +43,10 @@ const SketchCanvasHook = {
     this.resizeObserver.observe(this.el);
 
     // Add event handler for new sketches
-    this.handleEvent("new_sketch", ({ id, dataurl }) => {
-      this.addNewSketch(id, dataurl);
+    this.handleEvent("add_sketches", ({ sketches }) => {
+      sketches.forEach(({ id, dataurl }) => {
+        this.addNewSketch(id, dataurl);
+      });
     });
   },
 

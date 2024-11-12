@@ -1,9 +1,7 @@
 ## TODO
 
-- web interface for changing prompt/model (inc. gallery of "example" sketches)
 - further animate image size/opacity/tint/filter
 - add the inside/outside views
-- pre-load last _n_ (even on startup)
 - resize sketch.img on creation (to be a normal "max" size)
 
 - add test for "changed_recently?" logic
