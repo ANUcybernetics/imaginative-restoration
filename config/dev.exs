@@ -3,6 +3,8 @@ import Config
 # For development, we disable any cache and enable
 # debugging and code reloading.
 
+# config :ash, :pub_sub, debug?: true
+
 # Configure your database
 #
 # The watchers configuration can be used to run external
@@ -44,16 +46,16 @@ config :imaginative_restoration, ImaginativeRestorationWeb.Endpoint,
 
 # Enable dev routes for dashboard and mailbox
 # Mix task:
+# Do not include metadata nor timestamps in development logs
 #
+# Run `mix help phx.gen.cert` for more information.
 #     mix phx.gen.cert
 #
-config :imaginative_restoration, dev_routes: true
-
-# Do not include metadata nor timestamps in development logs
-# Run `mix help phx.gen.cert` for more information.
 #
 # The `http:` config above can be replaced with:
 #
+config :imaginative_restoration, dev_routes: true
+
 config :logger, :console, format: "[$level] $message\n"
 
 # Initialize plugs at runtime for faster development compilation
