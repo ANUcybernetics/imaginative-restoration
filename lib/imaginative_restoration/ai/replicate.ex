@@ -131,6 +131,24 @@ defmodule ImaginativeRestoration.AI.Replicate do
     end
   end
 
+  ## here are the model-specific invocations (no need to have a separate module, just pattern match on the model name)
+  def invoke("xlabs-ai/flux-dev-controlnet" = model, input_image, prompt) do
+    input = %{
+      prompt: prompt,
+      control_image: input_image,
+      steps: 10,
+      control_type: "canny",
+      control_strength: 0.5,
+      image_to_image_strength: 0.1,
+      guidance_scale: 0.25
+    }
+
+    with {:ok, version} <- get_latest_version(model),
+         {:ok, %{"output" => [output]}} <- create_prediction(version, input) do
+      {:ok, output}
+    end
+  end
+
   def invoke("lucataco/florence-2-large" = model, input_image) do
     input = %{
       image: input_image,
