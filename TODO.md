@@ -1,5 +1,7 @@
 ## TODO
 
+- slow down the objects
+- increase speed of colour fade
 - filter out envelope label
 - green & orangey/brown for the spinner, plus rounded corners?
 - resize sketch.img on creation (to be a normal "max" size)
