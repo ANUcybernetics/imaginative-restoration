@@ -80,8 +80,8 @@ const SketchCanvasHook = {
       id: id,
       dataurl: dataurl,
       img: new Image(),
-      y: Math.random() * this.height,
-      xVel: Math.random() * 5,
+      y: (0.1 + 0.8 * Math.random()) * this.height,
+      xVel: 2 + Math.random(),
       size: 300 * Math.random() + 200,
       addedAt: Date.now(),
     };
@@ -107,11 +107,11 @@ const SketchCanvasHook = {
     // calculate image position
     const wrapRange = this.width + 2 * this.sketchHPad;
     const x =
-      ((secondsElapsed * sketch.xVel * 60) % wrapRange) - this.sketchHPad;
-    const y = sketch.y + 1000 * this.noise.GetNoise(x * 0.1, sketch.y);
+      ((secondsElapsed * sketch.xVel * 20) % wrapRange) - this.sketchHPad;
+    const y = sketch.y + 300 * this.noise.GetNoise(x * 0.1, sketch.y);
 
     // set the filters
-    const grayscaleAmount = Math.max(0, 100 - secondsElapsed);
+    const grayscaleAmount = Math.max(0, 100 - 3 * secondsElapsed);
     this.ctx.filter = `grayscale(${grayscaleAmount}%)`;
     // Apply scale transform based on secondsElapsed
     const scale = Math.max(0.2, 1 - secondsElapsed * 0.01);

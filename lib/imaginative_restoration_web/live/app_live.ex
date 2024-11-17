@@ -109,7 +109,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
     |> Ash.Query.for_read(:read)
     |> Ash.Query.filter(not is_nil(processed))
     |> Ash.Query.sort(inserted_at: :desc)
-    |> Ash.Query.limit(10)
+    |> Ash.Query.limit(3)
     |> Ash.read!()
   end
 end
