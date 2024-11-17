@@ -10,7 +10,7 @@ defmodule ImaginativeRestorationWeb.ConfigLive do
   def render(assigns) do
     ~H"""
     <div class="relative flex items-center justify-center size-full">
-      <.webcam_capture class="h-[300px]" capture_interval={10_000} />
+      <.webcam_capture class="h-[300px]" capture_interval={1_000} />
       <div class="relative">
         <img src={@frame} />
         <div class="absolute inset-0 flex items-center justify-center">
