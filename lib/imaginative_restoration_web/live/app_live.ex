@@ -55,7 +55,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
       Process.send_after(self(), :pre_populate_sketches, 1000)
     end
 
-    {:ok, assign(socket, sketch: nil, capture: Map.has_key?(params, "capture")),
+    {:ok, assign(socket, sketch: nil, capture: Map.has_key?(params, "capture") or Map.has_key?(params, "capture_box")),
      layout: {ImaginativeRestorationWeb.Layouts, :canvas}}
   end
 
