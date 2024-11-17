@@ -25,7 +25,7 @@ defmodule ImaginativeRestorationWeb.AppComponents do
           x2="100%"
           y2="10"
           stroke-width="20"
-          stroke="#08f"
+          stroke="#a07003"
           transform-origin="center"
         />
         <rect id="flash-overlay" x="0" y="0" width="100%" height="100%" fill="#ffffff" opacity="0" />

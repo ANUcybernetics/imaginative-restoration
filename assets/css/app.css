@@ -8,17 +8,17 @@
     --border-angle: 0turn;
     --main-bg: conic-gradient(
         from var(--border-angle),
-        #213,
-        #112 5%,
-        #112 60%,
-        #213 95%
+        #a07003,
+        #006e33 5%,
+        #006e33 60%,
+        #a07003 95%
     );
     border: solid 20px transparent;
     --gradient-border: conic-gradient(
         from var(--border-angle),
         transparent 25%,
-        #08f,
-        #f03 99%,
+        #154734,
+        #c99700 99%,
         transparent
     );
     background:

@@ -127,11 +127,11 @@ const WebcamStreamHook = {
     const progressKeyframes = [
       {
         transform: "scaleX(1)",
-        stroke: "#08f",
+        stroke: "#a07003",
       },
       {
         transform: "scaleX(0)",
-        stroke: "#f03",
+        stroke: "#006e33",
       },
     ];
 
