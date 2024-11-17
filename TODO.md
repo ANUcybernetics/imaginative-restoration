@@ -20,3 +20,5 @@ ImaginativeRestoration.Sketches.Sketch
 |> Ash.read!
 |> Enum.each(& &1.processed && &1.processed |> ImaginativeRestoration.AI.Utils.to_image! |> Image.write!("/tmp/ir-sketches-processed/#{&1.id}.webp"))
 ```
+
+- `capture_box=70,90,470,300`
