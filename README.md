@@ -1,10 +1,10 @@
 # Imaginative Restoration: Re-wilding Division
 
-In a distant future, humanity has retreated underground to escape increasingly
-inhospitable surface conditions. Here, in subterranean grottos, the Storytellers
-safeguard fragments of the past. But they don't merely preserve these
-artefacts—they breathe new life into them through a process called Imaginative
-Restoration.
+> In a distant future, humanity has retreated underground to escape increasingly
+> inhospitable surface conditions. Here, in subterranean grottos, the
+> Storytellers safeguard fragments of the past. But they don't merely preserve
+> these artefacts—they breathe new life into them through a process called
+> Imaginative Restoration.
 
 _Imaginative Restoration: Rewilding Division_ is an immersive installation that
 invites participants to step into the role of a Storyteller. Your mission? To
@@ -26,22 +26,22 @@ dramatic arts creation, recording, and archiving in the age of generative AI.
 
 ## Repo structure
 
-This repo contains the software for the above-described installation. Code in
-this repo by [@benswift](https://github.com/benswift), but others have
-contributed sother significant work to the overall project---writing, set design
-& build, archival content, etc.
+This repo contains the software for the installation. Code in this repo by
+[@benswift](https://github.com/benswift), but others have contributed sother
+significant work to the overall project---writing, set design & build, archival
+content, etc.
 
-It's a web app, powered by Ash/Phoenix and written Elixir. It's hosted on
-`fly.io`.
+It's a web app, powered by
+[Ash/Phoenix](https://hexdocs.pm/ash_phoenix/readme.html) and written
+[Elixir](https://elixir-lang.org) and hosted on [fly.io](https://fly.io).
 
-Note: there was a previous version of the project using a wholly different tech
-stack (running CUDA-accelerated models locally on an NVIDIA Jetson Orin AGX).
-That code is still here, but it's in the `jetson` branch (there was even a
-:shudder: force push at one point). It's not actually even related (in the
-strict git history-sense) to the current branch, so if you want to merge between
-them you'll have a bad time. But there's some interesting stuff in that codebase
-as well, and archives are about what _actually_ happened, not just the final
-(usually retconned) story about how we got here.
+**Note**: there was a previous version of the project using a wholly different
+tech stack, running CUDA-accelerated models locally on an NVIDIA Jetson Orin
+AGX. That code is still in the repo, but it's in the `jetson` branch. It's not
+related (in the strict git history-sense) to the current branch, so if you want
+to merge between them you'll have a bad time. But there's some interesting stuff
+in that codebase as well, and archives are about what _actually_ happened, not
+just the final (retconned) story about how we got here.
 
 ## Licence
 
