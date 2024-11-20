@@ -24,6 +24,24 @@ Canberra during July 2024 where experts in dramatic writing, props and effects,
 curation, and digital technologies came together to explore the future of
 dramatic arts creation, recording, and archiving in the age of generative AI.
 
+## Setup instructions
+
+While this code is primarily designed for the specific installation at
+NIDA/NFSA/SOCY, it's open-source (yay) so you can see how it works, and even
+modify it for your needs. You'll want to:
+
+- change the video URL to point to your own audio & video files (look for
+  `this.sound` and `this.video.src` in `assets/js/sketch_canvas_hook.js`)
+
+- host it somewhere ([fly.io](https://fly.io) would be easy, because the config
+  files are alreay here---you'd just need to create your own app and change the
+  app name & other user credentials in the relevant places)
+
+- in the running app server, set the `AUTH_USERNAME` and `AUTH_PASSWORD`
+  environment variables to control access to the app, and add your own
+  `REPLICATE_API_TOKEN` environment variable (so that the calls to the
+  [Replicate](https://replicate.com)-hosted AI models will succeed)
+
 ## Repo structure
 
 This repo contains the software for the installation. Code in this repo by
