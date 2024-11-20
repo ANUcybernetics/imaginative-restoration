@@ -42,6 +42,8 @@ modify it for your needs. You'll want to:
   `REPLICATE_API_TOKEN` environment variable (so that the calls to the
   [Replicate](https://replicate.com)-hosted AI models will succeed)
 
+- set up a camera (or other video source) to feed into the app
+
 ## Repo structure
 
 This repo contains the software for the installation. Code in this repo by
