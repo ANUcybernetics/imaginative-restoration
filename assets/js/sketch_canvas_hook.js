@@ -116,11 +116,18 @@ const SketchCanvasHook = {
     // Apply scale transform based on secondsElapsed
     const scale = Math.max(0.2, 1 - secondsElapsed * 0.01);
     this.ctx.translate(x, y);
-    this.ctx.scale(scale, scale);
-    this.ctx.translate(-x, -y);
-
+    this.ctx.scale(
+      scale + this.noise.GetNoise(x * 0.5, sketch.y + 100) * 0.1,
+      scale + this.noise.GetNoise(x * 0.6, sketch.y - 100) * 0.1,
+    );
     // Draw the image
-    this.ctx.drawImage(sketch.img, x, y, drawWidth, sketch.size);
+    this.ctx.drawImage(
+      sketch.img,
+      -drawWidth / 2,
+      -(sketch.size / 2),
+      drawWidth,
+      sketch.size,
+    );
     // Restore the context state
     this.ctx.restore();
   },
