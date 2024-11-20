@@ -1,7 +1,6 @@
 ## TODO
 
-- setup Mac Mini
-- test for multi-screen (on Mac Mini)
+- tweak launch script to launch fullscreen on two monitors
 - add test for "changed_recently?" logic
 
 - allow prompt-scheduling
@@ -21,4 +20,4 @@ ImaginativeRestoration.Sketches.Sketch
 |> Enum.each(& &1.processed && &1.processed |> ImaginativeRestoration.AI.Utils.to_image! |> Image.write!("/tmp/ir-sketches-processed/#{&1.id}.webp"))
 ```
 
-- `capture_box=70,90,470,300`
+- ``
