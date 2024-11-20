@@ -43,6 +43,32 @@ to merge between them you'll have a bad time. But there's some interesting stuff
 in that codebase as well, and archives are about what _actually_ happened, not
 just the final (retconned) story about how we got here.
 
+## Credits
+
+TODO add Full credits (inc. collaborators)
+
+- Video loop: Courtesy NFSA (TODO add details)
+
+- Background music:
+  [Soundflakes - Horizon of the Unknown](https://freesound.org/people/SoundFlakes/sounds/592086/)
+  by [SoundFlakes](https://freesound.org/people/SoundFlakes/),
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+- **Text-to-Image** model: Mou, Chong and Wang, Xintao and Xie, Liangbin and Wu,
+  Yanze and Zhang, Jian and Qi, Zhongang and Shan, Ying and Qie, Xiaohu,
+  _T2i-adapter: Learning adapters to dig out more controllable ability for
+  text-to-image diffusion models_, hosted on
+  [Replicate](https://replicate.com/adirik/t2i-adapter-sdxl-canny)
+
+- **Object detection** model: Xiao, Bin and Wu, Haiping and Xu, Weijian and Dai,
+  Xiyang and Hu, Houdong and Lu, Yumao and Zeng, Michael and Liu, Ce and Yuan,
+  Lu, _Florence-2: Advancing a unified representation for a variety of vision
+  tasks_, hosted on [Replicate](https://replicate.com/lucataco/florence-2-large)
+
+- **Background removal** model: Carve, _Tracer b7, finetuned on the CarveSet
+  dataset_ ([link](https://huggingface.co/Carve/tracer_b7)), hosted on
+  [Replicate](https://replicate.com/lucataco/remove-bg)
+
 ## Licence
 
 MIT
