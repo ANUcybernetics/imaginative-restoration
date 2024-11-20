@@ -3,7 +3,7 @@ import FastNoiseLite from "fastnoise-lite";
 const SketchCanvasHook = {
   mounted() {
     // Configure sketches
-    this.maxSketches = 50;
+    this.maxSketches = 30;
     this.sketchHPad = 100;
     this.noise = new FastNoiseLite();
     this.noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
