@@ -111,7 +111,7 @@ const SketchCanvasHook = {
     const y = sketch.y + 300 * this.noise.GetNoise(x * 0.1, sketch.y);
 
     // set the filters
-    const grayscaleAmount = Math.max(0, 100 - 3 * secondsElapsed);
+    const grayscaleAmount = Math.max(0, 100 - 2 * secondsElapsed);
     this.ctx.filter = `grayscale(${grayscaleAmount}%)`;
     // Apply scale transform based on secondsElapsed
     const scale = Math.max(0.2, 1 - secondsElapsed * 0.01);
