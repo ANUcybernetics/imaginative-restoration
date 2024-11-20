@@ -9,7 +9,7 @@ open -a "Google Chrome" --new --args \
 
 
 # Wait a moment to ensure first window is opened
-sleep 2
+sleep 5
 
 # Open Chrome on second monitor
 open -a "Google Chrome" --new --args \
