@@ -57,26 +57,14 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
       # No attributes needed - will process the sketch's existing raw image
 
       # Validate that we have an raw image to work with
-      validate fn changeset, _context ->
-        case Ash.Changeset.get_attribute(changeset, :raw) do
-          nil -> {:error, raw: "cannot crop without an raw image"}
-          _ -> :ok
-        end
-      end
+      validate present(:raw), message: "cannot crop without an raw image"
 
       change {Pipeline, stage: :crop_and_label}
     end
 
     update :process do
-      # No attributes needed - will process the sketch's existing raw image
-
-      # Validate that we have an raw image to work with
-      validate fn changeset, _context ->
-        case Ash.Changeset.get_attribute(changeset, :cropped) do
-          nil -> {:error, cropped: "cannot process without a cropped image"}
-          _ -> :ok
-        end
-      end
+      # No attributes needed - will process the sketch's existing cropped image
+      validate present(:cropped), message: "cannot process without a cropped image"
 
       change {Pipeline, stage: :process}
     end
