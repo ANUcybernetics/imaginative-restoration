@@ -81,7 +81,8 @@ defmodule ImaginativeRestorationWeb.PromptLive do
     sketches
     |> Task.async_stream(
       fn sketch ->
-        if sketch.label, do: ImaginativeRestoration.Sketches.process!(sketch)
+        # doesn't actually matter if this errors or not
+        ImaginativeRestoration.Sketches.process(sketch)
       end,
       timeout: :infinity
     )
