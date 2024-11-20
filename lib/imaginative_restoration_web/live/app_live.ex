@@ -78,11 +78,12 @@ defmodule ImaginativeRestorationWeb.AppLive do
   @impl true
   def handle_info(%Broadcast{topic: "sketch:updated", event: "process"} = message, socket) do
     sketch = message.payload.data
+    thumbnail_dataurl = Utils.thumbnail!(sketch.processed)
 
     {:noreply,
      socket
      |> assign(sketch: sketch)
-     |> push_event("add_sketches", %{sketches: [%{id: sketch.id, dataurl: sketch.processed}]})}
+     |> push_event("add_sketches", %{sketches: [%{id: sketch.id, dataurl: thumbnail_dataurl}]})}
   end
 
   @impl true

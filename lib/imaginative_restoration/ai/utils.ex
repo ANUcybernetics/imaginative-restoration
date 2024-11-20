@@ -52,6 +52,13 @@ defmodule ImaginativeRestoration.AI.Utils do
     Image.crop!(image, x, y, w, h)
   end
 
+  def thumbnail!("data:image/" <> _ = dataurl, length \\ 300) do
+    dataurl
+    |> to_image!()
+    |> Image.thumbnail!(length)
+    |> to_dataurl!()
+  end
+
   def changed_recently? do
     num_minutes = 5
     num_sketches = 5
