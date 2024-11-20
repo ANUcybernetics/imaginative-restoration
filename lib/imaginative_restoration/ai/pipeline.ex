@@ -31,6 +31,11 @@ defmodule ImaginativeRestoration.AI.Pipeline do
             |> Ash.Changeset.force_change_attribute(:label, label)
             |> Ash.Changeset.force_change_attribute(:cropped, cropped)
 
+          {:error, :no_valid_label} ->
+            changeset
+            |> Ash.Changeset.force_change_attribute(:label, "thing")
+            |> Ash.Changeset.force_change_attribute(:cropped, raw)
+
           _ ->
             changeset
         end

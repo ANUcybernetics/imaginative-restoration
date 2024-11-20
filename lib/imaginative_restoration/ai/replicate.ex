@@ -170,11 +170,15 @@ defmodule ImaginativeRestoration.AI.Replicate do
         |> Enum.zip(body["bboxes"])
         # use the x, y, width, height format
         |> Enum.map(fn {label, [x1, y1, x2, y2]} -> {label, Enum.map([x1, y1, x2 - x1, y2 - y1], &round/1)} end)
+        |> Enum.reject(fn {label, _} -> label in ["envelope"] end)
         # sort by height (tallest first)
         |> Enum.sort_by(fn {_, [_, _, _, h]} -> h end, :desc)
 
-      # return the largest object
-      {:ok, List.first(objects)}
+      if objects == [] do
+        {:error, :no_valid_label}
+      else
+        {:ok, List.first(objects)}
+      end
     end
   end
 
