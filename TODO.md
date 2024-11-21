@@ -1,5 +1,7 @@
 ## TODO
 
+- curve the edges of the sketches on the canvas
+- check if "blank slate" (use reference image)
 - tweak launch script to launch fullscreen on two monitors
 - add test for "changed_recently?" logic
 
