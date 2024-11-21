@@ -83,6 +83,18 @@ defmodule ImaginativeRestoration.Utils do
     end
   end
 
+  def write_image_from_db(id, attribute \\ :processed) do
+    filename = "#{id}-#{attribute}.webp"
+
+    Sketch
+    |> Ash.get!(id)
+    |> Map.get(attribute)
+    |> ImaginativeRestoration.Utils.to_image!()
+    |> Image.write!(filename)
+
+    IO.puts("Image has been written to #{filename}")
+  end
+
   def recent_sketches(count) do
     Sketch
     |> Ash.Query.for_read(:read)
