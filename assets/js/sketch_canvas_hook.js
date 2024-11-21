@@ -92,7 +92,7 @@ const SketchCanvasHook = {
       dataurl: dataurl,
       img: new Image(),
       y: (0.1 + 0.8 * Math.random()) * this.height,
-      xVel: 2 + Math.random(),
+      xVel: 2 + Math.random() * 3,
       size: 300 * Math.random() + 200,
       addedAt: Date.now(),
     };
