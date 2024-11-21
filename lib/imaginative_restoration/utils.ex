@@ -61,6 +61,28 @@ defmodule ImaginativeRestoration.Utils do
     |> to_dataurl!()
   end
 
+  def upload_to_s3!(%Vix.Vips.Image{} = image, filename) do
+    # Convert image to binary
+    image_binary = Image.write!(image, :memory, suffix: ".webp")
+
+    # Upload to S3
+    response =
+      Req.new()
+      |> ReqS3.attach()
+      |> Req.put!(
+        url: "s3://imaginative-restoration-sketches/#{filename}",
+        body: image_binary
+      )
+
+    case response do
+      %{status: status} when status in 200..299 ->
+        {:ok, "https://fly.storage.tigris.dev/imaginative-restoration-sketches/#{filename}"}
+
+      _ ->
+        {:error, "Failed to upload image"}
+    end
+  end
+
   def recent_sketches(count) do
     Sketch
     |> Ash.Query.for_read(:read)
