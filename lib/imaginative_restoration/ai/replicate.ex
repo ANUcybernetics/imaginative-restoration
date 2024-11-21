@@ -123,7 +123,7 @@ defmodule ImaginativeRestoration.AI.Replicate do
     input = %{
       image: input_image,
       prompt: prompt,
-      weight: 0.5,
+      weight: 1,
       low_threshold: 1,
       high_threshold: 5,
       detect_resolution: 128
