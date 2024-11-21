@@ -1,6 +1,8 @@
 defmodule ImaginativeRestoration.AI.Utils do
   @moduledoc false
 
+  alias ImaginativeRestoration.Sketches.Sketch
+
   require Ash.Query
 
   def to_image!(%Vix.Vips.Image{} = image), do: image
@@ -59,12 +61,21 @@ defmodule ImaginativeRestoration.AI.Utils do
     |> to_dataurl!()
   end
 
+  def recent_sketches(count) do
+    Sketch
+    |> Ash.Query.for_read(:read)
+    |> Ash.Query.filter(not is_nil(processed))
+    |> Ash.Query.sort(inserted_at: :desc)
+    |> Ash.Query.limit(count)
+    |> Ash.read!()
+  end
+
   def changed_recently? do
     num_minutes = 5
     num_sketches = 5
 
     sketches =
-      ImaginativeRestoration.Sketches.Sketch
+      Sketch
       |> Ash.Query.filter(inserted_at > ago(^num_minutes, :minute))
       |> Ash.Query.sort(inserted_at: :desc)
       |> Ash.read!()

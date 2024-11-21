@@ -95,7 +95,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
   @impl true
   def handle_info(:pre_populate_sketches, socket) do
     sketches =
-      Enum.map(recent_sketches(), fn %Sketch{id: id, processed: processed} -> %{id: id, dataurl: processed} end)
+      Enum.map(Utils.recent_sketches(3), fn %Sketch{id: id, processed: processed} -> %{id: id, dataurl: processed} end)
 
     {:noreply, push_event(socket, "add_sketches", %{sketches: sketches})}
   end
@@ -104,13 +104,4 @@ defmodule ImaginativeRestorationWeb.AppLive do
   defp pipeline_phase(%Sketch{processed: nil}), do: :processing
   defp pipeline_phase(%Sketch{}), do: :completed
   defp pipeline_phase(nil), do: :waiting
-
-  defp recent_sketches do
-    Sketch
-    |> Ash.Query.for_read(:read)
-    |> Ash.Query.filter(not is_nil(processed))
-    |> Ash.Query.sort(inserted_at: :desc)
-    |> Ash.Query.limit(3)
-    |> Ash.read!()
-  end
 end
