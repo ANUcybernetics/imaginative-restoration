@@ -93,34 +93,17 @@ defmodule ImaginativeRestoration.Utils do
   end
 
   def changed_recently? do
-    num_minutes = 5
-    num_sketches = 5
+    raw_images = 5 |> recent_sketches() |> Enum.map(&to_image!(&1.raw))
 
-    sketches =
-      Sketch
-      |> Ash.Query.filter(inserted_at > ago(^num_minutes, :minute))
-      |> Ash.Query.sort(inserted_at: :desc)
-      |> Ash.read!()
+    distances =
+      raw_images
+      |> Enum.chunk_every(2, 1, :discard)
+      |> Enum.map(fn [a, b] ->
+        {:ok, d} = Image.hamming_distance(a, b)
+        d
+      end)
 
-    images = Enum.map(sketches, &to_image!(&1.raw))
-
-    case images do
-      # if there's fewer than n images, then we count it as "has changed recently"
-      images when length(images) < num_sketches ->
-        true
-
-      # otherwise look at the average hash difference between the latest and previous images
-      [latest | previous] ->
-        diffs =
-          Enum.map(previous, fn img ->
-            {:ok, d} = Image.hamming_distance(latest, img)
-            d
-          end)
-
-        mean = Enum.sum(diffs) / length(diffs)
-
-        # the docs say "In general, a hamming distance of less than 10 indicates that the images are very similar."
-        mean >= 10
-    end
+    # if any of the distances are greater than 0, then the target image has changed recently
+    not Enum.all?(distances, fn d -> d < 20 end)
   end
 end
