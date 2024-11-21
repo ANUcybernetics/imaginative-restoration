@@ -4,8 +4,8 @@ defmodule ImaginativeRestorationWeb.AppLive do
 
   import ImaginativeRestorationWeb.AppComponents
 
-  alias ImaginativeRestoration.AI.Utils
   alias ImaginativeRestoration.Sketches.Sketch
+  alias ImaginativeRestoration.Utils
   alias Phoenix.Socket.Broadcast
 
   require Ash.Query

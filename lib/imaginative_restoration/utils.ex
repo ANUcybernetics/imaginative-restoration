@@ -1,4 +1,4 @@
-defmodule ImaginativeRestoration.AI.Utils do
+defmodule ImaginativeRestoration.Utils do
   @moduledoc false
 
   alias ImaginativeRestoration.Sketches.Sketch

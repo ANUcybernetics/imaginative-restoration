@@ -3,8 +3,8 @@ defmodule ImaginativeRestoration.AI.Pipeline do
   use Ash.Resource.Change
 
   alias ImaginativeRestoration.AI.Replicate
-  alias ImaginativeRestoration.AI.Utils
   alias ImaginativeRestoration.Sketches.Prompt
+  alias ImaginativeRestoration.Utils
 
   @impl true
   def init(opts) do

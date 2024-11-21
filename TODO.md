@@ -19,7 +19,7 @@
 ```elixir
 ImaginativeRestoration.Sketches.Sketch
 |> Ash.read!
-|> Enum.each(& &1.processed && &1.processed |> ImaginativeRestoration.AI.Utils.to_image! |> Image.write!("/tmp/ir-sketches-processed/#{&1.id}.webp"))
+|> Enum.each(& &1.processed && &1.processed |> ImaginativeRestoration.Utils.to_image! |> Image.write!("/tmp/ir-sketches-processed/#{&1.id}.webp"))
 ```
 
 - ``

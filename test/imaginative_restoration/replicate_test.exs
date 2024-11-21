@@ -2,7 +2,7 @@ defmodule ImaginativeRestoration.ReplicateTest do
   use ImaginativeRestoration.DataCase
 
   alias ImaginativeRestoration.AI.Replicate
-  alias ImaginativeRestoration.AI.Utils
+  alias ImaginativeRestoration.Utils
 
   defp invoke_args do
     sketch_image = "https://fly.storage.tigris.dev/imaginative-restoration-sketches/butterfly-sketch.png"

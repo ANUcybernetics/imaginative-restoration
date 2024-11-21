@@ -1,7 +1,7 @@
 defmodule ImaginativeRestoration.UtilsTest do
   use ImaginativeRestoration.DataCase
 
-  alias ImaginativeRestoration.AI.Utils
+  alias ImaginativeRestoration.Utils
 
   describe "png data URL" do
     test "can be converted to webp data URL" do

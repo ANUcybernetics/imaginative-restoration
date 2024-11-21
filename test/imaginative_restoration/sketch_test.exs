@@ -1,7 +1,7 @@
 defmodule ImaginativeRestoration.SketchTest do
   use ImaginativeRestoration.DataCase
 
-  alias ImaginativeRestoration.AI.Utils
+  alias ImaginativeRestoration.Utils
 
   describe "Sketch resource" do
     @describetag timeout: :timer.minutes(10)
