@@ -1,9 +1,6 @@
 ## TODO
 
-- curve the edges of the sketches on the canvas
-- check if "blank slate" (use reference image)
 - tweak launch script to launch fullscreen on two monitors
-- add test for "changed_recently?" logic
 
 - allow prompt-scheduling
 - prompt history view
@@ -21,5 +18,3 @@ ImaginativeRestoration.Sketches.Sketch
 |> Ash.read!
 |> Enum.each(& &1.processed && &1.processed |> ImaginativeRestoration.Utils.to_image! |> Image.write!("/tmp/ir-sketches-processed/#{&1.id}.webp"))
 ```
-
-- ``
