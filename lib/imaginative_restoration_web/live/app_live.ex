@@ -62,7 +62,9 @@ defmodule ImaginativeRestorationWeb.AppLive do
   @impl true
   def handle_event("webcam_frame", %{"frame" => dataurl}, socket) do
     # only run the AI pipeline if stuff has changed recently
-    if Utils.changed_recently?() do
+    latest_raw_image = Utils.to_image!(dataurl)
+
+    if Utils.changed_recently?(latest_raw_image) do
       # spawn the task which will communicate back to self() via :update_sketch messages
       Task.start(fn ->
         dataurl

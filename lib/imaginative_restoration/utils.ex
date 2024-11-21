@@ -92,9 +92,17 @@ defmodule ImaginativeRestoration.Utils do
     |> Ash.read!()
   end
 
-  def changed_recently? do
-    raw_images = 5 |> recent_sketches() |> Enum.map(&to_image!(&1.raw))
-    difference_threshold = 15
+  def changed_recently?(latest_raw_image) do
+    difference_threshold = 10
+
+    raw_images =
+      Sketch
+      |> Ash.Query.for_read(:read)
+      |> Ash.Query.sort(inserted_at: :desc)
+      |> Ash.Query.limit(5)
+      |> Ash.read!()
+      |> Enum.map(&to_image!(&1.raw))
+      |> List.insert_at(0, latest_raw_image)
 
     distances =
       raw_images
@@ -105,6 +113,6 @@ defmodule ImaginativeRestoration.Utils do
       end)
 
     # if any of the distances are greater than 0, then the target image has changed recently
-    not Enum.all?(distances, fn d -> d < difference_threshold end)
+    Enum.any?(distances, fn d -> d > difference_threshold end)
   end
 end
