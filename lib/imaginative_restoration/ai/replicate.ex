@@ -122,7 +122,11 @@ defmodule ImaginativeRestoration.AI.Replicate do
   def invoke("philz1337x/controlnet-deliberate" = model, input_image, prompt) do
     input = %{
       image: input_image,
-      prompt: prompt
+      prompt: prompt,
+      weight: 0.5,
+      low_threshold: 1,
+      high_threshold: 5,
+      detect_resolution: 128
     }
 
     with {:ok, version} <- get_latest_version(model),
