@@ -47,7 +47,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
     create :init do
       accept [:raw]
-      argument :model, :string, default: "adirik/t2i-adapter-sdxl-canny"
+      argument :model, :string, default: "philz1337x/controlnet-deliberate"
 
       # default model, for now
       change set_attribute(:model, arg(:model))
