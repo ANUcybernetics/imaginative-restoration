@@ -93,6 +93,11 @@ const WebcamStreamHook = {
   },
 
   captureFrame() {
+    if (!this.context || !this.canvas) {
+      console.warn("Canvas not initialized - skipping frame capture");
+      return;
+    }
+
     const video = this.el;
     const captureBox = this.captureBox;
 
