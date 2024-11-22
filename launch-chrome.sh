@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check if IMGRES_AUTH environment variable is set
+if [ -z "$IMGRES_AUTH" ]; then
+    echo "Error: IMGRES_AUTH environment variable is not set" >&2
+    exit 1
+fi
+
 # Open first Chrome window
 open -a "Google Chrome" --new --args \
     --new-window \
@@ -7,7 +13,7 @@ open -a "Google Chrome" --new --args \
     --auth-negotiate-delegate-whitelist="imgres.fly.dev" \
     --autoplay-policy=no-user-gesture-required \
     --start-fullscreen \
-    "http://imgres.fly.dev?capture_box=70,90,470,300"
+    "http://$IMGRES_AUTH@imgres.fly.dev?capture_box=70,90,470,300"
 
 # Wait for first window to open
 sleep 3
@@ -18,7 +24,7 @@ tell application "Google Chrome"
     make new window
     set bounds of front window to [2560, 0, 5120, 1440] # Adjust these coordinates based on your monitor setup
     tell front window
-        set URL of active tab to "http://imgres.fly.dev"
+        set URL of active tab to "http://$IMGRES_AUTH@imgres.fly.dev"
     end tell
 end tell
 EOF
