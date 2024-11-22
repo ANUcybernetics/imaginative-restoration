@@ -12,7 +12,6 @@ open -a "Google Chrome" --new --args \
     --auth-server-whitelist="imgres.fly.dev" \
     --auth-negotiate-delegate-whitelist="imgres.fly.dev" \
     --autoplay-policy=no-user-gesture-required \
-    --start-fullscreen \
     "http://$IMGRES_AUTH@imgres.fly.dev?capture_box=70,90,470,300"
 
 # Wait for first window to open
