@@ -14,6 +14,12 @@ defmodule ImaginativeRestorationWeb.AppLive do
   @impl true
   def render(assigns) do
     ~H"""
+    <audio id="background-audio" autoplay loop>
+      <source
+        src="https://fly.storage.tigris.dev/imaginative-restoration-sketches/592086__soundflakes__soundflakes-horizon-of-the-unknown.mp3"
+        type="audio/mp3"
+      />
+    </audio>
     <div class="relative flex items-center justify-center size-full">
       <div class="w-full max-w-[calc(100vh*4/3)] aspect-[4/3]">
         <div class="relative w-full h-full">

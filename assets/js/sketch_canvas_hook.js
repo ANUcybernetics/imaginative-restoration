@@ -1,5 +1,4 @@
 import FastNoiseLite from "fastnoise-lite";
-import { Howl } from "howler";
 
 const SketchCanvasHook = {
   mounted() {
@@ -9,16 +8,6 @@ const SketchCanvasHook = {
     this.sketchHPad = 100;
     this.noise = new FastNoiseLite();
     this.noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
-
-    // set up audio
-    this.sound = new Howl({
-      src: [
-        "https://fly.storage.tigris.dev/imaginative-restoration-sketches/592086__soundflakes__soundflakes-horizon-of-the-unknown.mp3",
-      ],
-      loop: true,
-      volume: 0.5, // adjust as needed
-      autoplay: true,
-    });
 
     // Create and setup background video
     this.video = document.createElement("video");
@@ -205,10 +194,6 @@ const SketchCanvasHook = {
     }
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
-    }
-    if (this.sound) {
-      this.sound.stop();
-      this.sound.unload();
     }
   },
 };
