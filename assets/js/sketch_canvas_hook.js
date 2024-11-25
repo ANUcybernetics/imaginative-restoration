@@ -212,6 +212,7 @@ const SketchCanvasHook = {
     }
     if (this.sound) {
       this.sound.stop();
+      this.sound.unload();
     }
   },
 };
