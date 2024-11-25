@@ -23,10 +23,7 @@ config :imaginative_restoration, ImaginativeRestorationWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
-    formats: [
-      html: ImaginativeRestorationWeb.ErrorHTML,
-      json: ImaginativeRestorationWeb.ErrorJSON
-    ],
+    formats: [html: ImaginativeRestorationWeb.ErrorLive],
     layout: false
   ],
   pubsub_server: ImaginativeRestoration.PubSub,

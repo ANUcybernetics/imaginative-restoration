@@ -23,6 +23,9 @@ defmodule ImaginativeRestorationWeb.Router do
     live "/config", ConfigLive
 
     live "/prompts", PromptLive
+
+    # catch-all route for the error handler
+    live "/*path", ErrorLive, :index, as: :error
   end
 
   # Other scopes may use custom stacks.
