@@ -4,6 +4,7 @@ import { Howl } from "howler";
 const SketchCanvasHook = {
   mounted() {
     // Configure sketches
+    this.sketches = [];
     this.maxSketches = 30;
     this.sketchHPad = 100;
     this.noise = new FastNoiseLite();
@@ -74,11 +75,6 @@ const SketchCanvasHook = {
     this.el.height = height;
 
     this.ctx = this.el.getContext("2d");
-
-    // Only initialize flock if it doesn't exist yet
-    if (!this.sketches) {
-      this.sketches = [];
-    }
   },
 
   addNewSketch(id, dataurl) {
