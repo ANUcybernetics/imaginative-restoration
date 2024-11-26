@@ -4,7 +4,7 @@ const SketchCanvasHook = {
   mounted() {
     // Configure sketches
     this.sketches = [];
-    this.maxSketches = 30;
+    this.maxSketches = 10;
     this.sketchHPad = 100;
     this.noise = new FastNoiseLite();
     this.noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
@@ -78,7 +78,7 @@ const SketchCanvasHook = {
       img: new Image(),
       y: (0.1 + 0.8 * Math.random()) * this.height,
       xVel: 2 + Math.random() * 3,
-      size: 300 * Math.random() + 200,
+      size: 200 * Math.random() + 300,
       addedAt: Date.now(),
     };
 
@@ -112,7 +112,7 @@ const SketchCanvasHook = {
     this.ctx.filter = `grayscale(${grayscaleAmount}%) opacity(${opacityAmount})`;
 
     // Apply scale transform based on secondsElapsed
-    const scale = Math.max(0.2, 1 - secondsElapsed * 0.01);
+    const scale = Math.max(0.4, 1 - secondsElapsed * 0.01);
     this.ctx.translate(x, y);
     this.ctx.scale(
       scale + this.noise.GetNoise(x * 0.5, sketch.y + 100) * 0.1,
