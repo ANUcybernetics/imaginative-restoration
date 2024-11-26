@@ -26,8 +26,8 @@ defmodule ImaginativeRestorationWeb.AppLive do
           <canvas id="boid-canvas" phx-hook="SketchCanvas" class="w-full h-full object-contain">
           </canvas>
         </div>
-        <div class="absolute top-8 left-8 flex gap-8 h-[200px] backdrop-blur-md">
-          <.webcam_capture :if={@capture} capture_interval={30_000} />
+        <div :if={@capture} class="absolute top-8 left-8 flex gap-8 h-[200px] backdrop-blur-md">
+          <.webcam_capture capture_interval={30_000} />
           <div :if={@sketch} class="relative">
             <img
               src={if pipeline_phase(@sketch) == :labelling, do: @sketch.raw, else: @sketch.cropped}
