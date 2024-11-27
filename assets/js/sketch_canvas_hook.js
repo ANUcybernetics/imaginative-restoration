@@ -29,8 +29,7 @@ const SketchCanvasHook = {
         });
     });
 
-    this.video.src =
-      "https://fly.storage.tigris.dev/imaginative-restoration-sketches/IMGRES_V3.0_18.11.24.mp4";
+    this.video.src = `https://fly.storage.tigris.dev/imaginative-restoration-sketches/IMGRES_V3.0_18.11.24.mp4?client=${Date.now()}`;
     document.body.appendChild(this.video);
 
     // Setup resize observer
