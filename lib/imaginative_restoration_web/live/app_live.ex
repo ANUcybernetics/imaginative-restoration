@@ -71,7 +71,6 @@ defmodule ImaginativeRestorationWeb.AppLive do
     latest_raw_image = Utils.to_image!(dataurl)
 
     if Utils.changed_recently?(latest_raw_image) do
-      # spawn the task which will communicate back to self() via :update_sketch messages
       Task.start(fn ->
         dataurl
         |> ImaginativeRestoration.Sketches.init!()
