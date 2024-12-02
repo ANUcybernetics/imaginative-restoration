@@ -21,7 +21,7 @@ sleep 5
 osascript <<EOF
 tell application "Google Chrome"
     make new window
-    set bounds of front window to [2560, 200, 3560, 800] # should be on second monitor
+    set bounds of front window to [2000, 100, 2800, 700]
     tell front window
         set URL of active tab to "http://$IMGRES_AUTH@imgres.fly.dev"
     end tell
