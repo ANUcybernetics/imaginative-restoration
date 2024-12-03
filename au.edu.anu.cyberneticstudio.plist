@@ -3,7 +3,7 @@
    <plist version="1.0">
    <dict>
        <key>Label</key>
-       <string>au.edu.au.cyberneticstudio</string>
+       <string>au.edu.anu.cyberneticstudio</string>
        <key>ProgramArguments</key>
        <array>
            <string>/usr/local/bin/launch-chrome.sh</string>
