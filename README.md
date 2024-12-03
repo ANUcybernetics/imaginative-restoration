@@ -37,7 +37,7 @@ You'll need:
 Once everything is physically set up and plugged in, run the launch script:
 
 ```sh
-IMGRES_AUTH=user:pass ./launch-chrome.sh
+IMGRES_AUTH=user:pass ./imgres-launch.sh
 ```
 
 Then, draw things on the paper and put them in view of the camera. The AI (see
