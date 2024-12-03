@@ -34,6 +34,10 @@ config :imaginative_restoration,
   ash_domains: [ImaginativeRestoration.Sketches],
   generators: [timestamp_type: :utc_datetime]
 
+config :imaginative_restoration,
+  no_change_threshold: 10,
+  no_change_images: 10
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

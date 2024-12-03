@@ -105,13 +105,14 @@ defmodule ImaginativeRestoration.Utils do
   end
 
   def changed_recently?(latest_raw_image) do
-    difference_threshold = 10
+    difference_threshold = Application.get_env(:imaginative_restoration, :no_change_threshold)
+    number_of_images = Application.get_env(:imaginative_restoration, :no_change_images)
 
     raw_images =
       Sketch
       |> Ash.Query.for_read(:read)
       |> Ash.Query.sort(inserted_at: :desc)
-      |> Ash.Query.limit(5)
+      |> Ash.Query.limit(number_of_images)
       |> Ash.read!()
       |> Enum.map(&to_image!(&1.raw))
       |> List.insert_at(0, latest_raw_image)
