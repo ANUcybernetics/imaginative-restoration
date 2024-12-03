@@ -79,6 +79,8 @@ defmodule ImaginativeRestorationWeb.AppLive do
         |> ImaginativeRestoration.Sketches.crop_and_label!()
         |> ImaginativeRestoration.Sketches.process!()
       end)
+    else
+      Logger.info("No significant changes detected in webcam frame, skipping processing")
     end
 
     {:noreply, socket}
