@@ -67,7 +67,13 @@ const SketchCanvasHook = {
 
   addNewSketch(id, dataurl) {
     if (this.sketches.length >= this.maxSketches) {
-      // remove the first (oldest) sketch; the new one will be pushed to the back soon
+      // Properly cleanup the oldest sketch before removing it
+      const oldestSketch = this.sketches[0];
+      if (oldestSketch.img) {
+        // Remove the onload listener and clear src
+        oldestSketch.img.onload = null;
+        oldestSketch.img.src = "";
+      }
       this.sketches.shift();
     }
 
@@ -84,6 +90,8 @@ const SketchCanvasHook = {
     // Create image and wait for it to load
     newSketch.img.onload = () => {
       this.sketches.push(newSketch);
+      // Optionally remove the onload handler after it's done
+      newSketch.img.onload = null;
     };
     newSketch.img.src = dataurl;
   },
@@ -194,6 +202,15 @@ const SketchCanvasHook = {
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
     }
+
+    // Clean up all remaining sketches
+    this.sketches.forEach((sketch) => {
+      if (sketch.img) {
+        sketch.img.onload = null;
+        sketch.img.src = "";
+      }
+    });
+    this.sketches = [];
   },
 };
 
