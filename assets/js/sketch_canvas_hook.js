@@ -67,34 +67,32 @@ const SketchCanvasHook = {
 
   addNewSketch(id, dataurl) {
     if (this.sketches.length >= this.maxSketches) {
-      // Properly cleanup the oldest sketch before removing it
+      // Reuse the oldest sketch object
       const oldestSketch = this.sketches[0];
-      if (oldestSketch.img) {
-        // Remove the onload listener and clear src
-        oldestSketch.img.onload = null;
-        oldestSketch.img.src = "";
-        delete oldestSketch.img; // Explicitly remove the reference
-      }
-      this.sketches.shift();
+      oldestSketch.id = id;
+      oldestSketch.dataurl = dataurl;
+      oldestSketch.addedAt = Date.now();
+      // Move it to the end of the array
+      this.sketches.push(this.sketches.shift());
+      // Update the image source
+      oldestSketch.img.src = dataurl;
+    } else {
+      let newSketch = {
+        id: id,
+        dataurl: dataurl,
+        img: new Image(),
+        y: (0.1 + 0.8 * Math.random()) * this.height,
+        xVel: 2 + Math.random() * 3,
+        size: 300 * Math.random() + 500,
+        addedAt: Date.now(),
+      };
+
+      newSketch.img.onload = () => {
+        this.sketches.push(newSketch);
+        newSketch.img.onload = null;
+      };
+      newSketch.img.src = dataurl;
     }
-
-    let newSketch = {
-      id: id,
-      dataurl: dataurl,
-      img: new Image(),
-      y: (0.1 + 0.8 * Math.random()) * this.height,
-      xVel: 2 + Math.random() * 3,
-      size: 300 * Math.random() + 500,
-      addedAt: Date.now(),
-    };
-
-    // Create image and wait for it to load
-    newSketch.img.onload = () => {
-      this.sketches.push(newSketch);
-      // Optionally remove the onload handler after it's done
-      newSketch.img.onload = null;
-    };
-    newSketch.img.src = dataurl;
   },
 
   drawSketch(sketch) {
