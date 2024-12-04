@@ -59,6 +59,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
     if connected?(socket) do
       ImaginativeRestorationWeb.Endpoint.subscribe("sketch:updated")
       Process.send_after(self(), :pre_populate_sketches, 1000)
+      # Process.send_after(self(), :spam_new_sketch, 1000)
     end
 
     capture? = Map.has_key?(params, "capture") or Map.has_key?(params, "capture_box")
@@ -109,6 +110,13 @@ defmodule ImaginativeRestorationWeb.AppLive do
       Enum.map(Utils.recent_sketches(3), fn %Sketch{id: id, processed: processed} -> %{id: id, dataurl: processed} end)
 
     {:noreply, push_event(socket, "add_sketches", %{sketches: sketches})}
+  end
+
+  @impl true
+  def handle_info(:spam_new_sketch, socket) do
+    [%Sketch{id: id, processed: processed}] = Utils.recent_sketches(1)
+    Process.send_after(self(), :spam_new_sketch, 1000)
+    {:noreply, push_event(socket, "add_sketches", %{sketches: [%{id: id, dataurl: processed}]})}
   end
 
   defp pipeline_phase(%Sketch{label: nil}), do: :labelling
