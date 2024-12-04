@@ -73,6 +73,7 @@ const SketchCanvasHook = {
         // Remove the onload listener and clear src
         oldestSketch.img.onload = null;
         oldestSketch.img.src = "";
+        delete oldestSketch.img; // Explicitly remove the reference
       }
       this.sketches.shift();
     }
