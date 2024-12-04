@@ -33,7 +33,10 @@ defmodule ImaginativeRestoration.AI.Pipeline do
 
           {:error, :no_valid_label} ->
             changeset
-            |> Ash.Changeset.force_change_attribute(:label, "creature")
+            |> Ash.Changeset.force_change_attribute(
+              :label,
+              Enum.random(["creature", "beast", "animal", "monster", "critter"])
+            )
             |> Ash.Changeset.force_change_attribute(:cropped, raw)
 
           _ ->
