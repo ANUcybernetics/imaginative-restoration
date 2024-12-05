@@ -22,8 +22,27 @@ const WebcamStreamHook = {
   },
 
   destroyed() {
+    // Cancel animations
     if (this.currentAnimations) {
       this.currentAnimations.forEach((animation) => animation.cancel());
+    }
+
+    // Stop video stream
+    if (this.el.srcObject) {
+      const tracks = this.el.srcObject.getTracks();
+      tracks.forEach((track) => track.stop());
+      this.el.srcObject = null;
+    }
+
+    // Clear capture interval
+    if (this.captureIntervalId) {
+      clearInterval(this.captureIntervalId);
+    }
+
+    // Clean up canvas
+    if (this.canvas) {
+      this.context = null;
+      this.canvas = null;
     }
   },
 
@@ -86,7 +105,10 @@ const WebcamStreamHook = {
 
       // Start frame capture (in 1s to give the auto-exposure time to adjust)
       setTimeout(() => this.captureFrame(), 1000);
-      setInterval(() => this.captureFrame(), this.captureInterval);
+      this.captureIntervalId = setInterval(
+        () => this.captureFrame(),
+        this.captureInterval,
+      );
     } catch (error) {
       console.error("Error accessing the webcam:", error);
     }
