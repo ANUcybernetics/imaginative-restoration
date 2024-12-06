@@ -36,7 +36,7 @@ config :imaginative_restoration,
 
 config :imaginative_restoration,
   no_change_threshold: 10,
-  no_change_images: 10
+  no_change_images: 5
 
 # Configures Elixir's Logger
 config :logger, :console,
