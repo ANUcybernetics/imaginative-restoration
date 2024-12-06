@@ -115,6 +115,13 @@ const WebcamStreamHook = {
   },
 
   captureFrame() {
+    // early return outside of running hours
+    const now = new Date();
+    const hour = now.getHours();
+    if (hour < 9 || hour >= 21) {
+      return;
+    }
+
     if (!this.context || !this.canvas) {
       console.warn("Canvas not initialized - skipping frame capture");
       return;
