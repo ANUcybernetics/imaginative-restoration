@@ -8,6 +8,7 @@ const SketchCanvasHook = {
     this.sketchHPad = 100;
     this.noise = new FastNoiseLite();
     this.noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+    this.isAnimating = false;
 
     // Create and setup background video
     this.video = document.createElement("video");
@@ -184,14 +185,23 @@ const SketchCanvasHook = {
   },
 
   startAnimation() {
+    // Prevent multiple animation loops
+    if (this.isAnimating) return;
+    this.isAnimating = true;
+
     const animate = () => {
       this.animateFrame();
-      this.animationFrameId = requestAnimationFrame(animate);
+      if (this.isAnimating) {
+        // Only continue if still animating
+        this.animationFrameId = requestAnimationFrame(animate);
+      }
     };
     animate();
   },
 
   destroyed() {
+    this.isAnimating = false;
+
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
     }
