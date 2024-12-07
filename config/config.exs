@@ -35,7 +35,7 @@ config :imaginative_restoration,
   generators: [timestamp_type: :utc_datetime]
 
 config :imaginative_restoration,
-  no_change_threshold: 10,
+  no_change_threshold: 12,
   no_change_images: 5
 
 # Configures Elixir's Logger
