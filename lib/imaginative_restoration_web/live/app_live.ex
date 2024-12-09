@@ -63,17 +63,33 @@ defmodule ImaginativeRestorationWeb.AppLive do
     end
 
     capture? = Map.has_key?(params, "capture") or Map.has_key?(params, "capture_box")
+    difference_threshold = Application.get_env(:imaginative_restoration, :no_change_threshold)
 
-    {:ok, assign(socket, sketch: nil, capture: capture?, page_title: (capture? && "Capture") || "Display"),
-     layout: {ImaginativeRestorationWeb.Layouts, :canvas}}
+    {:ok,
+     assign(socket,
+       sketch: nil,
+       capture: capture?,
+       page_title: (capture? && "Capture") || "Display",
+       previous_image: nil,
+       image_difference_threshold: difference_threshold
+     ), layout: {ImaginativeRestorationWeb.Layouts, :canvas}}
   end
 
   @impl true
   def handle_event("webcam_frame", %{"frame" => dataurl}, socket) do
-    # only run the AI pipeline if stuff has changed recently
-    latest_raw_image = Utils.to_image!(dataurl)
+    current_image = Utils.to_image!(dataurl)
 
-    if Utils.changed_recently?(latest_raw_image) do
+    should_process? =
+      case socket.assigns.previous_image do
+        nil ->
+          true
+
+        previous ->
+          {:ok, distance} = Image.hamming_distance(previous, current_image)
+          distance > socket.assigns.image_difference_threshold
+      end
+
+    if should_process? do
       Task.start(fn ->
         dataurl
         |> ImaginativeRestoration.Sketches.init!()
@@ -84,7 +100,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
       Logger.info("No significant changes detected in webcam frame, skipping processing")
     end
 
-    {:noreply, socket}
+    {:noreply, assign(socket, previous_image: current_image)}
   end
 
   @impl true
