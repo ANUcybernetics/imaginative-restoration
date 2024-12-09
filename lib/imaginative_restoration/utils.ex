@@ -104,26 +104,25 @@ defmodule ImaginativeRestoration.Utils do
     |> Ash.read!()
   end
 
+  def inter_image_distances(images) do
+    images
+    |> Enum.chunk_every(2, 1, :discard)
+    |> Enum.map(fn [a, b] ->
+      {:ok, d} = Image.hamming_distance(a, b)
+      d
+    end)
+  end
+
   def changed_recently?(latest_raw_image) do
     difference_threshold = Application.get_env(:imaginative_restoration, :no_change_threshold)
     number_of_images = Application.get_env(:imaginative_restoration, :no_change_images)
 
-    raw_images =
-      Sketch
-      |> Ash.Query.for_read(:read)
-      |> Ash.Query.sort(inserted_at: :desc)
-      |> Ash.Query.limit(number_of_images)
-      |> Ash.read!()
+    distances =
+      number_of_images
+      |> recent_sketches()
       |> Enum.map(&to_image!(&1.raw))
       |> List.insert_at(0, latest_raw_image)
-
-    distances =
-      raw_images
-      |> Enum.chunk_every(2, 1, :discard)
-      |> Enum.map(fn [a, b] ->
-        {:ok, d} = Image.hamming_distance(a, b)
-        d
-      end)
+      |> inter_image_distances()
 
     # if any of the distances are greater than 0, then the target image has changed recently
     Enum.any?(distances, fn d -> d > difference_threshold end)
