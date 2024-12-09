@@ -112,19 +112,4 @@ defmodule ImaginativeRestoration.Utils do
       d
     end)
   end
-
-  def changed_recently?(latest_raw_image) do
-    difference_threshold = Application.get_env(:imaginative_restoration, :no_change_threshold)
-    number_of_images = Application.get_env(:imaginative_restoration, :no_change_images)
-
-    distances =
-      number_of_images
-      |> recent_sketches()
-      |> Enum.map(&to_image!(&1.raw))
-      |> List.insert_at(0, latest_raw_image)
-      |> inter_image_distances()
-
-    # if any of the distances are greater than 0, then the target image has changed recently
-    Enum.any?(distances, fn d -> d > difference_threshold end)
-  end
 end

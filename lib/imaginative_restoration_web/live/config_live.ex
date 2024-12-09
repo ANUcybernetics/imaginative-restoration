@@ -48,7 +48,7 @@ defmodule ImaginativeRestorationWeb.ConfigLive do
 
   @impl true
   def handle_event("webcam_frame", %{"frame" => dataurl}, socket) do
-    number_of_images = Application.get_env(:imaginative_restoration, :no_change_images)
+    number_of_images = 10
     latest_raw_image = Utils.to_image!(dataurl)
 
     recent_images =
