@@ -14,7 +14,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <audio id="background-audio" autoplay loop>
+    <audio :if={!@capture} id="background-audio" autoplay loop>
       <source
         src="https://fly.storage.tigris.dev/imaginative-restoration-sketches/592086__soundflakes__soundflakes-horizon-of-the-unknown.mp3"
         type="audio/mp3"
