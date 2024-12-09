@@ -23,7 +23,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
     <div class="relative flex items-center justify-center size-full">
       <div class="w-full max-w-[calc(100vh*4/3)] aspect-[4/3]">
         <div class="relative w-full h-full">
-          <canvas id="boid-canvas" phx-hook="SketchCanvas" class="w-full h-full object-contain">
+          <canvas id="sketch-canvas" phx-hook="SketchCanvas" class="w-full h-full object-contain">
           </canvas>
         </div>
         <div :if={@capture} class="absolute top-8 left-8 flex gap-8 h-[200px] backdrop-blur-md">
