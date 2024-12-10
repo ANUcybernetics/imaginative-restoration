@@ -33,7 +33,8 @@ defmodule ImaginativeRestorationWeb.AppLive do
               src={if pipeline_phase(@sketch) == :labelling, do: @sketch.raw, else: @sketch.cropped}
               class={[
                 "h-full w-auto object-contain",
-                pipeline_phase(@sketch) != :completed && "sketch-processing"
+                pipeline_phase(@sketch) != :completed && "sketch-processing",
+                @skip_process? && "grayscale"
               ]}
             />
             <span
