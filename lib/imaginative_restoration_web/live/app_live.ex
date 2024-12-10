@@ -14,7 +14,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <audio :if={!@capture} id="background-audio" autoplay loop>
+    <audio :if={!@capture?} id="background-audio" autoplay loop>
       <source
         src="https://fly.storage.tigris.dev/imaginative-restoration-sketches/592086__soundflakes__soundflakes-horizon-of-the-unknown.mp3"
         type="audio/mp3"
@@ -26,7 +26,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
           <canvas id="sketch-canvas" phx-hook="SketchCanvas" class="w-full h-full object-contain">
           </canvas>
         </div>
-        <div :if={@capture} class="absolute top-8 left-8 flex gap-8 h-[200px] backdrop-blur-md">
+        <div :if={@capture?} class="absolute top-8 left-8 flex gap-8 h-[200px] backdrop-blur-md">
           <.webcam_capture capture_interval={30_000} />
           <div :if={@sketch} class="relative">
             <img
@@ -71,7 +71,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
        # the most recent sketch (including ones that are still processing)
        sketch: nil,
        # boolean: whether to capture webcam frames (set via URL params)
-       capture: capture?,
+       capture?: capture?,
        # the most recent webcam frame (whether or not it was processed)
        frame_image: nil,
        # are we skipping (not processing) the last frame because it didn't change?
