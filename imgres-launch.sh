@@ -1,6 +1,5 @@
 #!/bin/bash
 
-SLEEP_DURATION=10
 CAPTURE_PARAMS="capture" # "capturebox=100,100,800,600"
 
 # Check if IMGRES_AUTH environment variable is set
@@ -13,7 +12,7 @@ echo "Quitting Chrome if it's running..."
 osascript -e 'tell application "Google Chrome" to if it is running then quit'
 
 # Wait for Chrome to fully quit
-sleep $SLEEP_DURATION
+sleep 2
 
 echo "Opening Chrome with specific arguments..."
 open -a "Google Chrome" --new --args \
@@ -22,7 +21,7 @@ open -a "Google Chrome" --new --args \
     --autoplay-policy=no-user-gesture-required
 
 
-sleep $SLEEP_DURATION
+sleep 5
 
 echo "Opening and positioning Chrome windows..."
 osascript <<EOF
@@ -32,7 +31,7 @@ tell application "Google Chrome"
     set URL of active tab of window 1 to "http://$IMGRES_AUTH@imgres.fly.dev"
 
     # Wait a moment
-    delay $SLEEP_DURATION
+    delay 5
 
     # Create second window (primary screen)
     make new window
@@ -40,30 +39,30 @@ tell application "Google Chrome"
     set URL of active tab of window 1 to "http://$IMGRES_AUTH@imgres.fly.dev?$CAPTURE_PARAMS"
 
     # Wait for windows to settle and titles to update
-    delay $SLEEP_DURATION
+    delay 5
 end tell
 
 # Make windows fullscreen one at a time using titles
 tell application "System Events"
     tell application "Google Chrome" to activate
-    delay $SLEEP_DURATION
+    delay 5
 
     # Find and fullscreen Capture window
     tell application "Google Chrome"
         set captureWin to (first window whose title contains "Capture")
         set index of captureWin to 1
     end tell
-    delay $SLEEP_DURATION
+    delay 10
     keystroke "f" using {command down, control down}
 
-    delay $SLEEP_DURATION
+    delay 10
 
     # Find and fullscreen Display window
     tell application "Google Chrome"
         set displayWin to (first window whose title contains "Display")
         set index of displayWin to 1
     end tell
-    delay $SLEEP_DURATION
+    delay 10
     keystroke "f" using {command down, control down}
 end tell
 EOF
