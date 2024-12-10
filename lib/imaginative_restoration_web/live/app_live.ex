@@ -70,7 +70,6 @@ defmodule ImaginativeRestorationWeb.AppLive do
        sketch: nil,
        capture: capture?,
        page_title: (capture? && "Capture") || "Display",
-       previous_image: nil,
        image_difference_threshold: difference_threshold
      ), layout: {ImaginativeRestorationWeb.Layouts, :canvas}}
   end
@@ -80,7 +79,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
     current_image = Utils.to_image!(dataurl)
 
     should_process? =
-      case socket.assigns.previous_image do
+      case Map.get(socket.assigns, :previous_image) do
         nil ->
           true
 
