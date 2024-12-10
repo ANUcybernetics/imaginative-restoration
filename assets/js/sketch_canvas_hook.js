@@ -4,7 +4,7 @@ const SketchCanvasHook = {
   mounted() {
     // Configure sketches
     this.sketches = [];
-    this.maxSketches = 10;
+    this.maxSketches = 50;
     this.sketchHPad = 100;
     this.noise = new FastNoiseLite();
     this.noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
