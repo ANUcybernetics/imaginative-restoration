@@ -67,8 +67,14 @@ defmodule ImaginativeRestorationWeb.AppLive do
 
     {:ok,
      assign(socket,
+       # the most recent sketch (including ones that are still processing)
        sketch: nil,
+       # boolean: whether to capture webcam frames (set via URL params)
        capture: capture?,
+       # the most recent webcam frame (whether or not it was processed)
+       frame_image: nil,
+       # are we skipping (not processing) the last frame because it didn't change?
+       skip_process?: true,
        page_title: (capture? && "Capture") || "Display",
        image_difference_threshold: difference_threshold
      ), layout: {ImaginativeRestorationWeb.Layouts, :canvas}}
@@ -76,30 +82,30 @@ defmodule ImaginativeRestorationWeb.AppLive do
 
   @impl true
   def handle_event("webcam_frame", %{"frame" => dataurl}, socket) do
-    current_image = Utils.to_image!(dataurl)
+    frame_image = Utils.to_image!(dataurl)
 
-    should_process? =
-      case Map.get(socket.assigns, :previous_image) do
+    skip_process? =
+      case socket.assigns.frame_image do
         nil ->
-          true
+          false
 
-        previous ->
-          {:ok, distance} = Image.hamming_distance(previous, current_image)
-          distance > socket.assigns.image_difference_threshold
+        previous_frame_image ->
+          frame_difference(previous_frame_image, frame_image) <= socket.assigns.image_difference_threshold
       end
 
-    if should_process? do
-      Task.start(fn ->
-        dataurl
-        |> ImaginativeRestoration.Sketches.init!()
-        |> ImaginativeRestoration.Sketches.crop_and_label!()
-        |> ImaginativeRestoration.Sketches.process!()
-      end)
-    else
+    if skip_process? do
       Logger.info("No significant changes detected in webcam frame, skipping processing")
+    else
+      start_processing_task(dataurl)
     end
 
-    {:noreply, assign(socket, previous_image: current_image)}
+    {:noreply,
+     assign(
+       socket,
+       previous_image: frame_image,
+       skip_process?: skip_process?,
+       frame_image: frame_image
+     )}
   end
 
   @impl true
@@ -138,4 +144,18 @@ defmodule ImaginativeRestorationWeb.AppLive do
   defp pipeline_phase(%Sketch{processed: nil}), do: :processing
   defp pipeline_phase(%Sketch{}), do: :completed
   defp pipeline_phase(nil), do: :waiting
+
+  defp start_processing_task(dataurl) do
+    Task.start(fn ->
+      dataurl
+      |> ImaginativeRestoration.Sketches.init!()
+      |> ImaginativeRestoration.Sketches.crop_and_label!()
+      |> ImaginativeRestoration.Sketches.process!()
+    end)
+  end
+
+  defp frame_difference(frame1, frame2) do
+    {:ok, distance} = Image.hamming_distance(frame1, frame2)
+    distance
+  end
 end
