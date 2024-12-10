@@ -35,7 +35,7 @@ defmodule ImaginativeRestorationWeb.ConfigLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    difference_threshold = Application.get_env(:imaginative_restoration, :no_change_threshold)
+    difference_threshold = Application.get_env(:imaginative_restoration, :image_difference_threshold)
 
     {:ok,
      assign(socket,

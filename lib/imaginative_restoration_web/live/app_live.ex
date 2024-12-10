@@ -63,7 +63,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
     end
 
     capture? = Map.has_key?(params, "capture") or Map.has_key?(params, "capture_box")
-    difference_threshold = Application.get_env(:imaginative_restoration, :no_change_threshold)
+    difference_threshold = Application.get_env(:imaginative_restoration, :image_difference_threshold)
 
     {:ok,
      assign(socket,
