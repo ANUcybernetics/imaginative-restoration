@@ -25,14 +25,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
     attribute :label, :string
     attribute :prompt, :string
 
-    # model is the model used to process the sketch
-    # currently supported models are:
-    #
-    # - adirik/t2i-adapter-sdxl-sketch
-    # - adirik/t2i-adapter-sdxl-canny
-    # - adirik/t2i-adapter-sdxl-lineart
-    # - philz1337x/controlnet-deliberate
-    #
+    # model is the model used to process the sketch (a user/model replicate path)
     attribute :model, :string, allow_nil?: false
 
     # should be set to true if the sketch doesn't show up on the canvas
