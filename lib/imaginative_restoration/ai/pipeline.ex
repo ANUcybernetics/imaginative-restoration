@@ -48,8 +48,7 @@ defmodule ImaginativeRestoration.AI.Pipeline do
         model = changeset.data.model
 
         # latest prompt (TODO fail gracefully if none exist)
-        %Prompt{template: template} = ImaginativeRestoration.Sketches.latest_prompt!()
-        prompt = String.replace(template, "LABEL", changeset.data.label)
+        %Prompt{template: prompt} = ImaginativeRestoration.Sketches.latest_prompt!()
 
         with {:ok, ai_image} <- Replicate.invoke(model, raw, prompt),
              {:ok, final_image_url} <- Replicate.invoke("lucataco/remove-bg", ai_image) do

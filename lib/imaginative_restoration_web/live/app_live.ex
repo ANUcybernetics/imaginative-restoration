@@ -32,19 +32,13 @@ defmodule ImaginativeRestorationWeb.AppLive do
           } />
           <div :if={@sketch} class="relative">
             <img
-              src={if pipeline_phase(@sketch) == :labelling, do: @sketch.raw, else: @sketch.cropped}
+              src={@sketch.raw}
               class={[
                 "h-full w-auto object-contain",
                 pipeline_phase(@sketch) != :completed && "sketch-processing",
                 @skip_process? && "grayscale"
               ]}
             />
-            <span
-              :if={@sketch.label}
-              class="absolute left-1/2 bottom-5 -translate-x-1/2 text-4xl font-lacquer font-semibold px-2 py-1 text-[#8B2E15] backdrop-blur-md rounded-sm"
-            >
-              <%= @sketch.label %>
-            </span>
           </div>
           <img
             :if={@sketch && @sketch.processed}
@@ -143,7 +137,6 @@ defmodule ImaginativeRestorationWeb.AppLive do
     {:noreply, push_event(socket, "add_sketches", %{sketches: [%{id: id, dataurl: processed}]})}
   end
 
-  defp pipeline_phase(%Sketch{label: nil}), do: :labelling
   defp pipeline_phase(%Sketch{processed: nil}), do: :processing
   defp pipeline_phase(%Sketch{}), do: :completed
   defp pipeline_phase(nil), do: :waiting
@@ -152,7 +145,6 @@ defmodule ImaginativeRestorationWeb.AppLive do
     Task.start(fn ->
       dataurl
       |> ImaginativeRestoration.Sketches.init!()
-      |> ImaginativeRestoration.Sketches.crop_and_label!()
       |> ImaginativeRestoration.Sketches.process!()
     end)
   end

@@ -14,18 +14,13 @@ defmodule ImaginativeRestorationWeb.PromptLive do
     ~H"""
     <div class="space-y-8">
       <div>
-        Current prompt template: <span class="font-semibold"><%= @template %></span>
+        Current prompt: <span class="font-semibold"><%= @template %></span>
       </div>
 
       <.simple_form for={@form} phx-submit="save" phx-change="validate">
-        <.input
-          type="text"
-          field={@form[:template]}
-          label="Prompt Template"
-          placeholder="Enter prompt template (must include LABEL)"
-        />
+        <.input type="text" field={@form[:template]} label="Prompt" placeholder="Enter prompt" />
         <:actions>
-          <.button>Save Template</.button>
+          <.button>Save Prompt</.button>
         </:actions>
       </.simple_form>
       <section class="grid grid-cols-1 gap-4">
@@ -101,12 +96,6 @@ defmodule ImaginativeRestorationWeb.PromptLive do
          socket
          |> put_flash(:info, "Prompt template saved successfully!")
          |> assign(form: form, template: template)}
-
-      {:error, %{errors: [template: {"must match ~r/LABEL/", []}]} = form} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "The prompt must include the text 'LABEL'")
-         |> assign(form: to_form(form))}
 
       {:error, form} ->
         {:noreply,

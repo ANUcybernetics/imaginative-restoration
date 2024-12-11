@@ -35,7 +35,6 @@ defmodule ImaginativeRestoration.Sketches.Prompt do
 
     create :create do
       accept [:template]
-      validate match(:template, ~r/LABEL/)
     end
   end
 end

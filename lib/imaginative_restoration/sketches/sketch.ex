@@ -57,7 +57,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
     update :process do
       # No attributes needed - will process the sketch's existing cropped image
-      validate present(:cropped), message: "cannot process without a cropped image"
+      validate present(:raw), message: "cannot process without a raw image"
 
       change {Pipeline, stage: :process}
     end
