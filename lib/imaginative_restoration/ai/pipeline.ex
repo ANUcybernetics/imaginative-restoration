@@ -24,8 +24,9 @@ defmodule ImaginativeRestoration.AI.Pipeline do
         raw = changeset.data.raw
 
         case Replicate.invoke("lucataco/florence-2-large", raw) do
-          {:ok, {label, [x, y, w, h]}} ->
-            cropped = raw |> Utils.crop!(x, y, w, h) |> Utils.to_dataurl!()
+          {:ok, {label, [_x, _y, _w, _h]}} ->
+            # cropped = raw |> Utils.crop!(x, y, w, h) |> Utils.to_dataurl!()
+            cropped = Utils.to_dataurl!(raw)
 
             changeset
             |> Ash.Changeset.force_change_attribute(:label, label)
