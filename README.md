@@ -131,6 +131,8 @@ Centre. Brought to life by:
 - Lily Thomson
 - Marcelo Zavala-Baeza
 
+### Sources
+
 - **Video loop**: _Annette Kellerman Performing Water Ballet at Silver Springs,
   Florida_ (1939) courtesy of the National Film and Sound Archive
 
