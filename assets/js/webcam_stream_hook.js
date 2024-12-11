@@ -118,7 +118,7 @@ const WebcamStreamHook = {
     // early return outside of running hours
     const now = new Date();
     const hour = now.getHours();
-    if (hour < 9 || hour >= 21) {
+    if (hour < 9 || hour >= 22) {
       return;
     }
 
