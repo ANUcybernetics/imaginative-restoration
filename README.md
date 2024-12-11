@@ -118,11 +118,23 @@ modify it for your needs. You'll want to:
 
 ## Credits
 
-TODO add Full credits (inc. collaborators)
+This creative installation was made possible by a collaboration of the ANU
+School of Cybernetics, the National Film and Sound Archive and the NIDA Future
+Centre. Brought to life by:
 
-- Video loop: Courtesy NFSA (TODO add details)
+- Charlotte Bradley
+- Joe Hepworth
+- Daniel Herten
+- Ripley Rubens
+- Beth Shulman
+- Ben Swift
+- Lily Thomson
+- Marcelo Zavala-Baeza
 
-- Background music:
+- **Video loop**: _Annette Kellerman Performing Water Ballet at Silver Springs,
+  Florida_ (1939) courtesy of the National Film and Sound Archive
+
+- **Background music**:
   [Soundflakes - Horizon of the Unknown](https://freesound.org/people/SoundFlakes/sounds/592086/)
   by [SoundFlakes](https://freesound.org/people/SoundFlakes/),
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
