@@ -39,6 +39,12 @@ defmodule ImaginativeRestorationWeb.AppLive do
                 @skip_process? && "grayscale"
               ]}
             />
+            <span
+              :if={pipeline_phase(@sketch) == :processing}
+              class="absolute left-1/2 bottom-5 -translate-x-1/2 text-4xl font-lacquer font-semibold px-2 py-1 text-[#8B2E15] backdrop-blur-md rounded-sm"
+            >
+              Processing...
+            </span>
           </div>
           <img
             :if={@sketch && @sketch.processed}
