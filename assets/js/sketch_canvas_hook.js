@@ -114,7 +114,7 @@ const SketchCanvasHook = {
     const y = sketch.y + 300 * this.noise.GetNoise(x * 0.1, sketch.y);
 
     // set the filters
-    const grayscaleAmount = Math.min(75, secondsElapsed / 3);
+    const grayscaleAmount = Math.min(50, secondsElapsed / 3);
     const opacityAmount = 0.75 + 0.25 * this.noise.GetNoise(x, sketch.y + 200);
     this.ctx.filter = `grayscale(${grayscaleAmount}%) opacity(${opacityAmount})`;
 
