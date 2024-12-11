@@ -82,9 +82,9 @@ const SketchCanvasHook = {
         id: id,
         dataurl: dataurl,
         img: new Image(),
-        y: (0.5 + 0.25 * Math.random()) * this.height,
+        y: (0.6 + 0.1 * Math.random()) * this.height,
         xVel: 2 + Math.random() * 3,
-        size: 300 * Math.random() + 500,
+        size: (0.4 + 0.3 * Math.random()) * this.height,
         addedAt: Date.now(),
       };
 
@@ -111,7 +111,7 @@ const SketchCanvasHook = {
     const wrapRange = this.width + 2 * this.sketchHPad;
     const x =
       ((secondsElapsed * sketch.xVel * 20) % wrapRange) - this.sketchHPad;
-    const y = sketch.y + 100 * this.noise.GetNoise(x * 0.1, sketch.y);
+    const y = sketch.y * (1 + 0.3 * this.noise.GetNoise(x * 0.1, sketch.y));
 
     // set the filters
     const grayscaleAmount = Math.min(50, secondsElapsed / 3);
