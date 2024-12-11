@@ -5,7 +5,7 @@ const SketchCanvasHook = {
     // Configure sketches
     this.sketches = [];
     this.maxSketches = 10;
-    this.sketchHPad = 100;
+    this.sketchHPad = 150;
     this.noise = new FastNoiseLite();
     this.noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
     this.isAnimating = false;
@@ -82,7 +82,7 @@ const SketchCanvasHook = {
         id: id,
         dataurl: dataurl,
         img: new Image(),
-        y: (0.25 + 0.5 * Math.random()) * this.height,
+        y: (0.4 + 0.4 * Math.random()) * this.height,
         xVel: 2 + Math.random() * 3,
         size: 300 * Math.random() + 500,
         addedAt: Date.now(),
@@ -111,7 +111,7 @@ const SketchCanvasHook = {
     const wrapRange = this.width + 2 * this.sketchHPad;
     const x =
       ((secondsElapsed * sketch.xVel * 20) % wrapRange) - this.sketchHPad;
-    const y = sketch.y + 300 * this.noise.GetNoise(x * 0.1, sketch.y);
+    const y = sketch.y + 100 * this.noise.GetNoise(x * 0.1, sketch.y);
 
     // set the filters
     const grayscaleAmount = Math.min(50, secondsElapsed / 3);
