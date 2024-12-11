@@ -35,7 +35,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
               src={@sketch.raw}
               class={[
                 "h-full w-auto object-contain",
-                pipeline_phase(@sketch) != :completed && "sketch-processing",
+                pipeline_phase(@sketch) == :processing && "sketch-processing",
                 @skip_process? && "grayscale"
               ]}
             />
