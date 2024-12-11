@@ -35,8 +35,8 @@ config :imaginative_restoration,
   generators: [timestamp_type: :utc_datetime]
 
 config :imaginative_restoration,
-  image_difference_threshold: 1,
-  webcam_capture_interval: 60_000
+  image_difference_threshold: 0,
+  webcam_capture_interval: 45_000
 
 # Configures Elixir's Logger
 config :logger, :console,
