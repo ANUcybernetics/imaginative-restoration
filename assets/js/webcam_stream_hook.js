@@ -121,10 +121,10 @@ const WebcamStreamHook = {
     const month = now.getMonth();
     const date = now.getDate();
 
-    // Check if in holiday period (Dec 21 - Jan 12)
+    // Check if in holiday period
     const isHolidayPeriod =
       (month === 11 && date >= 21) || // December
-      (month === 0 && date <= 12); // January
+      (month === 0 && date <= 6); // January
 
     // Check if weekday (0 is Sunday, 6 is Saturday)
     const isWeekday = day > 0 && day < 6;
