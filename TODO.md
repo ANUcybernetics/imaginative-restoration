@@ -1,6 +1,6 @@
 ## TODO
 
-- test with 1080p camera 873mm above desk, A5-sized paper
+- sort out the "image changed" thresholding
 
 ### Future
 
