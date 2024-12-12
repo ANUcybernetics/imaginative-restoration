@@ -114,11 +114,29 @@ const WebcamStreamHook = {
     }
   },
 
-  captureFrame() {
-    // early return outside of running hours
+  isOperatingHours() {
     const now = new Date();
     const hour = now.getHours();
-    if (hour < 9 || hour >= 22) {
+    const day = now.getDay();
+    const month = now.getMonth();
+    const date = now.getDate();
+
+    // Check if in holiday period (Dec 21 - Jan 12)
+    const isHolidayPeriod =
+      (month === 11 && date >= 21) || // December
+      (month === 0 && date <= 12); // January
+
+    // Check if weekday (0 is Sunday, 6 is Saturday)
+    const isWeekday = day > 0 && day < 6;
+
+    // Check if within operating hours (9am-10pm)
+    const isWorkingHours = hour >= 9 && hour < 22;
+
+    return isWeekday && isWorkingHours && !isHolidayPeriod;
+  },
+
+  captureFrame() {
+    if (!this.isOperatingHours()) {
       return;
     }
 
@@ -149,7 +167,6 @@ const WebcamStreamHook = {
     // Start the progress animation
     this.animateCaptureProgress();
   },
-
   animateCaptureProgress() {
     // Cancel any existing animations
     if (this.currentAnimations) {
