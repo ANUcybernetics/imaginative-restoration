@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CAPTURE_PARAMS="capture" # "capturebox=100,100,800,600"
+CAPTURE_PARAMS="capture" # "capture_box=150,0,410,280"
 
 # Check if IMGRES_AUTH environment variable is set
 if [ -z "$IMGRES_AUTH" ]; then
