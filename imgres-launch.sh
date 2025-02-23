@@ -1,6 +1,8 @@
 #!/bin/bash
 
-CAPTURE_PARAMS="capture" # "capture_box=150,0,410,280"
+SCREEN1_URL="http://${IMGRES_AUTH}@imgres.fly.dev"
+SCREEN2_URL="http://${IMGRES_AUTH}@imgres.fly.dev?capture"
+# SCREEN2_URL="http://${IMGRES_AUTH}@imgres.fly.dev?capture_box=150,0,410,280"
 
 # Check if IMGRES_AUTH environment variable is set
 if [ -z "${IMGRES_AUTH}" ]; then
@@ -33,7 +35,7 @@ chromium-browser --noerrdialogs \
     --disable-gpu-driver-bug-workarounds \
     --ignore-gpu-blocklist \
     --disable-features=UseChromeOSDirectVideoDecoder \
-    "http://${IMGRES_AUTH}@imgres.fly.dev" 2>/dev/null &
+    "${SCREEN1_URL}" 2>/dev/null &
 
 sleep 2
 
@@ -47,6 +49,6 @@ chromium-browser --noerrdialogs \
     --disable-gpu-driver-bug-workarounds \
     --ignore-gpu-blocklist \
     --disable-features=UseChromeOSDirectVideoDecoder \
-    "http://${IMGRES_AUTH}@imgres.fly.dev?${CAPTURE_PARAMS}" 2>/dev/null &
+    "${SCREEN2_URL}" 2>/dev/null &
 
 echo "Setup complete - all windows positioned and fullscreened"
