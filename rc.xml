@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<labwc_config>
+  <core>
+    <gap>0</gap>
+  </core>
+<windowRules>
+  <windowRule identifier="chromium-browser-screen1">
+    <action name="MoveTo" x="0" y="0"/>
+    <action name="Maximize"/>
+  </windowRule>
+  <windowRule identifier="chromium-browser-screen2">
+    <action name="MoveTo" x="1920" y="0"/>
+    <action name="Maximize"/>
+  </windowRule>
+</windowRules>
+</labwc_config>
