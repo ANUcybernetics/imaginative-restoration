@@ -132,43 +132,11 @@ const SketchCanvasHook = {
       scale + this.getNoise(x * 0.6, sketch.y - 100) * 0.1,
     );
 
-    // Define rounded rectangle path
-    const radius = 50; // Adjust the radius as needed
     const drawHeight = sketch.size;
     const drawX = -drawWidth / 2;
     const drawY = -drawHeight / 2;
 
-    this.ctx.beginPath();
-    this.ctx.moveTo(drawX + radius, drawY);
-    this.ctx.lineTo(drawX + drawWidth - radius, drawY);
-    this.ctx.quadraticCurveTo(
-      drawX + drawWidth,
-      drawY,
-      drawX + drawWidth,
-      drawY + radius,
-    );
-    this.ctx.lineTo(drawX + drawWidth, drawY + drawHeight - radius);
-    this.ctx.quadraticCurveTo(
-      drawX + drawWidth,
-      drawY + drawHeight,
-      drawX + drawWidth - radius,
-      drawY + drawHeight,
-    );
-    this.ctx.lineTo(drawX + radius, drawY + drawHeight);
-    this.ctx.quadraticCurveTo(
-      drawX,
-      drawY + drawHeight,
-      drawX,
-      drawY + drawHeight - radius,
-    );
-    this.ctx.lineTo(drawX, drawY + radius);
-    this.ctx.quadraticCurveTo(drawX, drawY, drawX + radius, drawY);
-    this.ctx.closePath();
-
-    // Clip to the rounded rectangle path
-    this.ctx.clip();
-
-    // Draw the image
+    // Draw the image without clipping (full rectangle)
     this.ctx.drawImage(sketch.img, drawX, drawY, drawWidth, drawHeight);
 
     // Restore the context state
