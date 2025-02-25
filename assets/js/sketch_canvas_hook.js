@@ -69,10 +69,9 @@ const SketchCanvasHook = {
 
   getNoise(x, y) {
     return (
-      (Math.sin(x * 0.01 + y * 0.005 + this.noiseOffset) * 0.3 +
-        Math.sin(x * 0.02 - y * 0.01) * 0.2 +
-        Math.sin(y * 0.01) * 0.5) *
-      0.5
+      Math.sin(x * 0.01 + y * 0.005 + this.noiseOffset) * 0.3 +
+      Math.sin(x * 0.02 - y * 0.01) * 0.2 +
+      Math.sin(y * 0.01) * 0.5
     );
   },
 
@@ -181,7 +180,7 @@ const SketchCanvasHook = {
     const wrapRange = this.width + 2 * this.sketchHPad;
     const x =
       ((secondsElapsed * sketch.xVel * 20) % wrapRange) - this.sketchHPad;
-    const y = sketch.y * (1 + 0.3 * this.getNoise(x * 0.1, sketch.y));
+    const y = this.height * (0.6 + 0.2 * this.getNoise(x * 0.2, sketch.y));
 
     // Set constant opacity of 90% (removing opacity fade effect)
     this.ctx.globalAlpha = 0.9;
