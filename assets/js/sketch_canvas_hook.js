@@ -7,6 +7,10 @@ const SketchCanvasHook = {
     this.noiseOffset = Math.random() * 1000;
     this.isAnimating = false;
 
+    // Add hardware acceleration hints for canvas
+    this.el.style.transform = "translateZ(0)"; // Force GPU acceleration
+    this.el.style.willChange = "transform"; // Hint to browser about future changes
+
     // Create and setup background video
     this.video = document.createElement("video");
     this.video.style.display = "none";
@@ -14,6 +18,12 @@ const SketchCanvasHook = {
     this.video.loop = true;
     this.video.muted = true;
     this.video.playsInline = true; // Add this for better mobile support
+
+    // Add hardware acceleration hints for video
+    this.video.style.transform = "translateZ(0)";
+    this.video.preload = "auto";
+    this.video.disablePictureInPicture = true;
+    this.video.disableRemotePlayback = true;
 
     // Wait for video to be ready and playing
     this.video.addEventListener("canplay", () => {
@@ -39,6 +49,14 @@ const SketchCanvasHook = {
     });
 
     this.resizeObserver.observe(this.el);
+
+    // Create context with hardware acceleration hints
+    this.ctx = this.el.getContext("2d", {
+      alpha: false,
+      desynchronized: true,
+      powerPreference: "high-performance",
+      antialias: false, // Disable antialiasing for better performance
+    });
 
     // Add event handler for new sketches
     this.handleEvent("add_sketches", ({ sketches }) => {
