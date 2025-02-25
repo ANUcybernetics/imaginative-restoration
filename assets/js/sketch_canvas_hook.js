@@ -6,6 +6,7 @@ const SketchCanvasHook = {
     this.sketchHPad = 150;
     this.noiseOffset = Math.random() * 1000;
     this.isAnimating = false;
+    this.lastVideoTime = -1; // Track last video time for optimization
 
     // Add hardware acceleration hints for canvas
     this.el.style.transform = "translateZ(0)"; // Force GPU acceleration
@@ -162,9 +163,12 @@ const SketchCanvasHook = {
   },
 
   animateFrame() {
-    // Draw video frame to canvas
+    // Draw video frame to canvas - only when the video frame has changed
     if (this.ctx && this.video.readyState >= this.video.HAVE_CURRENT_DATA) {
-      this.ctx.drawImage(this.video, 0, 0, this.width, this.height);
+      if (this.lastVideoTime !== this.video.currentTime) {
+        this.ctx.drawImage(this.video, 0, 0, this.width, this.height);
+        this.lastVideoTime = this.video.currentTime;
+      }
     }
 
     // draw loop
