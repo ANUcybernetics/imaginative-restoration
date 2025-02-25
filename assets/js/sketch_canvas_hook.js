@@ -1,13 +1,10 @@
-import FastNoiseLite from "fastnoise-lite";
-
 const SketchCanvasHook = {
   mounted() {
     // Configure sketches
     this.sketches = [];
     this.maxSketches = 10;
     this.sketchHPad = 150;
-    this.noise = new FastNoiseLite();
-    this.noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+    this.noiseOffset = Math.random() * 1000;
     this.isAnimating = false;
 
     // Create and setup background video
@@ -49,6 +46,15 @@ const SketchCanvasHook = {
         this.addNewSketch(id, dataurl);
       });
     });
+  },
+
+  getNoise(x, y) {
+    return (
+      (Math.sin(x * 0.01 + y * 0.005 + this.noiseOffset) * 0.3 +
+        Math.sin(x * 0.02 - y * 0.01) * 0.2 +
+        Math.sin(y * 0.01) * 0.5) *
+      0.5
+    );
   },
 
   // This LiveView lifecycle hook will fire after the DOM is updated
@@ -111,19 +117,19 @@ const SketchCanvasHook = {
     const wrapRange = this.width + 2 * this.sketchHPad;
     const x =
       ((secondsElapsed * sketch.xVel * 20) % wrapRange) - this.sketchHPad;
-    const y = sketch.y * (1 + 0.3 * this.noise.GetNoise(x * 0.1, sketch.y));
+    const y = sketch.y * (1 + 0.3 * this.getNoise(x * 0.1, sketch.y));
 
     // set the filters
     const grayscaleAmount = Math.min(50, secondsElapsed / 3);
-    const opacityAmount = 0.75 + 0.25 * this.noise.GetNoise(x, sketch.y + 200);
+    const opacityAmount = 0.75 + 0.25 * this.getNoise(x, sketch.y + 200);
     this.ctx.filter = `grayscale(${grayscaleAmount}%) opacity(${opacityAmount})`;
 
     // Apply scale transform based on secondsElapsed
     const scale = Math.max(0.25, 1 - secondsElapsed * 0.01);
     this.ctx.translate(x, y);
     this.ctx.scale(
-      scale + this.noise.GetNoise(x * 0.5, sketch.y + 100) * 0.1,
-      scale + this.noise.GetNoise(x * 0.6, sketch.y - 100) * 0.1,
+      scale + this.getNoise(x * 0.5, sketch.y + 100) * 0.1,
+      scale + this.getNoise(x * 0.6, sketch.y - 100) * 0.1,
     );
 
     // Define rounded rectangle path
