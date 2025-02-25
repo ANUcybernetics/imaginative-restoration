@@ -3,22 +3,21 @@ defmodule ImaginativeRestoration.UtilsTest do
 
   alias ImaginativeRestoration.Utils
 
-  describe "png data URL" do
-    test "can be converted to webp data URL" do
-      # raw = ImaginativeRestoration.Fixtures.sketch_dataurl()
+  describe "image conversions" do
+    test "http URL can be converted to webp data URL" do
       sketch_url = "https://fly.storage.tigris.dev/imaginative-restoration-sketches/bird-flight-sketch.png"
 
-      result = Utils.download_to_webp_dataurl(sketch_url)
+      result = Utils.to_dataurl!(sketch_url)
 
       assert String.starts_with?(result, "data:image/webp;base64,")
       # Ensure we got meaningful data
       assert String.length(result) > 100
     end
 
-    test "jpg data URL can be converted to webp" do
+    test "image data URL can be converted to webp" do
       jpg = ImaginativeRestoration.Fixtures.sketch_dataurl()
 
-      result = Utils.convert_dataurl(jpg, "webp")
+      result = Utils.to_dataurl!(jpg)
 
       assert String.starts_with?(result, "data:image/webp;base64,")
       assert String.length(result) > 100
