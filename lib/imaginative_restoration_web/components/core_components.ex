@@ -16,7 +16,8 @@ defmodule ImaginativeRestorationWeb.CoreComponents do
   """
   use Phoenix.Component
 
-  import ImaginativeRestorationWeb.Gettext
+  use Gettext,
+    backend: ImaginativeRestorationWeb.Gettext
 
   alias Phoenix.HTML.FormField
   alias Phoenix.LiveView.JS

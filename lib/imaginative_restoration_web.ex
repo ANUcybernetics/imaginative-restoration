@@ -43,7 +43,9 @@ defmodule ImaginativeRestorationWeb do
         formats: [:html, :json],
         layouts: [html: ImaginativeRestorationWeb.Layouts]
 
-      import ImaginativeRestorationWeb.Gettext
+      use Gettext,
+        backend: ImaginativeRestorationWeb.Gettext
+
       import Plug.Conn
 
       unquote(verified_routes())
@@ -82,8 +84,11 @@ defmodule ImaginativeRestorationWeb do
 
   defp html_helpers do
     quote do
+      use Gettext,
+        backend: ImaginativeRestorationWeb.Gettext
+
       import ImaginativeRestorationWeb.CoreComponents
-      import ImaginativeRestorationWeb.Gettext
+
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components and translation
