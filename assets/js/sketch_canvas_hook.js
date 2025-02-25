@@ -91,6 +91,42 @@ const SketchCanvasHook = {
     this.ctx = this.el.getContext("2d");
   },
 
+  // Pre-compute grayscale version of the image
+  createGrayscaleVersion(sketch) {
+    // Create an offscreen canvas
+    const offscreenCanvas = document.createElement("canvas");
+    const offCtx = offscreenCanvas.getContext("2d");
+
+    offscreenCanvas.width = sketch.img.width;
+    offscreenCanvas.height = sketch.img.height;
+
+    // Draw the original image
+    offCtx.drawImage(sketch.img, 0, 0);
+
+    // Get image data and apply grayscale manually (much faster than filter)
+    const imageData = offCtx.getImageData(
+      0,
+      0,
+      offscreenCanvas.width,
+      offscreenCanvas.height,
+    );
+    const data = imageData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const gray = 0.3 * data[i] + 0.59 * data[i + 1] + 0.11 * data[i + 2];
+      data[i] = gray;
+      data[i + 1] = gray;
+      data[i + 2] = gray;
+      // data[i + 3] remains unchanged (alpha channel)
+    }
+
+    offCtx.putImageData(imageData, 0, 0);
+
+    // Store the grayscale version
+    sketch.grayscaleImg = new Image();
+    sketch.grayscaleImg.src = offscreenCanvas.toDataURL();
+  },
+
   addNewSketch(id, dataurl) {
     if (this.sketches.length >= this.maxSketches) {
       // Reuse the oldest sketch object
@@ -98,15 +134,23 @@ const SketchCanvasHook = {
       oldestSketch.id = id;
       oldestSketch.dataurl = dataurl;
       oldestSketch.addedAt = Date.now();
+      oldestSketch.grayscaleImg = null; // Reset grayscale image
+
       // Move it to the end of the array
       this.sketches.push(this.sketches.shift());
+
       // Update the image source
+      oldestSketch.img.onload = () => {
+        this.createGrayscaleVersion(oldestSketch);
+        oldestSketch.img.onload = null;
+      };
       oldestSketch.img.src = dataurl;
     } else {
       let newSketch = {
         id: id,
         dataurl: dataurl,
         img: new Image(),
+        grayscaleImg: null, // Will hold pre-rendered grayscale version
         y: (0.6 + 0.1 * Math.random()) * this.height,
         xVel: 2 + Math.random() * 3,
         size: (0.4 + 0.3 * Math.random()) * this.height,
@@ -114,6 +158,7 @@ const SketchCanvasHook = {
       };
 
       newSketch.img.onload = () => {
+        this.createGrayscaleVersion(newSketch);
         this.sketches.push(newSketch);
         newSketch.img.onload = null;
       };
@@ -138,10 +183,12 @@ const SketchCanvasHook = {
       ((secondsElapsed * sketch.xVel * 20) % wrapRange) - this.sketchHPad;
     const y = sketch.y * (1 + 0.3 * this.getNoise(x * 0.1, sketch.y));
 
-    // set the filters
-    const grayscaleAmount = Math.min(50, secondsElapsed / 3);
-    const opacityAmount = 0.75 + 0.25 * this.getNoise(x, sketch.y + 200);
-    this.ctx.filter = `grayscale(${grayscaleAmount}%) opacity(${opacityAmount})`;
+    // Set constant opacity of 90% (removing opacity fade effect)
+    this.ctx.globalAlpha = 0.9;
+
+    // Calculate grayscale amount to match original code (up to 50% grayscale)
+    // Original: const grayscaleAmount = Math.min(50, secondsElapsed / 3);
+    const grayscaleAmount = Math.min(0.5, secondsElapsed / 150);
 
     // Apply scale transform based on secondsElapsed
     const scale = Math.max(0.25, 1 - secondsElapsed * 0.01);
@@ -155,8 +202,39 @@ const SketchCanvasHook = {
     const drawX = -drawWidth / 2;
     const drawY = -drawHeight / 2;
 
-    // Draw the image without clipping (full rectangle)
-    this.ctx.drawImage(sketch.img, drawX, drawY, drawWidth, drawHeight);
+    // Choose which image to draw based on grayscale amount
+    if (sketch.grayscaleImg && sketch.grayscaleImg.complete) {
+      if (grayscaleAmount < 0.01) {
+        // Just use original if very little grayscale is needed
+        this.ctx.drawImage(sketch.img, drawX, drawY, drawWidth, drawHeight);
+      } else if (grayscaleAmount > 0.49) {
+        // Just use grayscale if at max grayscale amount (50%)
+        this.ctx.drawImage(
+          sketch.grayscaleImg,
+          drawX,
+          drawY,
+          drawWidth,
+          drawHeight,
+        );
+      } else {
+        // Draw original first
+        this.ctx.drawImage(sketch.img, drawX, drawY, drawWidth, drawHeight);
+
+        // Then overlay grayscale with appropriate blend factor
+        const blendFactor = grayscaleAmount * 2; // Maps 0-0.5 to 0-1
+        this.ctx.globalAlpha = 0.9 * blendFactor;
+        this.ctx.drawImage(
+          sketch.grayscaleImg,
+          drawX,
+          drawY,
+          drawWidth,
+          drawHeight,
+        );
+      }
+    } else {
+      // Fallback to original if grayscale not yet ready
+      this.ctx.drawImage(sketch.img, drawX, drawY, drawWidth, drawHeight);
+    }
 
     // Restore the context state
     this.ctx.restore();
@@ -213,6 +291,9 @@ const SketchCanvasHook = {
       if (sketch.img) {
         sketch.img.onload = null;
         sketch.img.src = "";
+      }
+      if (sketch.grayscaleImg) {
+        sketch.grayscaleImg.src = "";
       }
     });
     this.sketches = [];
