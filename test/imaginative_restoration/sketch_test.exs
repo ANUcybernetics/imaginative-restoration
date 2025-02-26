@@ -4,6 +4,7 @@ defmodule ImaginativeRestoration.SketchTest do
   alias ImaginativeRestoration.Utils
 
   describe "Sketch resource" do
+    @describetag skip: "makes real API calls"
     @describetag timeout: :timer.minutes(10)
 
     test "can be created and processed (inc. processing on Replicate)" do
@@ -11,11 +12,11 @@ defmodule ImaginativeRestoration.SketchTest do
 
       assert {:ok, sketch} = ImaginativeRestoration.Sketches.init(raw)
       assert sketch.raw == raw
-      assert "adirik/t2i-adapter-sdxl" <> _ = sketch.model
+      assert "philz1337x/controlnet-deliberate" <> _ = sketch.model
       refute is_nil(sketch.id)
 
       assert {:ok, processed_sketch} = ImaginativeRestoration.Sketches.process(sketch)
-      assert "adirik/t2i-adapter-sdxl" <> _ = processed_sketch.model
+      assert "philz1337x/controlnet-deliberate" <> _ = processed_sketch.model
       assert String.starts_with?(processed_sketch.processed, "data:image/webp;base64,")
       refute is_nil(processed_sketch.prompt)
     end
@@ -29,11 +30,11 @@ defmodule ImaginativeRestoration.SketchTest do
         |> Image.open!()
         |> Utils.to_dataurl!()
 
-      model = "adirik/t2i-adapter-sdxl-sketch"
+      model = "philz1337x/controlnet-deliberate"
 
       assert {:ok, sketch} = ImaginativeRestoration.Sketches.init_with_model(raw, model)
       assert sketch.raw == raw
-      assert "adirik/t2i-adapter-sdxl" <> _ = sketch.model
+      assert "philz1337x/controlnet-deliberate" <> _ = sketch.model
       refute is_nil(sketch.id)
 
       assert {:ok, processed_sketch} = ImaginativeRestoration.Sketches.process(sketch)

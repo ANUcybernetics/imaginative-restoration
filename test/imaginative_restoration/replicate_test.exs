@@ -29,7 +29,7 @@ defmodule ImaginativeRestoration.ReplicateTest do
       end
     end
 
-    # @tag skip: true
+    # @tag skip: "makes real API calls"
     test "can successfully invoke all Replicate models" do
       tasks =
         for [model | _] = args <- invoke_args() do
@@ -40,7 +40,7 @@ defmodule ImaginativeRestoration.ReplicateTest do
 
             case result do
               {:ok, output} ->
-                IO.puts("#{model} output: #{output}")
+                IO.puts("#{model} output: #{inspect(output)}")
 
               _ ->
                 :pass
@@ -67,6 +67,7 @@ defmodule ImaginativeRestoration.ReplicateTest do
       end
     end
 
+    # @tag skip: "makes real API calls"
     test "can crop image to (Florence 2-provided) bounding box" do
       sketch_image_url = "https://fly.storage.tigris.dev/imaginative-restoration-sketches/shark-sketch.png"
       sketch_image = Utils.to_image!(sketch_image_url)
