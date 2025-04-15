@@ -45,7 +45,15 @@ if config_env() == :prod do
 
   config :imaginative_restoration, ImaginativeRestoration.Repo,
     database: database_path,
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "5")
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+    timeout: 30_000,
+    queue_target: 5_000,
+    queue_interval: 1_000,
+    pragma: [
+      busy_timeout: 10_000,
+      journal_mode: :wal,
+      synchronous: :normal
+    ]
 
   config :imaginative_restoration, ImaginativeRestorationWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
