@@ -1,2 +1,3 @@
 [tools]
 elixir = "latest"
+sqlite = "latest"
