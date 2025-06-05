@@ -6,7 +6,7 @@ set -x           # Enable debugging output
 
 # Configuration
 # readonly SCREEN1_URL="http://${IMGRES_AUTH}@imgres.fly.dev"
-readonly SCREEN1_URL="http://${IMGRES_AUTH}@imgres.fly.dev?capture_box=150,0,410,280"
+readonly SCREEN1_URL="http://${IMGRES_AUTH}@imgres.fly.dev/?capture_box=150,0,410,280"
 readonly SCREEN2_URL="http://${IMGRES_AUTH}@imgres.fly.dev"
 
 # Check if IMGRES_AUTH environment variable is set
