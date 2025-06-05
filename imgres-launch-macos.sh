@@ -48,58 +48,28 @@ tell application "Google Chrome"
     delay 10
 end tell
 
-# Make windows fullscreen using URL matching instead of titles
+# Make windows fullscreen one at a time using titles
 tell application "System Events"
     tell application "Google Chrome" to activate
-    delay 3
+    delay 5
 
-    # Find and fullscreen Display window (without capture parameter)
+    # Find and fullscreen Capture window
     tell application "Google Chrome"
-        set displayWin to missing value
-        repeat with w in windows
-            try
-                set currentURL to URL of active tab of w
-                if currentURL contains "imgres.fly.dev" and currentURL does not contain "capture" then
-                    set displayWin to w
-                    exit repeat
-                end if
-            end try
-        end repeat
-
-        if displayWin is not missing value then
-            set index of displayWin to 1
-            delay 1
-            # Fullscreen the display window
-            tell application "System Events"
-                keystroke "f" using {command down, control down}
-            end tell
-            delay 3
-        end if
+        set captureWin to (first window whose title contains "Capture")
+        set index of captureWin to 1
     end tell
+    delay 10
+    keystroke "f" using {command down, control down}
 
-    # Find and fullscreen Capture window (with capture parameter)
+    delay 10
+
+    # Find and fullscreen Display window
     tell application "Google Chrome"
-        set captureWin to missing value
-        repeat with w in windows
-            try
-                set currentURL to URL of active tab of w
-                if currentURL contains "imgres.fly.dev" and currentURL contains "capture" then
-                    set captureWin to w
-                    exit repeat
-                end if
-            end try
-        end repeat
-
-        if captureWin is not missing value then
-            set index of captureWin to 1
-            delay 1
-            # Fullscreen the capture window
-            tell application "System Events"
-                keystroke "f" using {command down, control down}
-            end tell
-            delay 2
-        end if
+        set displayWin to (first window whose title contains "Display")
+        set index of displayWin to 1
     end tell
+    delay 10
+    keystroke "f" using {command down, control down}
 end tell
 EOF
 
