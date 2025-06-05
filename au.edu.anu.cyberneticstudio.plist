@@ -6,7 +6,7 @@
        <string>au.edu.anu.cyberneticstudio</string>
        <key>ProgramArguments</key>
        <array>
-           <string>/usr/local/bin/imgres-launch.sh</string>
+           <string>/Users/Bateson/Documents/imaginative-restoration/imgres-launch-macos.sh</string>
        </array>
        <key>RunAtLoad</key>
        <true/>
