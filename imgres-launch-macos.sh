@@ -51,7 +51,7 @@ end tell
 # Make windows fullscreen using URL matching instead of titles
 tell application "System Events"
     tell application "Google Chrome" to activate
-    delay 5
+    delay 3
 
     # Find and fullscreen Display window (without capture parameter)
     tell application "Google Chrome"
@@ -68,13 +68,14 @@ tell application "System Events"
 
         if displayWin is not missing value then
             set index of displayWin to 1
-            delay 2
+            delay 1
+            # Fullscreen the display window
+            tell application "System Events"
+                keystroke "f" using {command down, control down}
+            end tell
+            delay 3
         end if
     end tell
-
-    # Fullscreen the display window
-    keystroke "f" using {command down, control down}
-    delay 5
 
     # Find and fullscreen Capture window (with capture parameter)
     tell application "Google Chrome"
@@ -91,12 +92,14 @@ tell application "System Events"
 
         if captureWin is not missing value then
             set index of captureWin to 1
+            delay 1
+            # Fullscreen the capture window
+            tell application "System Events"
+                keystroke "f" using {command down, control down}
+            end tell
             delay 2
         end if
     end tell
-
-    # Fullscreen the capture window
-    keystroke "f" using {command down, control down}
 end tell
 EOF
 
