@@ -28,7 +28,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
         </div>
         <div
           :if={@capture?}
-          class="absolute top-[200px] left-[300px] flex gap-8 h-[200px] backdrop-blur-md"
+          class="absolute top-[100px] left-[350px] flex gap-8 h-[200px] backdrop-blur-md"
         >
           <.webcam_capture capture_interval={
             Application.get_env(:imaginative_restoration, :webcam_capture_interval)
