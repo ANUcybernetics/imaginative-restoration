@@ -1,5 +1,7 @@
 defmodule ImaginativeRestorationWeb.PromptLive do
-  @moduledoc false
+  @moduledoc """
+  LiveView for managing sketch processing and viewing recent sketches.
+  """
   use ImaginativeRestorationWeb, :live_view
 
   import ImaginativeRestorationWeb.AppComponents
@@ -14,15 +16,13 @@ defmodule ImaginativeRestorationWeb.PromptLive do
     ~H"""
     <div class="space-y-8">
       <div>
-        Current prompt: <span class="font-semibold">{@template}</span>
+        <h2 class="text-lg font-semibold mb-4">Available Prompts</h2>
+        <ul class="list-disc list-inside space-y-1">
+          <li :for={prompt <- @prompts} class="text-sm">{prompt}</li>
+        </ul>
+        <p class="text-sm text-gray-600 mt-2">Prompts are selected randomly during processing.</p>
       </div>
 
-      <.simple_form for={@form} phx-submit="save" phx-change="validate">
-        <.input type="text" field={@form[:template]} label="Prompt" placeholder="Enter prompt" />
-        <:actions>
-          <.button>Save Prompt</.button>
-        </:actions>
-      </.simple_form>
       <section class="grid grid-cols-1 gap-4">
         <h2 class="text-lg font-semibold">Last 5 captures</h2>
         <div class="mb-4">
@@ -42,8 +42,7 @@ defmodule ImaginativeRestorationWeb.PromptLive do
       ImaginativeRestorationWeb.Endpoint.subscribe("sketch:updated")
     end
 
-    form = Prompt |> AshPhoenix.Form.for_create(:create) |> to_form()
-    %Prompt{template: template} = ImaginativeRestoration.Sketches.latest_prompt!()
+    prompts = Prompt.all_prompts()
 
     sketches =
       Sketch
@@ -55,13 +54,7 @@ defmodule ImaginativeRestorationWeb.PromptLive do
     {:ok,
      socket
      |> stream(:sketches, sketches)
-     |> assign(template: template, form: form)}
-  end
-
-  @impl true
-  def handle_event("validate", %{"form" => params}, socket) do
-    form = socket.assigns.form |> AshPhoenix.Form.validate(params) |> to_form()
-    {:noreply, assign(socket, form: form)}
+     |> assign(prompts: prompts)}
   end
 
   @impl true
@@ -84,25 +77,6 @@ defmodule ImaginativeRestorationWeb.PromptLive do
     |> Stream.run()
 
     {:noreply, put_flash(socket, :info, "Processing recent sketches...")}
-  end
-
-  @impl true
-  def handle_event("save", %{"form" => params}, socket) do
-    case AshPhoenix.Form.submit(socket.assigns.form, params: params) do
-      {:ok, %Prompt{template: template}} ->
-        form = Prompt |> AshPhoenix.Form.for_create(:create) |> to_form()
-
-        {:noreply,
-         socket
-         |> put_flash(:info, "Prompt template saved successfully!")
-         |> assign(form: form, template: template)}
-
-      {:error, form} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Error saving prompt template")
-         |> assign(form: to_form(form))}
-    end
   end
 
   @impl true

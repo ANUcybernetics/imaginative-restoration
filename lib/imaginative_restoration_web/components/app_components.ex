@@ -38,7 +38,6 @@ defmodule ImaginativeRestorationWeb.AppComponents do
     ~H"""
     <div id={@id} class="flex h-[150px] justify-between">
       <img src={@sketch.raw} class="h-full" />
-      <img src={@sketch.cropped} class="h-full" />
       <img src={@sketch.processed} class="h-full" />
     </div>
     """

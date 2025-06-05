@@ -1,5 +1,7 @@
 defmodule ImaginativeRestoration.Sketches.Sketch do
-  @moduledoc false
+  @moduledoc """
+  Represents a sketch that can be processed through AI models.
+  """
   use Ash.Resource,
     domain: ImaginativeRestoration.Sketches,
     data_layer: AshSqlite.DataLayer,
@@ -15,20 +17,19 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
   attributes do
     integer_primary_key :id
 
-    # these are all image data URLs (webp)
+    # Raw sketch image data URL (webp)
     attribute :raw, :string, allow_nil?: false
-    attribute :cropped, :string
+
+    # Processed AI-generated image data URL (webp)
     attribute :processed, :string
 
-    # prompt will be calculated based on the image number & the object detected in the sketch
-    # but useful to store it in the resource for later analysis
-    attribute :label, :string
+    # The prompt used to generate the processed image
     attribute :prompt, :string
 
-    # model is the model used to process the sketch (a user/model replicate path)
+    # Model used to process the sketch (e.g., "black-forest-labs/flux-canny-dev")
     attribute :model, :string, allow_nil?: false
 
-    # should be set to true if the sketch doesn't show up on the canvas
+    # Should be set to true if the sketch doesn't show up on the canvas
     attribute :hidden, :boolean, default: false
 
     create_timestamp :inserted_at
@@ -42,21 +43,23 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
       accept [:raw]
       argument :model, :string, default: "black-forest-labs/flux-canny-dev"
 
-      # default model, updated to use flux-canny-dev
-      change set_attribute(:model, arg(:model))
-    end
+      change fn changeset, _context ->
+        model_arg = Ash.Changeset.get_argument(changeset, :model)
 
-    update :crop_and_label do
-      # No attributes needed - will process the sketch's existing raw image
+        actual_model =
+          case model_arg do
+            # Default if empty string is passed
+            "" -> "black-forest-labs/flux-canny-dev"
+            # Default if nil is passed (should be caught by arg default if not provided)
+            nil -> "black-forest-labs/flux-canny-dev"
+            _ -> model_arg
+          end
 
-      # Validate that we have an raw image to work with
-      validate present(:raw), message: "cannot crop without an raw image"
-
-      change {Pipeline, stage: :crop_and_label}
+        Ash.Changeset.force_change_attribute(changeset, :model, actual_model)
+      end
     end
 
     update :process do
-      # No attributes needed - will process the sketch's existing cropped image
       validate present(:raw), message: "cannot process without a raw image"
 
       change {Pipeline, stage: :process}

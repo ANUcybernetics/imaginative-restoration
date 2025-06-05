@@ -48,7 +48,7 @@ defmodule ImaginativeRestoration.AI.Pipeline do
         model = changeset.data.model
 
         # latest prompt (TODO fail gracefully if none exist)
-        %Prompt{template: prompt} = ImaginativeRestoration.Sketches.latest_prompt!()
+        prompt = Prompt.random_prompt()
 
         with {:ok, ai_image} <- Replicate.invoke(model, raw, prompt),
              {:ok, final_image_url} <- Replicate.invoke("851-labs/background-remover", ai_image) do

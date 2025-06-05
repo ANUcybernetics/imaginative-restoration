@@ -181,39 +181,6 @@ defmodule ImaginativeRestoration.AI.Replicate do
     end
   end
 
-  def invoke("lucataco/florence-2-large" = model, input_image) do
-    input = %{
-      image: input_image,
-      task_input: "Object Detection"
-    }
-
-    with {:ok, version} <- get_latest_version(model),
-         {:ok, %{"output" => %{"text" => bad_json}}} <- create_prediction(version, input) do
-      body =
-        bad_json
-        # some pre-processing required because this model returns invalid json
-        |> String.replace("'", "\"")
-        |> Jason.decode!()
-        |> Map.fetch!("<OD>")
-
-      # zip the bounding boxes and labels together
-      objects =
-        body["labels"]
-        |> Enum.zip(body["bboxes"])
-        # use the x, y, width, height format
-        |> Enum.map(fn {label, [x1, y1, x2, y2]} -> {label, Enum.map([x1, y1, x2 - x1, y2 - y1], &round/1)} end)
-        |> Enum.reject(fn {label, _} -> label in ["envelope", "whiteboard"] end)
-        # sort by height (tallest first)
-        |> Enum.sort_by(fn {_, [_, _, _, h]} -> h end, :desc)
-
-      if objects == [] do
-        {:error, :no_valid_label}
-      else
-        {:ok, List.first(objects)}
-      end
-    end
-  end
-
   def invoke("lucataco/remove-bg" = model, input_image) do
     input = %{image: input_image}
 

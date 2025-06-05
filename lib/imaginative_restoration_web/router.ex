@@ -27,10 +27,7 @@ defmodule ImaginativeRestorationWeb.Router do
       tools: [
         :read_sketches,
         :create_sketch,
-        :crop_and_label_sketch,
-        :process_sketch,
-        :read_prompts,
-        :get_latest_prompt
+        :process_sketch
       ],
       protocol_version_statement: "2024-11-05",
       otp_app: :imaginative_restoration
