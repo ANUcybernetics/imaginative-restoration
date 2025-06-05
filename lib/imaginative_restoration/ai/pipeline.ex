@@ -51,7 +51,7 @@ defmodule ImaginativeRestoration.AI.Pipeline do
         %Prompt{template: prompt} = ImaginativeRestoration.Sketches.latest_prompt!()
 
         with {:ok, ai_image} <- Replicate.invoke(model, raw, prompt),
-             {:ok, final_image_url} <- Replicate.invoke("lucataco/remove-bg", ai_image) do
+             {:ok, final_image_url} <- Replicate.invoke("851-labs/background-remover", ai_image) do
           final_image_dataurl = Utils.to_dataurl!(final_image_url)
 
           Ash.Changeset.force_change_attribute(changeset, :processed, final_image_dataurl)

@@ -40,9 +40,9 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
     create :init do
       accept [:raw]
-      argument :model, :string, default: "philz1337x/controlnet-deliberate"
+      argument :model, :string, default: "black-forest-labs/flux-canny-dev"
 
-      # default model, for now
+      # default model, updated to use flux-canny-dev
       change set_attribute(:model, arg(:model))
     end
 
