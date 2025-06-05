@@ -1,7 +1,7 @@
 This is an Elixir app powered by Ash & Phoenix LiveView. Prefer using LiveView
 instead of regular Controllers. Once you are done with changes, run
 `mix compile` and fix any issues. Write tests for your changes and run
-`mix test` afterwards. Finally, run `mix format`.
+`mix test` afterwards. Do not use mocks unless explicitly instructed.
 
 During development, use the tools provided by the tidewave and ash_ai MCP
 servers whenever possible.
