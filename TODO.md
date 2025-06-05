@@ -3,7 +3,8 @@
 - sort out auto-updates for macOS (plus VNC)
 - check the script re-starts when power is cycled
 - be more creative with the prompts (randomize whole thing perhaps... from a few
-  select options)
+  select options)... perhaps go back to a "select at random" thing for the
+  creature
 
 ### Future
 
