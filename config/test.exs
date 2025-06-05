@@ -23,3 +23,7 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+# Set up auth credentials for testing
+System.put_env("AUTH_USERNAME", "test")
+System.put_env("AUTH_PASSWORD", "test")

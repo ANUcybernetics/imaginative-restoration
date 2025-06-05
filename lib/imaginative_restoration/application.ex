@@ -13,6 +13,7 @@ defmodule ImaginativeRestoration.Application do
       {Ecto.Migrator, repos: Application.fetch_env!(:imaginative_restoration, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:imaginative_restoration, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: ImaginativeRestoration.PubSub},
+      {Task.Supervisor, name: ImaginativeRestoration.TaskSupervisor},
       # Start a worker by calling: ImaginativeRestoration.Worker.start_link(arg)
       # {ImaginativeRestoration.Worker, arg},
       # Start to serve requests, typically the last entry

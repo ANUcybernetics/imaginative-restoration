@@ -117,12 +117,19 @@ defmodule ImaginativeRestorationWeb.AppLive do
   @impl true
   def handle_info(%Broadcast{topic: "sketch:updated", event: "process"} = message, socket) do
     sketch = message.payload.data
-    thumbnail_dataurl = Utils.thumbnail!(sketch.processed)
+    pid = self()
 
-    {:noreply,
-     socket
-     |> assign(sketch: sketch)
-     |> push_event("add_sketches", %{sketches: [%{id: sketch.id, dataurl: thumbnail_dataurl}]})}
+    Task.Supervisor.start_child(ImaginativeRestoration.TaskSupervisor, fn ->
+      thumbnail_dataurl = Utils.thumbnail!(sketch.processed)
+      send(pid, {:thumbnail_ready, sketch, thumbnail_dataurl})
+    end)
+
+    {:noreply, assign(socket, sketch: sketch)}
+  end
+
+  @impl true
+  def handle_info({:thumbnail_ready, sketch, thumbnail_dataurl}, socket) do
+    {:noreply, push_event(socket, "add_sketches", %{sketches: [%{id: sketch.id, dataurl: thumbnail_dataurl}]})}
   end
 
   @impl true
