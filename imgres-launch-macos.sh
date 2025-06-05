@@ -44,34 +44,60 @@ tell application "Google Chrome"
     set bounds of window 1 to [100, 100, 800, 600]
     set URL of active tab of window 1 to "${SCREEN2_URL}"
 
-    # Wait for windows to settle and titles to update
-    delay 5
+    # Wait for windows to settle
+    delay 10
 end tell
 
-# Make windows fullscreen one at a time using titles
+# Make windows fullscreen using URL matching instead of titles
 tell application "System Events"
     tell application "Google Chrome" to activate
     delay 5
 
-    # Find and fullscreen Display window
+    # Find and fullscreen Display window (without capture parameter)
     tell application "Google Chrome"
-        set displayWin to (first window whose title contains "Display")
-        set index of displayWin to 1
+        set displayWin to missing value
+        repeat with w in windows
+            try
+                set currentURL to URL of active tab of w
+                if currentURL contains "imgres.fly.dev" and currentURL does not contain "capture" then
+                    set displayWin to w
+                    exit repeat
+                end if
+            end try
+        end repeat
+
+        if displayWin is not missing value then
+            set index of displayWin to 1
+            delay 2
+        end if
     end tell
-    delay 10
+
+    # Fullscreen the display window
     keystroke "f" using {command down, control down}
+    delay 5
 
-    delay 10
-
-    # Find and fullscreen Capture window
+    # Find and fullscreen Capture window (with capture parameter)
     tell application "Google Chrome"
-        set captureWin to (first window whose title contains "Capture")
-        set index of captureWin to 1
+        set captureWin to missing value
+        repeat with w in windows
+            try
+                set currentURL to URL of active tab of w
+                if currentURL contains "imgres.fly.dev" and currentURL contains "capture" then
+                    set captureWin to w
+                    exit repeat
+                end if
+            end try
+        end repeat
+
+        if captureWin is not missing value then
+            set index of captureWin to 1
+            delay 2
+        end if
     end tell
-    delay 10
+
+    # Fullscreen the capture window
     keystroke "f" using {command down, control down}
 end tell
 EOF
 
-printf "Opening second window...\n"
 printf "Setup complete - all windows positioned and fullscreened\n"
