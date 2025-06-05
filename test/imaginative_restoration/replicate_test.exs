@@ -14,18 +14,25 @@ defmodule ImaginativeRestoration.ReplicateTest do
       ["adirik/t2i-adapter-sdxl-canny", sketch_image, prompt],
       ["adirik/t2i-adapter-sdxl-lineart", sketch_image, prompt],
       ["philz1337x/controlnet-deliberate", sketch_image, prompt],
+      ["black-forest-labs/flux-canny-dev", sketch_image, prompt],
       ["lucataco/florence-2-large", sketch_image],
       ["lucataco/remove-bg", processed_image]
     ]
   end
 
   describe "Replicate platform" do
-    @describetag timeout: :timer.minutes(10)
+    @describetag timeout: to_timeout(minute: 10)
 
     test "can list latest model version for all models" do
       for [model | _] <- invoke_args() do
         assert {:ok, version} = Replicate.get_latest_version(model)
-        assert String.match?(version, ~r/^[a-f0-9]{64}$/)
+
+        # Official models return the model name, others return a 64-char hex version ID
+        if String.starts_with?(model, "black-forest-labs/") do
+          assert version == model
+        else
+          assert String.match?(version, ~r/^[a-f0-9]{64}$/)
+        end
       end
     end
 
