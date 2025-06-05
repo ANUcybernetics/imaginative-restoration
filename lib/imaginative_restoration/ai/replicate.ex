@@ -222,4 +222,13 @@ defmodule ImaginativeRestoration.AI.Replicate do
       {:ok, output}
     end
   end
+
+  def invoke("851-labs/background-remover" = model, input_image) do
+    input = %{image: input_image}
+
+    with {:ok, version} <- get_latest_version(model),
+         {:ok, %{"output" => output}} <- create_prediction(version, input) do
+      {:ok, output}
+    end
+  end
 end
