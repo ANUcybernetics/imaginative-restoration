@@ -13,7 +13,7 @@ defmodule ImaginativeRestorationWeb.ConfigLive do
     <div class="mt-4 text-4xl font-mono">
       <%= for distance <- Utils.inter_image_distances(@recent_images) do %>
         <span style={"color: #{if distance > @threshold, do: "red", else: "white"}"}>
-          <%= distance %>
+          {distance}
         </span>
       <% end %>
     </div>

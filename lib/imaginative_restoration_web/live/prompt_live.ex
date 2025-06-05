@@ -14,7 +14,7 @@ defmodule ImaginativeRestorationWeb.PromptLive do
     ~H"""
     <div class="space-y-8">
       <div>
-        Current prompt: <span class="font-semibold"><%= @template %></span>
+        Current prompt: <span class="font-semibold">{@template}</span>
       </div>
 
       <.simple_form for={@form} phx-submit="save" phx-change="validate">

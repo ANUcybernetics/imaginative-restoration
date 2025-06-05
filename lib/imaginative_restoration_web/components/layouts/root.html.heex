@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <.live_title suffix=" - Imaginative Restoration: Re-wilding Division">
-      <%= assigns[:page_title] %>
+      {assigns[:page_title]}
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
@@ -15,6 +15,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Lacquer&display=swap" rel="stylesheet" />
   </head>
   <body class="bg-white">
-    <%= @inner_content %>
+    {@inner_content}
   </body>
 </html>
