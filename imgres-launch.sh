@@ -1,1 +1,0 @@
-imgres-launch-macos.sh
