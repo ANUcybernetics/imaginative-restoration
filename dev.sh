@@ -135,19 +135,12 @@ if check_port $PORT; then
 fi
 
 # Parse command line arguments
-VERBOSE=false
-
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --verbose|-v)
-            VERBOSE=true
-            shift
-            ;;
         --help|-h)
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  --verbose  Show detailed output"
             echo "  --help     Show this help message"
             echo ""
             echo "Environment Variables:"
@@ -180,19 +173,11 @@ echo -e "${YELLOW}🔥 Starting Phoenix server...${NC}"
 export AUTH_USERNAME="$AUTH_USERNAME"
 export AUTH_PASSWORD="$AUTH_PASSWORD"
 
-if [ "$VERBOSE" = true ]; then
-    mix phx.server &
-else
-    mix phx.server > /tmp/phoenix.log 2>&1 &
-fi
+mix phx.server &
 
 PHOENIX_PID=$!
 echo "$PHOENIX_PID" > "$PHOENIX_PID_FILE"
 echo -e "${GREEN}✅ Phoenix server started (PID: $PHOENIX_PID)${NC}"
-
-if [ "$VERBOSE" = false ]; then
-    echo "   Log file: /tmp/phoenix.log"
-fi
 
 # Wait for Phoenix server to be ready
 if ! wait_for_server "http://$HOST:$PORT" "Phoenix server"; then
@@ -233,9 +218,6 @@ echo "  • read_prompts - Read prompt templates"
 echo "  • get_latest_prompt - Get the latest prompt template"
 echo ""
 echo -e "${BLUE}Log Files:${NC}"
-if [ "$VERBOSE" = false ]; then
-    echo "  Phoenix: /tmp/phoenix.log"
-fi
 echo "  Ash AI Proxy: /tmp/mcp_ash_ai.log"
 echo "  Tidewave Proxy: /tmp/mcp_tidewave.log"
 echo ""
