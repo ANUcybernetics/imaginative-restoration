@@ -26,7 +26,10 @@ defmodule ImaginativeRestorationWeb.AppLive do
           <canvas id="sketch-canvas" phx-hook="SketchCanvas" class="w-full h-full object-contain">
           </canvas>
         </div>
-        <div :if={@capture?} class="absolute top-8 left-8 flex gap-8 h-[200px] backdrop-blur-md">
+        <div
+          :if={@capture?}
+          class="absolute top-[200px] left-[300px] flex gap-8 h-[200px] backdrop-blur-md"
+        >
           <.webcam_capture capture_interval={
             Application.get_env(:imaginative_restoration, :webcam_capture_interval)
           } />
