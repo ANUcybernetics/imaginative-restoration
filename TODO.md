@@ -1,14 +1,9 @@
 ## TODO
 
-- update all the deps
-- add tidewave/ash_ai
-- update to latest
-  [canny flux model](https://replicate.com/black-forest-labs/flux-canny-dev),
-  and perhaps update BG removal model to
-  [this one](https://replicate.com/851-labs/background-remover) as well
-- move position (and check sizing) of things in the new install with new screens
-- switch back to the macOS launch script (but this rpi one useful for PANIC!)
 - sort out auto-updates for macOS (plus VNC)
+- check the script re-starts when power is cycled
+- be more creative with the prompts (randomize whole thing perhaps... from a few
+  select options)
 
 ### Future
 
