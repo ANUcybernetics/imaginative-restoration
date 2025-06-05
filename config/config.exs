@@ -36,7 +36,7 @@ config :imaginative_restoration,
 
 config :imaginative_restoration,
   image_difference_threshold: 0,
-  webcam_capture_interval: 30_000
+  webcam_capture_interval: 15_000
 
 # Configures Elixir's Logger
 config :logger, :console,
