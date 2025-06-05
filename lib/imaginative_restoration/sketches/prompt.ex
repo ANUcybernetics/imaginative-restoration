@@ -1,24 +1,43 @@
 defmodule ImaginativeRestoration.Sketches.Prompt do
   @moduledoc """
-  Provides hardcoded prompts for image generation.
+  Provides dynamic prompts for image generation by combining random elements
+  from three categories: descriptive adjectives, sea creatures, and style references.
   """
 
-  @prompts [
-    "prompt one",
-    "prompt two"
+  @descriptive_adjectives [
+    "majestic, ethereal",
+    "brilliantly-colored",
+    "grimy, deep-sea",
+    "venerable and ancient"
+  ]
+
+  @sea_creatures [
+    "octopus",
+    "jellyfish",
+    "seahorse",
+    "manta ray",
+    "shark",
+    "fish",
+    "whale"
+  ]
+
+  @style_references [
+    "Art Nouveau",
+    "Japanese woodblock print",
+    "Renaissance painting",
+    "cyberpunk digital art",
+    "a photorealistic nature documentary"
   ]
 
   @doc """
-  Returns a random prompt from the predefined list.
+  Returns a random prompt by combining elements from each category.
+  Format: "a [DESCRIPTIVE_ADJECTIVE] [SEA_CREATURE] in the style of [STYLE_REFERENCE]"
   """
   def random_prompt do
-    Enum.random(@prompts)
-  end
+    adjective = Enum.random(@descriptive_adjectives)
+    creature = Enum.random(@sea_creatures)
+    style = Enum.random(@style_references)
 
-  @doc """
-  Returns all available prompts.
-  """
-  def all_prompts do
-    @prompts
+    "a #{adjective} #{creature}-like creature in the style of #{style} on a plain white background"
   end
 end

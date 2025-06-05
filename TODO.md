@@ -2,15 +2,15 @@
 
 - sort out auto-updates for macOS (plus VNC)
 - check the script re-starts when power is cycled
-- be more creative with the prompts (randomize whole thing perhaps... from a few
-  select options)... perhaps go back to a "select at random" thing for the
-  creature
+- change the "skip processing" logic to only skip if 5 in a row are the same
+  (possibly with a `skipped_count` int counter or something)
+- update the y-axis range for the things that float across the screen
 
 ### Future
 
-- add a widget (to prompts maybe? which shows DB size/rem on disk)
+- change capture screen UI to show most recent _n_ pre/post sketches
+- (maybe) consolidate `/prompts` and `/config` endpoints into one page (and add
+  DB disk space status, perhaps other metrics)
 - download DB (for backup)
-- prompt history view
-- allow prompt-scheduling
 - add nicer feedback for camera not working, or processing pipeline failed (e.g.
   http error), or missing capture box params, or no AUTH_USERNAME...
