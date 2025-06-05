@@ -15,6 +15,10 @@ defmodule ImaginativeRestorationWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :mcp do
+    plug :accepts, ["json"]
+  end
+
   scope "/", ImaginativeRestorationWeb do
     pipe_through :browser
 
@@ -26,6 +30,28 @@ defmodule ImaginativeRestorationWeb.Router do
 
     # catch-all route for the error handler
     live "/*path", ErrorLive, :index, as: :error
+  end
+
+  # MCP (Model Context Protocol) servers
+  scope "/tidewave/mcp" do
+    pipe_through :mcp
+    forward "/", Tidewave.Router
+  end
+
+  scope "/ash_ai/mcp" do
+    pipe_through :mcp
+
+    forward "/", AshAi.Mcp.Router,
+      tools: [
+        :read_sketches,
+        :create_sketch,
+        :crop_and_label_sketch,
+        :process_sketch,
+        :read_prompts,
+        :get_latest_prompt
+      ],
+      protocol_version_statement: "2024-11-05",
+      otp_app: :imaginative_restoration
   end
 
   # Other scopes may use custom stacks.

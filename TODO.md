@@ -4,7 +4,8 @@
 - add tidewave/ash_ai
 - update to latest
   [canny flux model](https://replicate.com/black-forest-labs/flux-canny-dev),
-  and perhaps update BG removal model as well
+  and perhaps update BG removal model to
+  [this one](https://replicate.com/851-labs/background-remover) as well
 - move position (and check sizing) of things in the new install with new screens
 - switch back to the macOS launch script (but this rpi one useful for PANIC!)
 - sort out auto-updates for macOS (plus VNC)
