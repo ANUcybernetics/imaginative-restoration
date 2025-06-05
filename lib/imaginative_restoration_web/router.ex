@@ -19,20 +19,7 @@ defmodule ImaginativeRestorationWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", ImaginativeRestorationWeb do
-    pipe_through :browser
-
-    live "/", AppLive
-
-    live "/config", ConfigLive
-
-    live "/prompts", PromptLive
-
-    # catch-all route for the error handler
-    live "/*path", ErrorLive, :index, as: :error
-  end
-
-  # MCP (Model Context Protocol) servers
+  # MCP (Model Context Protocol) servers - must come before catch-all routes
   scope "/tidewave/mcp" do
     pipe_through :mcp
     forward "/", Tidewave.Router
@@ -52,6 +39,19 @@ defmodule ImaginativeRestorationWeb.Router do
       ],
       protocol_version_statement: "2024-11-05",
       otp_app: :imaginative_restoration
+  end
+
+  scope "/", ImaginativeRestorationWeb do
+    pipe_through :browser
+
+    live "/", AppLive
+
+    live "/config", ConfigLive
+
+    live "/prompts", PromptLive
+
+    # catch-all route for the error handler
+    live "/*path", ErrorLive, :index, as: :error
   end
 
   # Other scopes may use custom stacks.
