@@ -33,6 +33,7 @@ defmodule ImaginativeRestoration.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:usage_rules, "~> 0.1", only: [:dev]},
       {:tidewave, "~> 0.1", only: [:dev]},
       {:ash_ai, "~> 0.1"},
       {:phoenix, "~> 1.7.14"},
