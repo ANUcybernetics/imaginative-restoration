@@ -1,15 +1,26 @@
-<-- usage-rules-start -->
-<-- ash_phoenix-start -->
+This is an Elixir app powered by Ash & Phoenix LiveView. Prefer using LiveView
+instead of regular Controllers. Once you are done with changes, run
+`mix compile` and fix any issues. Write tests for your changes and run
+`mix test` afterwards. During development, use the tools provided by the
+tidewave and ash_ai MCP servers whenever possible.
+
+<-- usage-rules-start --> <-- ash_phoenix-start -->
+
 ## ash_phoenix usage
+
 # Rules for working with AshPhoenix
 
 ## Understanding AshPhoenix
 
-AshPhoenix is a package for integrating Ash Framework with Phoenix Framework. It provides tools for integrating with Phoenix forms (`AshPhoenix.Form`), Phoenix LiveViews (`AshPhoenix.LiveView`), and more. AshPhoenix makes it seamless to use Phoenix's powerful UI capabilities with Ash's data management features.
+AshPhoenix is a package for integrating Ash Framework with Phoenix Framework. It
+provides tools for integrating with Phoenix forms (`AshPhoenix.Form`), Phoenix
+LiveViews (`AshPhoenix.LiveView`), and more. AshPhoenix makes it seamless to use
+Phoenix's powerful UI capabilities with Ash's data management features.
 
 ## Form Integration
 
-AshPhoenix provides `AshPhoenix.Form`, a powerful module for creating and handling forms backed by Ash resources.
+AshPhoenix provides `AshPhoenix.Form`, a powerful module for creating and
+handling forms backed by Ash resources.
 
 ### Creating Forms
 
@@ -29,8 +40,8 @@ form = AshPhoenix.Form.for_create(MyApp.Blog.Post, :create,
 
 ### Code Interfaces
 
-Using the `AshPhoenix` extension in domains gets you special functions in a resource's
-code interface called `form_to_*`. Use this whenever possible.
+Using the `AshPhoenix` extension in domains gets you special functions in a
+resource's code interface called `form_to_*`. Use this whenever possible.
 
 First, add the `AshPhoenix` extension to our domains and resources, like so:
 
@@ -39,9 +50,11 @@ use Ash.Domain,
   extensions: [AshPhoenix]
 ```
 
-which will cause another function to be generated for each definition, beginning with `form_to_`.
+which will cause another function to be generated for each definition, beginning
+with `form_to_`.
 
 For example, if you had the following,
+
 ```elixir
 # in MyApp.Accounts
 resources do
@@ -57,7 +70,9 @@ you could then make a form with:
 MyApp.Accounts.register_with_password(...opts)
 ```
 
-By default, the `args` option in `define` is ignored when building forms. If you want to have positional arguments, configure that in the `forms` section which is added by the `AshPhoenix` section. For example:
+By default, the `args` option in `define` is ignored when building forms. If you
+want to have positional arguments, configure that in the `forms` section which
+is added by the `AshPhoenix` section. For example:
 
 ```elixir
 forms do
@@ -71,7 +86,11 @@ Which could then be used as:
 MyApp.Accounts.register_with_password(email, ...)
 ```
 
-These positional arguments are *very important* for certain cases, because there may be values you do not want the form to be able to set. For example, when updating a user's settings, maybe the action takes a `user_id`, but the form is on a page for a specific user's id and so this should therefore not be editable in the form. Use positional arguments for this.
+These positional arguments are _very important_ for certain cases, because there
+may be values you do not want the form to be able to set. For example, when
+updating a user's settings, maybe the action takes a `user_id`, but the form is
+on a page for a specific user's id and so this should therefore not be editable
+in the form. Use positional arguments for this.
 
 ### Handling Form Submission
 
@@ -100,11 +119,13 @@ end
 
 ## Nested Forms
 
-AshPhoenix supports forms with nested relationships, such as creating or updating related resources in a single form.
+AshPhoenix supports forms with nested relationships, such as creating or
+updating related resources in a single form.
 
 ### Automatically Inferred Nested Forms
 
-If your action has `manage_relationship`, AshPhoenix automatically infers nested forms:
+If your action has `manage_relationship`, AshPhoenix automatically infers nested
+forms:
 
 ```elixir
 # In your resource:
@@ -160,7 +181,8 @@ end
 
 ## Union Forms
 
-AshPhoenix supports forms for union types, allowing different inputs based on the selected type.
+AshPhoenix supports forms for union types, allowing different inputs based on
+the selected type.
 
 ```heex
 <.inputs_for :let={fc} field={@form[:content]}>
@@ -217,35 +239,47 @@ end
 
 ## Best Practices
 
-1. **Let the Resource guide the UI**: Your Ash resource configuration determines a lot about how forms and inputs will work. Well-defined resources with appropriate validations and changes make AshPhoenix more effective.
+1. **Let the Resource guide the UI**: Your Ash resource configuration determines
+   a lot about how forms and inputs will work. Well-defined resources with
+   appropriate validations and changes make AshPhoenix more effective.
 
-2. **Leverage code interfaces**: Define code interfaces on your domains for a clean and consistent API to call your resource actions.
+2. **Leverage code interfaces**: Define code interfaces on your domains for a
+   clean and consistent API to call your resource actions.
 
-3. **Update resources before editing**: When building forms for updating resources, load the resource with all required relationships using `Ash.load!/2` before creating the form.
+3. **Update resources before editing**: When building forms for updating
+   resources, load the resource with all required relationships using
+   `Ash.load!/2` before creating the form.
 
-<-- ash_phoenix-end -->
-<-- ash_ai-start -->
+<-- ash_phoenix-end --> <-- ash_ai-start -->
+
 ## ash_ai usage
+
 # Rules for working with Ash AI
 
 ## Understanding Ash AI
 
-Ash AI is an extension for the Ash framework that integrates AI capabilities with Ash resources. It provides tools for vectorization, embedding generation, LLM interaction, and tooling for AI models.
+Ash AI is an extension for the Ash framework that integrates AI capabilities
+with Ash resources. It provides tools for vectorization, embedding generation,
+LLM interaction, and tooling for AI models.
 
 ## Core Concepts
 
-- **Vectorization**: Convert text attributes into vector embeddings for semantic search
+- **Vectorization**: Convert text attributes into vector embeddings for semantic
+  search
 - **AI Tools**: Expose Ash actions as tools for LLMs
-- **Prompt-backed Actions**: Create actions where the implementation is handled by an LLM
+- **Prompt-backed Actions**: Create actions where the implementation is handled
+  by an LLM
 - **MCP Server**: Expose your tools to Machine Context Protocol clients
 
 ## Vectorization
 
-Vectorization allows you to convert text data into embeddings that can be used for semantic search.
+Vectorization allows you to convert text data into embeddings that can be used
+for semantic search.
 
 ### Setting Up Vectorization
 
-Add vectorization to a resource by including the `AshAi` extension and defining a vectorize block:
+Add vectorization to a resource by including the `AshAi` extension and defining
+a vectorize block:
 
 ```elixir
 defmodule MyApp.Artist do
@@ -278,7 +312,8 @@ end
 
 ### Embedding Models
 
-Create a module that implements the `AshAi.EmbeddingModel` behaviour to generate embeddings:
+Create a module that implements the `AshAi.EmbeddingModel` behaviour to generate
+embeddings:
 
 ```elixir
 defmodule MyApp.OpenAiEmbeddingModel do
@@ -324,11 +359,14 @@ end
 
 Choose the appropriate strategy based on your performance requirements:
 
-1. **`:after_action`** (default): Updates embeddings synchronously after each create and update action
+1. **`:after_action`** (default): Updates embeddings synchronously after each
+   create and update action
+
    - Simple but can make your app slow
    - Not recommended for production use with many records
 
 2. **`:ash_oban`**: Updates embeddings asynchronously using Ash Oban
+
    - Requires `ash_oban` extension
    - Better for production use
 
@@ -371,7 +409,8 @@ end
 
 ## AI Tools
 
-Expose your Ash actions as tools for LLMs to use by configuring them in your domain:
+Expose your Ash actions as tools for LLMs to use by configuring them in your
+domain:
 
 ```elixir
 defmodule MyApp.Blog do
@@ -435,14 +474,15 @@ end
 
 ### Dynamic LLM Configuration
 
-For runtime configuration (like environment variables), use a function to define the LLM:
+For runtime configuration (like environment variables), use a function to define
+the LLM:
 
 ```elixir
 action :analyze_sentiment, :atom do
   argument :text, :string, allow_nil?: false
-  
+
   run prompt(
-    fn _input, _context -> 
+    fn _input, _context ->
       LangChain.ChatModels.ChatOpenAI.new!(%{
         model: "gpt-4o",
         # this can also be configured in application config, see langchain docs for more.
@@ -456,6 +496,7 @@ end
 ```
 
 The function receives:
+
 1. `input` - The action input
 2. `context` - The execution context
 
@@ -516,19 +557,24 @@ end
 ## Testing
 
 When testing AI components:
+
 - Mock embedding model responses for consistent test results
 - Test vector search with known embeddings
 - For prompt-backed actions, consider using deterministic test models
 - Verify tool access and permissions work as expected
 
-<-- ash_ai-end -->
-<-- ash-start -->
+<-- ash_ai-end --> <-- ash-start -->
+
 ## ash usage
+
 # Rules for working with Ash
 
 ## Understanding Ash
 
-Ash is an opinionated, composable framework for building applications in Elixir. It provides a declarative approach to modeling your domain with resources at the center. Read documentation  *before* attempting to use it's features. Do not assume that you have prior knowledge of the framework or its conventions.
+Ash is an opinionated, composable framework for building applications in Elixir.
+It provides a declarative approach to modeling your domain with resources at the
+center. Read documentation _before_ attempting to use it's features. Do not
+assume that you have prior knowledge of the framework or its conventions.
 
 ## Code Structure & Organization
 
@@ -540,7 +586,9 @@ Ash is an opinionated, composable framework for building applications in Elixir.
 
 ## Code Interfaces
 
-Use code interfaces on domains to define the contract for calling into Ash resources. See the [Code interface guide for more](https://hexdocs.pm/ash/code-interfaces.html).
+Use code interfaces on domains to define the contract for calling into Ash
+resources. See the
+[Code interface guide for more](https://hexdocs.pm/ash/code-interfaces.html).
 
 Define code interfaces on the domain, like this:
 
@@ -566,7 +614,9 @@ define :custom_action do
 end
 ```
 
-Prefer using the primary read action for "get" style code interfaces, and using `get_by` when the field you are looking up by is the primary key or has an `identity` on the resource.
+Prefer using the primary read action for "get" style code interfaces, and using
+`get_by` when the field you are looking up by is the primary key or has an
+`identity` on the resource.
 
 ```elixir
 resource ResourceName do
@@ -574,7 +624,9 @@ resource ResourceName do
 end
 ```
 
-**Avoid direct Ash calls in web modules** - Don't use `Ash.get!/2` and `Ash.load!/2` directly in LiveViews/Controllers, similar to avoiding `Repo.get/2` outside context modules:
+**Avoid direct Ash calls in web modules** - Don't use `Ash.get!/2` and
+`Ash.load!/2` directly in LiveViews/Controllers, similar to avoiding
+`Repo.get/2` outside context modules:
 
 ```elixir
 # BAD - in LiveView/Controller
@@ -585,17 +637,18 @@ resource DashboardGroup do
   define :get_by_id, action: :read, get_by: [:id]
 end
 
-# Then call: 
+# Then call:
 MyApp.Domain.get_dashboard_group_by_id!(id, load: [rel: [:nested]])
 ```
 
-**Code interface options** - Prefer passing options directly to code interface functions rather than building queries manually:
+**Code interface options** - Prefer passing options directly to code interface
+functions rather than building queries manually:
 
 ```elixir
 # PREFERRED - Concise and idiomatic
 posts = MyApp.Blog.list_posts!(
-  filter: [status: :published], 
-  load: [author: :profile, comments: [:author]], 
+  filter: [status: :published],
+  load: [author: :profile, comments: [:author]],
   sort: [published_at: :desc],
   limit: 10
 )
@@ -606,20 +659,23 @@ users = MyApp.Accounts.list_users!(
 )
 
 # AVOID - Verbose manual query building
-query = MyApp.Post |> Ash.Query.filter(...) |> Ash.Query.load(...) 
+query = MyApp.Post |> Ash.Query.filter(...) |> Ash.Query.load(...)
 posts = MyApp.Blog.read!(query)
 ```
 
-Supported options: `load:`, `filter:`, `sort:`, `limit:`, `offset:`, `query:`, `page:`, `stream?:`
+Supported options: `load:`, `filter:`, `sort:`, `limit:`, `offset:`, `query:`,
+`page:`, `stream?:`
 
-**Using Scopes in LiveViews** - When using `Ash.Scope`, the scope will typically be assigned to `scope` in LiveViews and used like so:
+**Using Scopes in LiveViews** - When using `Ash.Scope`, the scope will typically
+be assigned to `scope` in LiveViews and used like so:
 
 ```elixir
 # In your LiveView
 MyApp.Blog.create_post!("new post", scope: socket.assigns.scope)
 ```
 
-Inside action hooks and callbacks, use the provided `context` parameter as your scope instead:
+Inside action hooks and callbacks, use the provided `context` parameter as your
+scope instead:
 
 ```elixir
 |> Ash.Changeset.before_transaction(fn changeset, context ->
@@ -630,12 +686,16 @@ end)
 
 ### Authorization Functions
 
-For each action defined in a code interface, Ash automatically generates corresponding authorization check functions:
+For each action defined in a code interface, Ash automatically generates
+corresponding authorization check functions:
 
-- `can_action_name?(actor, params \\ %{}, opts \\ [])` - Returns `true`/`false` for authorization checks
-- `can_action_name(actor, params \\ %{}, opts \\ [])` - Returns `{:ok, true/false}` or `{:error, reason}`
+- `can_action_name?(actor, params \\ %{}, opts \\ [])` - Returns `true`/`false`
+  for authorization checks
+- `can_action_name(actor, params \\ %{}, opts \\ [])` - Returns
+  `{:ok, true/false}` or `{:error, reason}`
 
 Example usage:
+
 ```elixir
 # Check if user can create a post
 if MyApp.Blog.can_create_post?(current_user) do
@@ -653,28 +713,34 @@ if MyApp.Blog.can_destroy_comment?(current_user, comment) do
 end
 ```
 
-These functions are particularly useful for conditional rendering of UI elements based on user permissions.
+These functions are particularly useful for conditional rendering of UI elements
+based on user permissions.
 
 ## Actions
 
 - Create specific, well-named actions rather than generic ones
 - Put all business logic inside action definitions
-- Use hooks like `Ash.Changeset.after_action/2`, `Ash.Changeset.before_action/2` to add additional logic
-  inside the same transaction.
-- Use hooks like `Ash.Changeset.after_transaction/2`, `Ash.Changeset.before_transaction/2` to add additional logic
-  outside the transaction.
+- Use hooks like `Ash.Changeset.after_action/2`, `Ash.Changeset.before_action/2`
+  to add additional logic inside the same transaction.
+- Use hooks like `Ash.Changeset.after_transaction/2`,
+  `Ash.Changeset.before_transaction/2` to add additional logic outside the
+  transaction.
 - Use action arguments for inputs that need validation
 - Use preparations to modify queries before execution
 - Use changes to modify changesets before execution
 - Use validations to validate changesets before execution
-- Prefer domain code interfaces to call actions instead of directly building queries/changesets and calling functions in the `Ash` module
-- A resource could be *only generic actions*. This can be useful when you are using a resource only to model behavior.
+- Prefer domain code interfaces to call actions instead of directly building
+  queries/changesets and calling functions in the `Ash` module
+- A resource could be _only generic actions_. This can be useful when you are
+  using a resource only to model behavior.
 
 ## Querying Data
 
-Use `Ash.Query` to build queries for reading data from your resources. The query module provides a declarative way to filter, sort, and load data.
+Use `Ash.Query` to build queries for reading data from your resources. The query
+module provides a declarative way to filter, sort, and load data.
 
-**Important**: You must `require Ash.Query` if you want to use `Ash.Query.filter/2`, as it is a macro.
+**Important**: You must `require Ash.Query` if you want to use
+`Ash.Query.filter/2`, as it is a macro.
 
 ```elixir
 defmodule MyApp.SomeModule do
@@ -698,20 +764,36 @@ Common query operations:
 
 ## Error Handling
 
-Functions to call actions, like `Ash.create` and code interfaces like `MyApp.Accounts.register_user` all return ok/error tuples. All have `!` variations, like `Ash.create!` and `MyApp.Accounts.register_user!`. Use the `!` variations when you want to "let it crash", like if looking something up that should definitely exist, or calling an action that should always succeed. Always prefer the raising `!` variation over something like `{:ok, user} = MyApp.Accounts.register_user(...)`.
+Functions to call actions, like `Ash.create` and code interfaces like
+`MyApp.Accounts.register_user` all return ok/error tuples. All have `!`
+variations, like `Ash.create!` and `MyApp.Accounts.register_user!`. Use the `!`
+variations when you want to "let it crash", like if looking something up that
+should definitely exist, or calling an action that should always succeed. Always
+prefer the raising `!` variation over something like
+`{:ok, user} = MyApp.Accounts.register_user(...)`.
 
-All Ash code returns errors in the form of `{:error, error_class}`. Ash categorizes errors into four main classes:
+All Ash code returns errors in the form of `{:error, error_class}`. Ash
+categorizes errors into four main classes:
 
-1. **Forbidden** (`Ash.Error.Forbidden`) - Occurs when a user attempts an action they don't have permission to perform
-2. **Invalid** (`Ash.Error.Invalid`) - Occurs when input data doesn't meet validation requirements
-3. **Framework** (`Ash.Error.Framework`) - Occurs when there's an issue with how Ash is being used
-4. **Unknown** (`Ash.Error.Unknown`) - Occurs for unexpected errors that don't fit the other categories
+1. **Forbidden** (`Ash.Error.Forbidden`) - Occurs when a user attempts an action
+   they don't have permission to perform
+2. **Invalid** (`Ash.Error.Invalid`) - Occurs when input data doesn't meet
+   validation requirements
+3. **Framework** (`Ash.Error.Framework`) - Occurs when there's an issue with how
+   Ash is being used
+4. **Unknown** (`Ash.Error.Unknown`) - Occurs for unexpected errors that don't
+   fit the other categories
 
-These error classes help you catch and handle errors at an appropriate level of granularity. An error class will always be the "worst" (highest in the above list) error class from above. Each error class can contain multiple underlying errors, accessible via the `errors` field on the exception.
+These error classes help you catch and handle errors at an appropriate level of
+granularity. An error class will always be the "worst" (highest in the above
+list) error class from above. Each error class can contain multiple underlying
+errors, accessible via the `errors` field on the exception.
 
 ### Using Validations
 
-Validations ensure that data meets your business requirements before it gets processed by an action. Unlike changes, validations cannot modify the changeset - they can only validate it or add errors.
+Validations ensure that data meets your business requirements before it gets
+processed by an action. Unlike changes, validations cannot modify the
+changeset - they can only validate it or add errors.
 
 Common validation patterns:
 
@@ -723,7 +805,7 @@ end
 validate match(:email, "@")
 validate one_of(:status, [:active, :inactive, :pending])
 
-# Conditional validations  
+# Conditional validations
 validate present(:phone_number) do
   where present(:contact_method) and eq(:contact_method, "phone")
 end
@@ -741,6 +823,7 @@ end
 ```
 
 - Create **custom validation modules** for complex validation logic:
+
   ```elixir
   defmodule MyApp.Validations.UniqueUsername do
     use Ash.Resource.Validation
@@ -759,7 +842,9 @@ end
   validate {MyApp.Validations.UniqueUsername, []}
   ```
 
-- Make validations **atomic** when possible to ensure they work correctly with direct database operations by implementing the `atomic/3` callback in custom validation modules.
+- Make validations **atomic** when possible to ensure they work correctly with
+  direct database operations by implementing the `atomic/3` callback in custom
+  validation modules.
 
 ```elixir
 defmodule MyApp.Validations.IsEven do
@@ -814,7 +899,9 @@ defmodule MyApp.Validations.IsEven do
 end
 ```
 
-- **Avoid redundant validations** - Don't add validations that duplicate attribute constraints:
+- **Avoid redundant validations** - Don't add validations that duplicate
+  attribute constraints:
+
   ```elixir
   # WRONG - redundant validation
   attribute :name, :string do
@@ -839,7 +926,9 @@ end
 
 ### Using Changes
 
-Changes allow you to modify the changeset before it gets processed by an action. Unlike validations, changes can manipulate attribute values, add attributes, or perform other data transformations.
+Changes allow you to modify the changeset before it gets processed by an action.
+Unlike validations, changes can manipulate attribute values, add attributes, or
+perform other data transformations.
 
 Common change patterns:
 
@@ -865,6 +954,7 @@ end
 ```
 
 - Create **custom change modules** for reusable transformation logic:
+
   ```elixir
   defmodule MyApp.Changes.SlugifyTitle do
     use Ash.Resource.Change
@@ -885,7 +975,8 @@ end
   change {MyApp.Changes.SlugifyTitle, []}
   ```
 
-- Create a **change module with lifecycle hooks** to handle complex multi-step operations:
+- Create a **change module with lifecycle hooks** to handle complex multi-step
+  operations:
 
 ```elixir
 defmodule MyApp.Changes.ProcessOrder do
@@ -932,7 +1023,8 @@ change {MyApp.Changes.ProcessOrder, []}
 
 ## Anonymous Functions
 
-Prefer to put code in its own module and refer to that in changes, preparations, validations etc.
+Prefer to put code in its own module and refer to that in changes, preparations,
+validations etc.
 
 For example, prefer this:
 
@@ -962,12 +1054,15 @@ change MyApp.MyDomain.MyResource.Changes.SlugifyName
 
 ## Relationships
 
-Relationships describe connections between resources and are a core component of Ash. Define relationships in the `relationships` block of a resource.
+Relationships describe connections between resources and are a core component of
+Ash. Define relationships in the `relationships` block of a resource.
 
 ### Best Practices for Relationships
 
-- Be descriptive with relationship names (e.g., use `:authored_posts` instead of just `:posts`)
-- Configure foreign key constraints in your data layer if they have them (see `references` in AshPostgres)
+- Be descriptive with relationship names (e.g., use `:authored_posts` instead of
+  just `:posts`)
+- Configure foreign key constraints in your data layer if they have them (see
+  `references` in AshPostgres)
 - Always choose the appropriate relationship type based on your domain model
 
 #### Relationship Types
@@ -980,7 +1075,7 @@ relationships do
     attribute_type :integer  # defaults to :uuid
   end
 
-  # has_one - foreign key on destination resource  
+  # has_one - foreign key on destination resource
   has_one :profile, MyApp.Profile
 
   # has_many - foreign key on destination resource, returns list
@@ -1044,7 +1139,8 @@ MyApp.Post
 Ash.load!(post, :author)
 ```
 
-Prefer to use the `strict?` option when loading to only load necessary fields on related data.
+Prefer to use the `strict?` option when loading to only load necessary fields on
+related data.
 
 ```Elixir
 MyApp.Post
@@ -1080,12 +1176,16 @@ end
 - `:create` - Create new related records
 - `:append` - Add existing records to the relationship
 - `:remove` - Remove specific related records from the relationship
-- `:append_and_remove` - Add related records from the relationship, removing any not provided.
-- `:direct_control` - Fully replace all related records with the provided data, creating anything new, deleting anything not provided, and updating any existing records.
+- `:append_and_remove` - Add related records from the relationship, removing any
+  not provided.
+- `:direct_control` - Fully replace all related records with the provided data,
+  creating anything new, deleting anything not provided, and updating any
+  existing records.
 
 #### Practical Examples
 
 Creating a post with tags:
+
 ```elixir
 MyDomain.create_post!(%{
   title: "New Post",
@@ -1101,18 +1201,22 @@ MyDomain.update_post!(post, %{
 
 ## Generating Code
 
-Use `mix ash.gen.*` tasks as a basis for code generation when possible. Check the task docs with `mix help <task>`.
-Be sure to use `--yes` to bypass confirmation prompts. Use `--yes --dry-run` to preview the changes.
+Use `mix ash.gen.*` tasks as a basis for code generation when possible. Check
+the task docs with `mix help <task>`. Be sure to use `--yes` to bypass
+confirmation prompts. Use `--yes --dry-run` to preview the changes.
 
 ## Data Layers
 
-Data layers determine how resources are stored and retrieved. Examples of data layers:
+Data layers determine how resources are stored and retrieved. Examples of data
+layers:
 
 - **Postgres**: For storing resources in PostgreSQL (via `AshPostgres`)
 - **ETS**: For in-memory storage (`Ash.DataLayer.Ets`)
 - **Mnesia**: For distributed storage (`Ash.DataLayer.Mnesia`)
-- **Embedded**: For resources embedded in other resources (`data_layer: :embedded`) (typically JSON under the hood)
-- **Ash.DataLayer.Simple**: For resources that aren't persisted at all. Leave off the data layer, as this is the default.
+- **Embedded**: For resources embedded in other resources
+  (`data_layer: :embedded`) (typically JSON under the hood)
+- **Ash.DataLayer.Simple**: For resources that aren't persisted at all. Leave
+  off the data layer, as this is the default.
 
 Specify a data layer when defining a resource:
 
@@ -1147,16 +1251,25 @@ defmodule MyApp.Address do
 end
 ```
 
-Each data layer has its own configuration options and capabilities. Refer to the rules & documentation of the specific data layer package for more details.
+Each data layer has its own configuration options and capabilities. Refer to the
+rules & documentation of the specific data layer package for more details.
 
 ## Migrations and Schema Changes
 
-After creating or modifying Ash code, run `mix ash.codegen <short_name_describing_changes>` to ensure any required additional changes are made (like migrations are generated). The name of the migration should be lower_snake_case. In a longer running dev session it's usually better to use `mix ash.codegen --dev` as you go and at the end run the final codegen with a sensible name describing all the changes made in the session.
+After creating or modifying Ash code, run
+`mix ash.codegen <short_name_describing_changes>` to ensure any required
+additional changes are made (like migrations are generated). The name of the
+migration should be lower_snake_case. In a longer running dev session it's
+usually better to use `mix ash.codegen --dev` as you go and at the end run the
+final codegen with a sensible name describing all the changes made in the
+session.
 
 ## Authorization
 
-- When performing administrative actions, you can bypass authorization with `authorize?: false`
-- To run actions as a particular user, look that user up and pass it as the `actor` option
+- When performing administrative actions, you can bypass authorization with
+  `authorize?: false`
+- To run actions as a particular user, look that user up and pass it as the
+  `actor` option
 - Always set the actor on the query/changeset/input, not when calling the action
 - Use policies to define authorization rules
 
@@ -1188,7 +1301,8 @@ end
 
 ### Policy Basics
 
-Policies determine what actions on a resource are permitted for a given actor. Define policies in the `policies` block:
+Policies determine what actions on a resource are permitted for a given actor.
+Define policies in the `policies` block:
 
 ```elixir
 policies do
@@ -1233,7 +1347,8 @@ policy action_type(:update) do
 end
 ```
 
-To require BOTH conditions in that exmaple, you would use `forbid_unless` for the first condition:
+To require BOTH conditions in that exmaple, you would use `forbid_unless` for
+the first condition:
 
 ```elixir
 # CORRECT - This requires BOTH conditions
@@ -1244,13 +1359,16 @@ end
 ```
 
 Alternative patterns for AND logic:
+
 - Use multiple separate policies (each must pass independently)
 - Use a single complex expression with `expr(condition1 and condition2)`
-- Use `forbid_unless` for required conditions, then `authorize_if` for the final check
+- Use `forbid_unless` for required conditions, then `authorize_if` for the final
+  check
 
 ### Bypass Policies
 
-Use bypass policies to allow certain actors to bypass other policy restrictions. This should be used almost exclusively for admin bypasses.
+Use bypass policies to allow certain actors to bypass other policy restrictions.
+This should be used almost exclusively for admin bypasses.
 
 ```elixir
 policies do
@@ -1268,7 +1386,8 @@ end
 
 ### Field Policies
 
-Field policies control access to specific fields (attributes, calculations, aggregates):
+Field policies control access to specific fields (attributes, calculations,
+aggregates):
 
 ```elixir
 field_policies do
@@ -1288,8 +1407,10 @@ end
 
 There are two main types of checks used in policies:
 
-1. **Simple checks** - Return true/false answers (e.g., "is the actor an admin?")
-2. **Filter checks** - Return filters to apply to data (e.g., "only show records owned by the actor")
+1. **Simple checks** - Return true/false answers (e.g., "is the actor an
+   admin?")
+2. **Filter checks** - Return filters to apply to data (e.g., "only show records
+   owned by the actor")
 
 You can use built-in checks or create custom ones:
 
@@ -1305,13 +1426,14 @@ authorize_if MyApp.Checks.ActorHasPermission
 
 #### Custom Policy Checks
 
-Create custom checks by implementing `Ash.Policy.SimpleCheck` or `Ash.Policy.FilterCheck`:
+Create custom checks by implementing `Ash.Policy.SimpleCheck` or
+`Ash.Policy.FilterCheck`:
 
 ```elixir
 # Simple check - returns true/false
 defmodule MyApp.Checks.ActorHasRole do
   use Ash.Policy.SimpleCheck
-  
+
   def match?(%{role: actor_role}, _context, opts) do
     actor_role == (opts[:role] || :admin)
   end
@@ -1321,7 +1443,7 @@ end
 # Filter check - returns query filter
 defmodule MyApp.Checks.VisibleToUserLevel do
   use Ash.Policy.FilterCheck
-  
+
   def filter(actor, _authorizer, _opts) do
     expr(visibility_level <= ^actor.user_level)
   end
@@ -1336,7 +1458,8 @@ end
 
 ## Calculations
 
-Calculations allow you to define derived values based on a resource's attributes or related data. Define calculations in the `calculations` block of a resource:
+Calculations allow you to define derived values based on a resource's attributes
+or related data. Define calculations in the `calculations` block of a resource:
 
 ```elixir
 calculations do
@@ -1359,7 +1482,8 @@ end
 
 ### Expression Calculations
 
-Expression calculations use Ash expressions and can be pushed down to the data layer when possible:
+Expression calculations use Ash expressions and can be pushed down to the data
+layer when possible:
 
 ```elixir
 calculations do
@@ -1378,7 +1502,8 @@ end
 
 ### Module Calculations
 
-For complex calculations, create a module that implements `Ash.Resource.Calculation`:
+For complex calculations, create a module that implements
+`Ash.Resource.Calculation`:
 
 ```elixir
 defmodule MyApp.Calculations.FullName do
@@ -1466,7 +1591,9 @@ MyDomain.full_name("John", "Doe", ", ")  # Returns "John, Doe"
 
 ## Aggregates
 
-Aggregates allow you to retrieve summary information over groups of related data, like counts, sums, or averages. Define aggregates in the `aggregates` block of a resource:
+Aggregates allow you to retrieve summary information over groups of related
+data, like counts, sums, or averages. Define aggregates in the `aggregates`
+block of a resource:
 
 ```elixir
 aggregates do
@@ -1546,12 +1673,13 @@ calculate :grade_percentage, :decimal, expr(
 ## Testing
 
 When testing resources:
+
 - Test your domain actions through the code interface
 - Use test utilities in `Ash.Test`
 - Test authorization policies work as expected using `Ash.can?`
 - Use `authorize?: false` in tests where authorization is not the focus
 - Write generators using `Ash.Generator`
-- Prefer to use raising versions of functions whenever possible, as opposed to pattern matching
+- Prefer to use raising versions of functions whenever possible, as opposed to
+  pattern matching
 
-<-- ash-end -->
-<-- usage-rules-end -->
+<-- ash-end --> <-- usage-rules-end -->
