@@ -135,15 +135,10 @@ if check_port $PORT; then
 fi
 
 # Parse command line arguments
-START_PROXY=false
 VERBOSE=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --proxy)
-            START_PROXY=true
-            shift
-            ;;
         --verbose|-v)
             VERBOSE=true
             shift
@@ -152,7 +147,6 @@ while [[ $# -gt 0 ]]; do
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  --proxy    Start mcp-proxy instances for both servers"
             echo "  --verbose  Show detailed output"
             echo "  --help     Show this help message"
             echo ""
@@ -206,33 +200,10 @@ if ! wait_for_server "http://$HOST:$PORT" "Phoenix server"; then
     exit 1
 fi
 
-# Test MCP endpoints
-echo -e "\n${YELLOW}🔧 Testing MCP endpoints...${NC}"
-
-# Test Ash AI MCP
-echo -n "Testing Ash AI MCP endpoint... "
-if curl -s -f -H "Accept: application/json" "$ASH_AI_ENDPOINT" > /dev/null 2>&1; then
-    echo -e "${GREEN}✅${NC}"
-else
-    echo -e "${RED}❌${NC}"
-    echo -e "${RED}Ash AI MCP endpoint is not responding${NC}"
-fi
-
-# Test Tidewave MCP
-echo -n "Testing Tidewave MCP endpoint... "
-if curl -s -f -H "Accept: application/json" "$TIDEWAVE_ENDPOINT" > /dev/null 2>&1; then
-    echo -e "${GREEN}✅${NC}"
-else
-    echo -e "${RED}❌${NC}"
-    echo -e "${RED}Tidewave MCP endpoint is not responding${NC}"
-fi
-
-# Start mcp-proxy if requested
-if [ "$START_PROXY" = true ]; then
-    echo -e "\n${YELLOW}🔗 Starting mcp-proxy instances...${NC}"
-    start_mcp_proxy "$ASH_AI_ENDPOINT" "ash_ai" "$MCP_PROXY_ASH_PID_FILE"
-    start_mcp_proxy "$TIDEWAVE_ENDPOINT" "tidewave" "$MCP_PROXY_TIDEWAVE_PID_FILE"
-fi
+# Start mcp-proxy instances
+echo -e "\n${YELLOW}🔗 Starting mcp-proxy instances...${NC}"
+start_mcp_proxy "$ASH_AI_ENDPOINT" "ash_ai" "$MCP_PROXY_ASH_PID_FILE"
+start_mcp_proxy "$TIDEWAVE_ENDPOINT" "tidewave" "$MCP_PROXY_TIDEWAVE_PID_FILE"
 
 # Show status and usage information
 echo -e "\n${GREEN}🎉 Development environment is ready!${NC}"
@@ -243,12 +214,10 @@ echo "  📊 Ash AI MCP:    $ASH_AI_ENDPOINT"
 echo "  🌊 Tidewave MCP:  $TIDEWAVE_ENDPOINT"
 echo ""
 
-if [ "$START_PROXY" = true ]; then
-    echo -e "${BLUE}MCP Proxy Commands:${NC}"
-    echo "  For Ash AI:    mcp-proxy $ASH_AI_ENDPOINT"
-    echo "  For Tidewave:  mcp-proxy $TIDEWAVE_ENDPOINT"
-    echo ""
-fi
+echo -e "${BLUE}MCP Proxy Commands:${NC}"
+echo "  For Ash AI:    mcp-proxy $ASH_AI_ENDPOINT"
+echo "  For Tidewave:  mcp-proxy $TIDEWAVE_ENDPOINT"
+echo ""
 
 echo -e "${BLUE}Next Steps:${NC}"
 echo "1. Configure your MCP client (Zed, Claude Desktop, etc.)"
@@ -267,10 +236,8 @@ echo -e "${BLUE}Log Files:${NC}"
 if [ "$VERBOSE" = false ]; then
     echo "  Phoenix: /tmp/phoenix.log"
 fi
-if [ "$START_PROXY" = true ]; then
-    echo "  Ash AI Proxy: /tmp/mcp_ash_ai.log"
-    echo "  Tidewave Proxy: /tmp/mcp_tidewave.log"
-fi
+echo "  Ash AI Proxy: /tmp/mcp_ash_ai.log"
+echo "  Tidewave Proxy: /tmp/mcp_tidewave.log"
 echo ""
 echo -e "${YELLOW}Press Ctrl+C to stop all services and clean up${NC}"
 

@@ -20,11 +20,6 @@ defmodule ImaginativeRestorationWeb.Router do
   end
 
   # MCP (Model Context Protocol) servers - must come before catch-all routes
-  scope "/tidewave/mcp" do
-    pipe_through :mcp
-    forward "/", Tidewave.Router
-  end
-
   scope "/ash_ai/mcp" do
     pipe_through :mcp
 
