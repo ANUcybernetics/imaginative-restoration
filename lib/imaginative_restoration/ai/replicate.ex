@@ -169,10 +169,9 @@ defmodule ImaginativeRestoration.AI.Replicate do
     input = %{
       prompt: prompt,
       control_image: input_image,
-      control_strength: 0.4,
-      num_inference_steps: 28,
-      guidance_scale: 3.5,
-      seed: :rand.uniform(2_147_483_647)
+      guidance: 10,
+      num_inference_steps: 16,
+      disable_safety_checker: true
     }
 
     with {:ok, version} <- get_latest_version(model),
