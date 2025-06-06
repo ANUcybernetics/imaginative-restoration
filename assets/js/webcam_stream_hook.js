@@ -44,6 +44,12 @@ const WebcamStreamHook = {
       this.context = null;
       this.canvas = null;
     }
+
+    // Clean up display canvas
+    if (this.displayCanvas) {
+      this.displayContext = null;
+      this.displayCanvas = null;
+    }
   },
 
   logDevices() {
@@ -103,6 +109,32 @@ const WebcamStreamHook = {
       this.canvas.width = this.captureBox[2];
       this.canvas.height = this.captureBox[3];
 
+      // Initialize display canvas for cropped view
+      this.displayCanvas = document.createElement("canvas");
+      this.displayContext = this.displayCanvas.getContext("2d");
+      this.displayCanvas.width = this.captureBox[2];
+      this.displayCanvas.height = this.captureBox[3];
+      this.displayCanvas.className = "w-full h-full object-contain";
+
+      // Replace video element with display canvas
+      video.style.display = "none";
+      video.parentNode.insertBefore(this.displayCanvas, video);
+
+      // Update SVG overlay to reference the canvas instead of video
+      const svg = video.parentNode.querySelector("svg");
+      if (svg) {
+        svg.style.position = "absolute";
+        svg.style.top = "0";
+        svg.style.left = "0";
+        svg.style.width = "100%";
+        svg.style.height = "100%";
+        svg.style.pointerEvents = "none";
+        svg.style.zIndex = "10";
+      }
+
+      // Start display update loop
+      this.updateDisplay();
+
       // Start frame capture (in 1s to give the auto-exposure time to adjust)
       setTimeout(() => this.captureFrame(), 1000);
       this.captureIntervalId = setInterval(
@@ -135,7 +167,37 @@ const WebcamStreamHook = {
     return isWeekday && isWorkingHours && !isHolidayPeriod;
   },
 
+  updateDisplay() {
+    if (!this.displayContext || !this.displayCanvas) {
+      return;
+    }
+
+    const video = this.el;
+    const captureBox = this.captureBox;
+
+    if (video.readyState >= 2) {
+      // Draw cropped video frame to display canvas
+      this.displayContext.drawImage(
+        video,
+        captureBox[0],
+        captureBox[1],
+        captureBox[2],
+        captureBox[3],
+        0,
+        0,
+        captureBox[2],
+        captureBox[3],
+      );
+    }
+
+    // Continue updating display
+    requestAnimationFrame(() => this.updateDisplay());
+  },
+
   captureFrame() {
+    // Always run the flash animation
+    this.animateCaptureProgress();
+
     if (!this.isOperatingHours()) {
       return;
     }
@@ -163,9 +225,6 @@ const WebcamStreamHook = {
 
     const dataUrl = this.canvas.toDataURL("image/jpeg");
     this.pushEvent("webcam_frame", { frame: dataUrl });
-
-    // Start the progress animation
-    this.animateCaptureProgress();
   },
   animateCaptureProgress() {
     // Cancel any existing animations

@@ -8,12 +8,12 @@ defmodule ImaginativeRestorationWeb.AppComponents do
 
   def webcam_capture(assigns) do
     ~H"""
-    <div class={["relative", @class]}>
+    <div class={["relative w-full h-full", @class]}>
       <video
         id="video"
         phx-hook="WebcamStream"
         data-capture-interval={@capture_interval}
-        class="h-full w-auto"
+        class="w-full h-full object-contain"
       >
         Webcam video stream not available.
       </video>
