@@ -150,7 +150,7 @@ const SketchCanvasHook = {
         dataurl: dataurl,
         img: new Image(),
         grayscaleImg: null, // Will hold pre-rendered grayscale version
-        y: (0.6 + 0.1 * Math.random()) * this.height,
+        y: 0.2 + Math.random() * 0.6, // Random base y between 20% and 80% of height
         xVel: 2 + Math.random() * 3,
         size: (0.4 + 0.3 * Math.random()) * this.height,
         addedAt: Date.now(),
@@ -180,7 +180,18 @@ const SketchCanvasHook = {
     const wrapRange = this.width + 2 * this.sketchHPad;
     const x =
       ((secondsElapsed * sketch.xVel * 20) % wrapRange) - this.sketchHPad;
-    const y = this.height * (0.6 + 0.2 * this.getNoise(x * 0.2, sketch.y));
+
+    // Calculate safe y bounds to prevent clipping
+    const halfSize = sketch.size / 2;
+    const minY = halfSize / this.height; // Minimum y as fraction to keep top edge on canvas
+    const maxY = 1 - halfSize / this.height; // Maximum y as fraction to keep bottom edge on canvas
+    const safeRange = maxY - minY;
+
+    // Oscillate within safe bounds
+    const baseY = minY + safeRange * sketch.y; // Use stored y as base position within safe range
+    const oscillation =
+      0.1 * safeRange * this.getNoise(x * 0.2, sketch.y * 1000);
+    const y = this.height * (baseY + oscillation);
 
     // Set constant opacity of 90% (removing opacity fade effect)
     this.ctx.globalAlpha = 0.9;
