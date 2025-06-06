@@ -170,7 +170,7 @@ defmodule ImaginativeRestoration.AI.Replicate do
       prompt: prompt,
       control_image: input_image,
       guidance: 10,
-      num_inference_steps: 16,
+      num_inference_steps: 10,
       disable_safety_checker: true
     }
 
