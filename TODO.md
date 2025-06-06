@@ -8,7 +8,6 @@
 
 ### Future
 
-- change capture screen UI to show most recent _n_ pre/post sketches
 - (maybe) consolidate `/prompts` and `/config` endpoints into one page (and add
   DB disk space status, perhaps other metrics)
 - download DB (for backup)
