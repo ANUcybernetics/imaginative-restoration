@@ -243,9 +243,28 @@ const WebcamStreamHook = {
     const cropWidth = captureBox[2] * scaleX;
     const cropHeight = captureBox[3] * scaleY;
 
+    // Generate grid lines
+    let gridLines = '';
+    const gridSpacing = 100; // 100px spacing in video coordinates
+    
+    // Only show grid if we're showing full frame
+    if (this.showFullFrame) {
+      // Vertical lines
+      for (let x = 0; x <= video.videoWidth; x += gridSpacing) {
+        const scaledX = x * scaleX + (displayRect.left - containerRect.left);
+        gridLines += `<div class="absolute h-full border-l border-gray-600 opacity-30" style="left: ${scaledX}px; top: 0;"></div>`;
+      }
+      
+      // Horizontal lines
+      for (let y = 0; y <= video.videoHeight; y += gridSpacing) {
+        const scaledY = y * scaleY + (displayRect.top - containerRect.top);
+        gridLines += `<div class="absolute w-full border-t border-gray-600 opacity-30" style="left: 0; top: ${scaledY}px;"></div>`;
+      }
+    }
 
-    // Create the crop box element
+    // Create the overlay with grid and crop box
     overlay.innerHTML = `
+      ${gridLines}
       <div class="absolute border-2 border-red-500" 
            style="left: ${cropLeft}px; top: ${cropTop}px; width: ${cropWidth}px; height: ${cropHeight}px;">
         <span class="absolute -top-6 left-0 text-xs text-red-500 bg-black bg-opacity-50 px-1">Crop Area</span>
