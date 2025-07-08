@@ -39,6 +39,6 @@ npm-debug.log
 *.db
 *.db-*
 
-.mise.toml
+mise.local.toml
 
 .elixir_ls/
