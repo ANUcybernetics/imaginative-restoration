@@ -1,4 +1,4 @@
 [tools]
-erlang = "latest"
-elixir = "latest"
+erlang = "27.2.3"
+elixir = "1.18.4-otp-27"
 sqlite = "latest"
