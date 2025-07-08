@@ -52,7 +52,7 @@ defmodule ImaginativeRestoration.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.26 and >= 0.26.1"},
       {:jason, "~> 1.2"},
-      {:dns_cluster, "~> 0.1.1"},
+      {:dns_cluster, "~> 0.2"},
       {:bandit, "~> 1.5"},
       {:ash, "~> 3.4"},
       {:ash_sqlite, "~> 0.2"},

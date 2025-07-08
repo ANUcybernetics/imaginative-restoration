@@ -1,4 +1,4 @@
 [tools]
-erlang = "27"
+erlang = "latest"
 elixir = "latest"
 sqlite = "latest"
