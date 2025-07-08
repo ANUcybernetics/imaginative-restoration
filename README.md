@@ -26,7 +26,34 @@ dramatic arts creation, recording, and archiving in the age of generative AI.
 
 ## Setup
 
-See [SETUP.md](./SETUP.md).
+To run this installation you'll need:
+
+- A computer which can run Chrome (inc. keyboard & mouse for setup purposes)
+- A camera (e.g. a webcam)
+- Pens & paper for drawing
+- A physical setup where the camera can see the "drawing area" (any flat surface where people can place their drawings in view of the camera)
+
+### Quick Start
+
+For macOS kiosk setup, see [kiosk/macos/README.md](./kiosk/macos/README.md).
+
+For Raspberry Pi kiosk setup, see [kiosk/rpi/README.md](./kiosk/rpi/README.md).
+
+### Manual Setup
+
+If the kiosk scripts aren't working, you can run manually:
+
+```sh
+IMGRES_AUTH=user:pass ./imgres-launch.sh
+```
+
+Or visit <https://imgres.fly.dev?capture> in Chrome (enter username & password when prompted).
+
+To configure a "crop area" for the camera, provide crop parameters (`x_offset,y_offset,width,height`) via URL:
+
+```
+https://imgres.fly.dev?capture_box=70,90,470,300
+```
 
 ## Repository structure
 
