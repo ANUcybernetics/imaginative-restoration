@@ -61,6 +61,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
     update :process do
       validate present(:raw), message: "cannot process without a raw image"
+      require_atomic? false
 
       change {Pipeline, stage: :process}
     end
