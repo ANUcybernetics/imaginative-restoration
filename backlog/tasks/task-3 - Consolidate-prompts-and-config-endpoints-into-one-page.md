@@ -1,7 +1,7 @@
 ---
 id: task-3
 title: Consolidate /prompts and /config endpoints into one page
-status: To Do
+status: Done
 assignee: []
 created_date: "2025-07-08"
 labels: []
@@ -22,3 +22,15 @@ Looking at the @lib/imaginative_restoration_web/router.ex there are separate
 - give some sort of indication of the inter-capture frame differences (in
   numerical terms), to help with calibrating the threshold to use in
   `frame_difference/2` in @lib/imaginative_restoration_web/live/app_live.ex
+
+## Implementation Notes
+
+Created a new consolidated `AdminLive` module at `/admin` that includes:
+
+1. **Recent Sketch Pipeline Results**: Shows the last 5 sketches with both input and output images, with real-time updates via Phoenix PubSub
+2. **Live Webcam Stream**: Displays the webcam feed with a crop box overlay (currently hardcoded at 350px, 100px with 120x120 dimensions - this should be made configurable)
+3. **Disk Space Monitoring**: Shows current disk usage with free/used/total space and a visual progress bar, updates every 30 seconds
+4. **Frame Difference Calibration**: Shows inter-frame distances with color coding (red = exceeds threshold, green = below threshold) to help calibrate the `image_difference_threshold`
+5. **Prompt Examples**: Displays sample prompts that are dynamically generated
+
+The old `/config` and `/prompts` endpoints have been removed from the router and replaced with the single `/admin` endpoint.

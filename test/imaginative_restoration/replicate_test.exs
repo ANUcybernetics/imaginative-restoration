@@ -1,5 +1,5 @@
 defmodule ImaginativeRestoration.ReplicateTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias ImaginativeRestoration.AI.Replicate
 

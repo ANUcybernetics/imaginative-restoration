@@ -38,9 +38,7 @@ defmodule ImaginativeRestorationWeb.Router do
 
     live "/", AppLive
 
-    live "/config", ConfigLive
-
-    live "/prompts", PromptLive
+    live "/admin", AdminLive
 
     # catch-all route for the error handler
     live "/*path", ErrorLive, :index, as: :error
