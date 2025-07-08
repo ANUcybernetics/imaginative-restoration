@@ -5,6 +5,7 @@ defmodule ImaginativeRestorationWeb.AppComponents do
 
   attr :class, :string, default: nil
   attr :capture_interval, :integer, default: 60_000
+  attr :show_full_frame, :boolean, default: false
 
   def webcam_capture(assigns) do
     ~H"""
@@ -13,6 +14,7 @@ defmodule ImaginativeRestorationWeb.AppComponents do
         id="video"
         phx-hook="WebcamStream"
         data-capture-interval={@capture_interval}
+        data-show-full-frame={@show_full_frame}
         class="w-full h-full object-contain"
       >
         Webcam video stream not available.

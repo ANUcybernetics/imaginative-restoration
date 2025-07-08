@@ -25,7 +25,7 @@ defmodule ImaginativeRestorationWeb.AdminLiveTest do
       # Check webcam elements
       assert html =~ "phx-hook=\"WebcamStream\""
       assert html =~ "data-capture-interval"
-      assert html =~ "Crop Area"
+      assert html =~ "crop-box-overlay"  # Crop box is now rendered by JavaScript
       
       # Check frame difference section
       assert html =~ "Frame Difference Calibration"

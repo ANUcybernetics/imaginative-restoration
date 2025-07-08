@@ -1,6 +1,7 @@
 const WebcamStreamHook = {
   mounted() {
     this.captureInterval = parseInt(this.el.dataset.captureInterval);
+    this.showFullFrame = this.el.hasAttribute("data-show-full-frame");
 
     // Parse capture box from URL query params
     const urlParams = new URLSearchParams(window.location.search);
@@ -17,6 +18,10 @@ const WebcamStreamHook = {
     // Get references to existing SVG elements
     this.progressLine = document.getElementById("progress-line");
     this.flashOverlay = document.getElementById("flash-overlay");
+
+    // Add resize handler for crop box overlay
+    this.resizeHandler = () => this.drawCropBoxOverlay();
+    window.addEventListener("resize", this.resizeHandler);
 
     this.initWebcam();
   },
@@ -49,6 +54,11 @@ const WebcamStreamHook = {
     if (this.displayCanvas) {
       this.displayContext = null;
       this.displayCanvas = null;
+    }
+
+    // Remove resize handler
+    if (this.resizeHandler) {
+      window.removeEventListener("resize", this.resizeHandler);
     }
   },
 
@@ -109,16 +119,21 @@ const WebcamStreamHook = {
       this.canvas.width = this.captureBox[2];
       this.canvas.height = this.captureBox[3];
 
-      // Initialize display canvas for cropped view
-      this.displayCanvas = document.createElement("canvas");
-      this.displayContext = this.displayCanvas.getContext("2d");
-      this.displayCanvas.width = this.captureBox[2];
-      this.displayCanvas.height = this.captureBox[3];
-      this.displayCanvas.className = "w-full h-full object-contain";
+      // Initialize display canvas for cropped view (only if not showing full frame)
+      if (!this.showFullFrame) {
+        this.displayCanvas = document.createElement("canvas");
+        this.displayContext = this.displayCanvas.getContext("2d");
+        this.displayCanvas.width = this.captureBox[2];
+        this.displayCanvas.height = this.captureBox[3];
+        this.displayCanvas.className = "w-full h-full object-contain";
 
-      // Replace video element with display canvas
-      video.style.display = "none";
-      video.parentNode.insertBefore(this.displayCanvas, video);
+        // Replace video element with display canvas
+        video.style.display = "none";
+        video.parentNode.insertBefore(this.displayCanvas, video);
+      }
+
+      // Draw crop box overlay if we're in admin view
+      this.drawCropBoxOverlay();
 
       // Update SVG overlay to reference the canvas instead of video
       const svg = video.parentNode.querySelector("svg");
@@ -132,7 +147,7 @@ const WebcamStreamHook = {
         svg.style.zIndex = "10";
       }
 
-      // Start display update loop
+      // Start display update loop (for cropped view or to update overlay)
       this.updateDisplay();
 
       // Start frame capture (in 1s to give the auto-exposure time to adjust)
@@ -168,7 +183,8 @@ const WebcamStreamHook = {
   },
 
   updateDisplay() {
-    if (!this.displayContext || !this.displayCanvas) {
+    // Only update display canvas if we're showing cropped view
+    if (this.showFullFrame || !this.displayContext || !this.displayCanvas) {
       return;
     }
 
@@ -192,6 +208,49 @@ const WebcamStreamHook = {
 
     // Continue updating display
     requestAnimationFrame(() => this.updateDisplay());
+  },
+
+  drawCropBoxOverlay() {
+    // Only draw crop box in admin view
+    const overlay = document.getElementById("crop-box-overlay");
+    if (!overlay || !this.captureBox) return;
+
+    const video = this.el;
+    const captureBox = this.captureBox;
+
+    // Wait for video to have dimensions
+    if (!video.videoWidth || !video.videoHeight) {
+      setTimeout(() => this.drawCropBoxOverlay(), 100);
+      return;
+    }
+
+    // Get the element to measure (video if full frame, canvas if cropped)
+    const displayElement = this.showFullFrame ? video : this.displayCanvas;
+    if (!displayElement) return;
+
+    // Calculate the scale and position of the crop box
+    const container = displayElement.parentElement;
+    const containerRect = container.getBoundingClientRect();
+    const displayRect = displayElement.getBoundingClientRect();
+
+    // Calculate the scale factors
+    const scaleX = displayRect.width / video.videoWidth;
+    const scaleY = displayRect.height / video.videoHeight;
+
+    // Calculate the position and size of the crop box in the display coordinates
+    const cropLeft = captureBox[0] * scaleX + (displayRect.left - containerRect.left);
+    const cropTop = captureBox[1] * scaleY + (displayRect.top - containerRect.top);
+    const cropWidth = captureBox[2] * scaleX;
+    const cropHeight = captureBox[3] * scaleY;
+
+
+    // Create the crop box element
+    overlay.innerHTML = `
+      <div class="absolute border-2 border-red-500" 
+           style="left: ${cropLeft}px; top: ${cropTop}px; width: ${cropWidth}px; height: ${cropHeight}px;">
+        <span class="absolute -top-6 left-0 text-xs text-red-500 bg-black bg-opacity-50 px-1">Crop Area</span>
+      </div>
+    `;
   },
 
   captureFrame() {

@@ -26,13 +26,10 @@ defmodule ImaginativeRestorationWeb.AdminLive do
           <div>
             <h3 class="text-sm font-medium mb-2">Live Stream with Crop Box</h3>
             <div class="relative h-[300px] bg-black">
-              <.webcam_capture class="h-full" capture_interval={1_000} />
+              <.webcam_capture class="h-full" capture_interval={1_000} show_full_frame={true} />
               <img class="absolute inset-0 h-full object-contain" src={@frame} />
-              <!-- Crop box overlay - TODO: Get actual crop dimensions from config -->
-              <div class="absolute border-2 border-red-500 pointer-events-none" 
-                   style="left: 350px; top: 100px; width: 120px; height: 120px;">
-                <span class="absolute -top-6 left-0 text-xs text-red-500">Crop Area</span>
-              </div>
+              <!-- Crop box overlay will be drawn by JavaScript -->
+              <div id="crop-box-overlay" class="absolute inset-0 pointer-events-none"></div>
             </div>
           </div>
           
