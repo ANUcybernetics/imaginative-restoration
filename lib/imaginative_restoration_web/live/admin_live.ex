@@ -22,14 +22,32 @@ defmodule ImaginativeRestorationWeb.AdminLive do
       <!-- Live Webcam with Crop Box and Frame Differences -->
       <div class="bg-gray-800 p-4 rounded-lg">
         <h2 class="text-lg font-semibold mb-4">Live Webcam Configuration</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div>
             <h3 class="text-sm font-medium mb-2">Live Stream with Crop Box</h3>
             <div class="relative h-[300px] bg-black">
               <.webcam_capture class="h-full" capture_interval={1_000} show_full_frame={true} camera_error={@camera_error} />
-              <img class="absolute inset-0 h-full object-contain" src={@frame} />
               <!-- Crop box overlay will be drawn by JavaScript -->
-              <div id="crop-box-overlay" class="absolute inset-0 pointer-events-none"></div>
+              <div id="crop-box-overlay" phx-update="ignore" class="absolute inset-0 pointer-events-none" style="z-index: 30;"></div>
+            </div>
+          </div>
+          
+          <div>
+            <h3 class="text-sm font-medium mb-2">Cropped Image Preview</h3>
+            <div class="relative h-[300px] bg-black flex items-center justify-center">
+              <%= if @has_capture_box_param do %>
+                <img :if={@cropped_frame} class="h-full object-contain" src={@cropped_frame} />
+              <% else %>
+                <div class="text-center p-4">
+                  <svg class="w-12 h-12 mx-auto text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                    </path>
+                  </svg>
+                  <p class="text-sm text-gray-400">No capture_box URL param specified</p>
+                  <p class="text-xs text-gray-500 mt-2">Add ?capture_box=x,y,w,h to URL</p>
+                </div>
+              <% end %>
             </div>
           </div>
           
@@ -128,12 +146,15 @@ defmodule ImaginativeRestorationWeb.AdminLive do
   end
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
     if connected?(socket) do
       ImaginativeRestorationWeb.Endpoint.subscribe("sketch:updated")
       # Update disk space every 30 seconds
       :timer.send_interval(30_000, self(), :update_disk_space)
     end
+
+    # Check if capture_box URL parameter is present
+    has_capture_box_param = Map.has_key?(params, "capture_box")
 
     # Generate sample prompts
     sample_prompts = Enum.map(1..4, fn _ -> Prompt.random_prompt() end)
@@ -162,6 +183,8 @@ defmodule ImaginativeRestorationWeb.AdminLive do
      |> assign(
        sample_prompts: sample_prompts,
        frame: nil,
+       full_frame: nil,
+       cropped_frame: nil,
        recent_images: [],
        image_difference_threshold: difference_threshold,
        capture_interval_seconds: div(capture_interval, 1000),
@@ -170,19 +193,34 @@ defmodule ImaginativeRestorationWeb.AdminLive do
        disk_used_gb: disk_used_gb,
        disk_total_gb: disk_total_gb,
        disk_used_percent: disk_used_percent,
-       camera_error: nil
+       camera_error: nil,
+       has_capture_box_param: has_capture_box_param
      )}
   end
 
   @impl true
-  def handle_event("webcam_frame", %{"frame" => dataurl}, socket) do
+  def handle_event("webcam_frame", %{"frame" => dataurl} = params, socket) do
     number_of_images = 10
     latest_raw_image = Utils.to_image!(dataurl)
 
     recent_images =
       Enum.take([latest_raw_image | socket.assigns.recent_images], number_of_images)
 
-    {:noreply, assign(socket, frame: dataurl, recent_images: recent_images)}
+    # For admin view, only update the cropped frame preview
+    assigns = if Map.get(params, "is_admin", false) do
+      %{
+        cropped_frame: dataurl,
+        recent_images: recent_images
+      }
+    else
+      # Regular behavior - update frame for non-admin view
+      %{
+        frame: dataurl,
+        recent_images: recent_images
+      }
+    end
+
+    {:noreply, assign(socket, assigns)}
   end
 
   @impl true

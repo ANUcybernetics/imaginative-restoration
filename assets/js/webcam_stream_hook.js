@@ -132,9 +132,6 @@ const WebcamStreamHook = {
         video.parentNode.insertBefore(this.displayCanvas, video);
       }
 
-      // Draw crop box overlay if we're in admin view
-      this.drawCropBoxOverlay();
-
       // Update SVG overlay to reference the canvas instead of video
       const svg = video.parentNode.querySelector("svg");
       if (svg) {
@@ -211,12 +208,21 @@ const WebcamStreamHook = {
   },
 
   updateDisplay() {
+    const video = this.el;
+    
+    // Update crop box overlay if we're in admin view
+    if (this.showFullFrame) {
+      this.drawCropBoxOverlay();
+      // Continue updating for admin view
+      requestAnimationFrame(() => this.updateDisplay());
+      return;
+    }
+    
     // Only update display canvas if we're showing cropped view
-    if (this.showFullFrame || !this.displayContext || !this.displayCanvas) {
+    if (!this.displayContext || !this.displayCanvas) {
       return;
     }
 
-    const video = this.el;
     const captureBox = this.captureBox;
 
     if (video.readyState >= 2) {
@@ -248,9 +254,12 @@ const WebcamStreamHook = {
 
     // Wait for video to have dimensions
     if (!video.videoWidth || !video.videoHeight) {
-      setTimeout(() => this.drawCropBoxOverlay(), 100);
       return;
     }
+    
+    // Ensure overlay is visible and has proper z-index
+    overlay.style.zIndex = "20";
+    overlay.style.pointerEvents = "none";
 
     // Get the element to measure (video if full frame, canvas if cropped)
     const displayElement = this.showFullFrame ? video : this.displayCanvas;
@@ -261,43 +270,111 @@ const WebcamStreamHook = {
     const containerRect = container.getBoundingClientRect();
     const displayRect = displayElement.getBoundingClientRect();
 
-    // Calculate the scale factors
-    const scaleX = displayRect.width / video.videoWidth;
-    const scaleY = displayRect.height / video.videoHeight;
+    // For object-contain, we need to calculate the actual displayed video dimensions
+    // The video maintains aspect ratio, so we need to find which dimension is constrained
+    const videoAspectRatio = video.videoWidth / video.videoHeight;
+    const containerAspectRatio = displayRect.width / displayRect.height;
+    
+    let actualVideoWidth, actualVideoHeight, offsetX, offsetY;
+    
+    if (videoAspectRatio > containerAspectRatio) {
+      // Video is wider than container - width is constrained
+      actualVideoWidth = displayRect.width;
+      actualVideoHeight = displayRect.width / videoAspectRatio;
+      offsetX = 0;
+      offsetY = (displayRect.height - actualVideoHeight) / 2;
+    } else {
+      // Video is taller than container - height is constrained
+      actualVideoHeight = displayRect.height;
+      actualVideoWidth = displayRect.height * videoAspectRatio;
+      offsetX = (displayRect.width - actualVideoWidth) / 2;
+      offsetY = 0;
+    }
+
+    // Calculate the scale factors based on actual video display size
+    const scaleX = actualVideoWidth / video.videoWidth;
+    const scaleY = actualVideoHeight / video.videoHeight;
 
     // Calculate the position and size of the crop box in the display coordinates
-    const cropLeft = captureBox[0] * scaleX + (displayRect.left - containerRect.left);
-    const cropTop = captureBox[1] * scaleY + (displayRect.top - containerRect.top);
+    // Include the letterbox offset
+    const cropLeft = captureBox[0] * scaleX + (displayRect.left - containerRect.left) + offsetX;
+    const cropTop = captureBox[1] * scaleY + (displayRect.top - containerRect.top) + offsetY;
     const cropWidth = captureBox[2] * scaleX;
     const cropHeight = captureBox[3] * scaleY;
 
-    // Generate grid lines
-    let gridLines = '';
-    const gridSpacing = 100; // 100px spacing in video coordinates
-    
-    // Only show grid if we're showing full frame
-    if (this.showFullFrame) {
-      // Vertical lines
-      for (let x = 0; x <= video.videoWidth; x += gridSpacing) {
-        const scaledX = x * scaleX + (displayRect.left - containerRect.left);
-        gridLines += `<div class="absolute h-full border-l border-gray-600 opacity-30" style="left: ${scaledX}px; top: 0;"></div>`;
-      }
+    // Check if we need to create or update the overlay
+    if (!this.overlayInitialized) {
+      // Generate grid lines once
+      let gridLines = '';
+      const gridSpacing = 100; // 100px spacing in video coordinates
       
-      // Horizontal lines
-      for (let y = 0; y <= video.videoHeight; y += gridSpacing) {
-        const scaledY = y * scaleY + (displayRect.top - containerRect.top);
-        gridLines += `<div class="absolute w-full border-t border-gray-600 opacity-30" style="left: 0; top: ${scaledY}px;"></div>`;
+      // Only show grid if we're showing full frame
+      if (this.showFullFrame) {
+        // Create container for grid lines
+        gridLines = '<div id="grid-lines">';
+        
+        // Vertical lines
+        for (let x = 0; x <= video.videoWidth; x += gridSpacing) {
+          gridLines += `<div class="grid-line-v absolute h-full border-l border-gray-600 opacity-30" data-x="${x}"></div>`;
+        }
+        
+        // Horizontal lines
+        for (let y = 0; y <= video.videoHeight; y += gridSpacing) {
+          gridLines += `<div class="grid-line-h absolute w-full border-t border-gray-600 opacity-30" data-y="${y}"></div>`;
+        }
+        
+        gridLines += '</div>';
       }
+
+      // Create the overlay structure once
+      overlay.innerHTML = `
+        ${gridLines}
+        <div id="crop-box" class="absolute border-2 border-red-500">
+          <span class="absolute -top-6 left-0 text-xs text-red-500 bg-black bg-opacity-50 px-1">Crop Area</span>
+        </div>
+      `;
+      
+      this.overlayInitialized = true;
     }
 
-    // Create the overlay with grid and crop box
-    overlay.innerHTML = `
-      ${gridLines}
-      <div class="absolute border-2 border-red-500" 
-           style="left: ${cropLeft}px; top: ${cropTop}px; width: ${cropWidth}px; height: ${cropHeight}px;">
-        <span class="absolute -top-6 left-0 text-xs text-red-500 bg-black bg-opacity-50 px-1">Crop Area</span>
-      </div>
-    `;
+    // Update grid line positions
+    const gridContainer = overlay.querySelector('#grid-lines');
+    if (gridContainer) {
+      // Update vertical lines
+      gridContainer.querySelectorAll('.grid-line-v').forEach(line => {
+        const x = parseInt(line.dataset.x);
+        const scaledX = x * scaleX;
+        line.style.left = `${scaledX}px`;
+        // Only show lines that are within the video area
+        line.style.display = (x <= video.videoWidth) ? 'block' : 'none';
+      });
+      
+      // Update horizontal lines
+      gridContainer.querySelectorAll('.grid-line-h').forEach(line => {
+        const y = parseInt(line.dataset.y);
+        const scaledY = y * scaleY;
+        line.style.top = `${scaledY}px`;
+        // Only show lines that are within the video area
+        line.style.display = (y <= video.videoHeight) ? 'block' : 'none';
+      });
+      
+      // Set the grid container to only cover the actual video area
+      gridContainer.style.position = 'absolute';
+      gridContainer.style.left = `${offsetX}px`;
+      gridContainer.style.top = `${offsetY}px`;
+      gridContainer.style.width = `${actualVideoWidth}px`;
+      gridContainer.style.height = `${actualVideoHeight}px`;
+      gridContainer.style.overflow = 'hidden';
+    }
+
+    // Update crop box position
+    const cropBox = overlay.querySelector('#crop-box');
+    if (cropBox) {
+      cropBox.style.left = `${cropLeft}px`;
+      cropBox.style.top = `${cropTop}px`;
+      cropBox.style.width = `${cropWidth}px`;
+      cropBox.style.height = `${cropHeight}px`;
+    }
   },
 
   captureFrame() {
@@ -316,7 +393,7 @@ const WebcamStreamHook = {
     const video = this.el;
     const captureBox = this.captureBox;
 
-    // crop the current video frame based on captureBox, send to server as data URL
+    // Always capture cropped frame
     this.context.drawImage(
       video,
       captureBox[0],
@@ -330,7 +407,16 @@ const WebcamStreamHook = {
     );
 
     const dataUrl = this.canvas.toDataURL("image/jpeg");
-    this.pushEvent("webcam_frame", { frame: dataUrl });
+    
+    // For admin view, mark it as admin frame so server knows to handle it differently
+    if (this.showFullFrame) {
+      this.pushEvent("webcam_frame", { 
+        frame: dataUrl,
+        is_admin: true
+      });
+    } else {
+      this.pushEvent("webcam_frame", { frame: dataUrl });
+    }
   },
   animateCaptureProgress() {
     // Cancel any existing animations
