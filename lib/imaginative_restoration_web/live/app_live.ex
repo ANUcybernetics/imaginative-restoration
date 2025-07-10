@@ -29,9 +29,12 @@ defmodule ImaginativeRestorationWeb.AppLive do
         <div :if={@capture?} class="absolute top-[100px] left-[350px] flex gap-8 h-[120px]">
           <!-- Live webcam feed -->
           <div class="relative h-full aspect-[4/3]">
-            <.webcam_capture capture_interval={
-              Application.get_env(:imaginative_restoration, :webcam_capture_interval)
-            } />
+            <.webcam_capture 
+              capture_interval={
+                Application.get_env(:imaginative_restoration, :webcam_capture_interval)
+              }
+              camera_error={@camera_error}
+            />
           </div>
           
     <!-- Recent processed images -->
@@ -78,7 +81,9 @@ defmodule ImaginativeRestorationWeb.AppLive do
        # are we skipping (not processing) the last frame because it didn't change?
        skip_process?: true,
        page_title: (capture? && "Capture") || "Display",
-       image_difference_threshold: difference_threshold
+       image_difference_threshold: difference_threshold,
+       # camera error state
+       camera_error: nil
      ), layout: {ImaginativeRestorationWeb.Layouts, :canvas}}
   end
 
@@ -107,6 +112,24 @@ defmodule ImaginativeRestorationWeb.AppLive do
        skip_process?: skip_process?,
        frame_image: frame_image
      )}
+  end
+
+  @impl true
+  def handle_event("camera_status", %{"status" => "ready"}, socket) do
+    # Camera is working, clear any error
+    {:noreply, assign(socket, camera_error: nil)}
+  end
+
+  def handle_event("camera_status", %{"status" => "error"} = params, socket) do
+    # Camera has an error, display it
+    camera_error = %{
+      type: params["error_type"],
+      message: params["error_message"]
+    }
+    
+    Logger.warning("Camera error: #{camera_error.type} - #{camera_error.message}")
+    
+    {:noreply, assign(socket, camera_error: camera_error)}
   end
 
   @impl true

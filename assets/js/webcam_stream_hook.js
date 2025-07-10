@@ -156,8 +156,36 @@ const WebcamStreamHook = {
         () => this.captureFrame(),
         this.captureInterval,
       );
+      
+      // Notify LiveView that camera is working
+      this.pushEvent("camera_status", { status: "ready" });
     } catch (error) {
       console.error("Error accessing the webcam:", error);
+      
+      // Determine the error type and send to LiveView
+      let errorType = "unknown";
+      let errorMessage = "Unable to access camera";
+      
+      if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
+        errorType = "permission_denied";
+        errorMessage = "Camera permission denied. Please allow camera access.";
+      } else if (error.name === "NotFoundError" || error.name === "DevicesNotFoundError") {
+        errorType = "no_camera";
+        errorMessage = "No camera detected. Please connect a camera.";
+      } else if (error.name === "NotReadableError" || error.name === "TrackStartError") {
+        errorType = "camera_in_use";
+        errorMessage = "Camera is already in use by another application.";
+      } else if (error.name === "OverconstrainedError") {
+        errorType = "constraint_error";
+        errorMessage = "Camera does not support the requested settings.";
+      }
+      
+      // Send error to LiveView
+      this.pushEvent("camera_status", { 
+        status: "error", 
+        error_type: errorType,
+        error_message: errorMessage 
+      });
     }
   },
 

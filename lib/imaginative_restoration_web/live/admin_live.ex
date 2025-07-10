@@ -26,7 +26,7 @@ defmodule ImaginativeRestorationWeb.AdminLive do
           <div>
             <h3 class="text-sm font-medium mb-2">Live Stream with Crop Box</h3>
             <div class="relative h-[300px] bg-black">
-              <.webcam_capture class="h-full" capture_interval={1_000} show_full_frame={true} />
+              <.webcam_capture class="h-full" capture_interval={1_000} show_full_frame={true} camera_error={@camera_error} />
               <img class="absolute inset-0 h-full object-contain" src={@frame} />
               <!-- Crop box overlay will be drawn by JavaScript -->
               <div id="crop-box-overlay" class="absolute inset-0 pointer-events-none"></div>
@@ -169,7 +169,8 @@ defmodule ImaginativeRestorationWeb.AdminLive do
        disk_free_gb: disk_free_gb,
        disk_used_gb: disk_used_gb,
        disk_total_gb: disk_total_gb,
-       disk_used_percent: disk_used_percent
+       disk_used_percent: disk_used_percent,
+       camera_error: nil
      )}
   end
 
@@ -182,6 +183,24 @@ defmodule ImaginativeRestorationWeb.AdminLive do
       Enum.take([latest_raw_image | socket.assigns.recent_images], number_of_images)
 
     {:noreply, assign(socket, frame: dataurl, recent_images: recent_images)}
+  end
+
+  @impl true
+  def handle_event("camera_status", %{"status" => "ready"}, socket) do
+    # Camera is working, clear any error
+    {:noreply, assign(socket, camera_error: nil)}
+  end
+
+  def handle_event("camera_status", %{"status" => "error"} = params, socket) do
+    # Camera has an error, display it
+    camera_error = %{
+      type: params["error_type"],
+      message: params["error_message"]
+    }
+    
+    Logger.warning("Camera error: #{camera_error.type} - #{camera_error.message}")
+    
+    {:noreply, assign(socket, camera_error: camera_error)}
   end
 
   @impl true
