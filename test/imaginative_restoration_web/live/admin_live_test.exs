@@ -256,7 +256,7 @@ defmodule ImaginativeRestorationWeb.AdminLiveTest do
       {:ok, _view, html} = live(authenticated_conn(conn), "/admin")
       
       # Check responsive grid classes
-      assert html =~ "grid-cols-1 md:grid-cols-2"
+      assert html =~ "grid-cols-1 lg:grid-cols-3"
       assert html =~ "grid-cols-1 md:grid-cols-3"
     end
 
