@@ -32,10 +32,15 @@ This directory contains scripts to configure a Mac mini as a dual-screen Chrome 
    ./setup-kiosk-mac.sh
    ```
 
-4. **Configure authentication**
-   Edit `~/.kiosk/.env` and add your authentication:
+4. **Configure authentication and capture box**
+   Edit `~/.kiosk/.env` and add your configuration:
    ```bash
-   IMGRES_AUTH=your-auth-string-here
+   # Required: Authentication credentials
+   IMGRES_AUTH="your-username:your-password"
+   
+   # Optional: Capture box configuration (x,y,width,height)
+   # Default: 150,0,410,280
+   IMGRES_CAPTURE_BOX="150,0,410,280"
    ```
 
 5. **Restart the Mac mini**
@@ -62,8 +67,9 @@ This directory contains scripts to configure a Mac mini as a dual-screen Chrome 
 
 ### Check logs
 ```bash
-tail -f ~/Library/Logs/imgres-kiosk.log
-tail -f ~/Library/Logs/imgres-kiosk.error.log
+tail -f ~/.kiosk/logs/launch.log
+tail -f ~/.kiosk/logs/stdout.log
+tail -f ~/.kiosk/logs/stderr.log
 ```
 
 ### Manually start/stop the kiosk
@@ -77,7 +83,13 @@ launchctl load ~/Library/LaunchAgents/com.imgres.kiosk.plist
 
 ### Test the launch script manually
 ```bash
-export IMGRES_AUTH=your-auth-string
+# Option 1: Source the .env file
+source ~/.kiosk/.env
+~/.kiosk/launch.sh
+
+# Option 2: Set variables manually
+export IMGRES_AUTH="your-username:your-password"
+export IMGRES_CAPTURE_BOX="150,0,410,280"
 ~/.kiosk/launch.sh
 ```
 
@@ -106,11 +118,22 @@ This will:
 
 ## Customization
 
-To modify URLs or display positioning, edit the configuration section at the top of `imgres-launch-macos.sh`.
+### Environment Variables
+
+All configuration is managed through `~/.kiosk/.env`:
+
+- `IMGRES_AUTH` (required) - Authentication credentials in format "username:password"
+- `IMGRES_CAPTURE_BOX` (optional) - Capture box dimensions as "x,y,width,height"
+  - Default: "150,0,410,280"
+  - Format: "x_offset,y_offset,width,height"
+
+To modify display positioning or other behavior, edit `imgres-launch-macos.sh`.
+
+### Features
 
 The script includes:
-- Automatic restart on Chrome crash
-- Retry logic (3 attempts)
+- Automatic restart on Chrome crash via LaunchAgent
+- Environment-based configuration
 - Comprehensive error handling and logging
-- Window count monitoring
+- Window positioning and fullscreen automation
 - Graceful Chrome shutdown with force-quit fallback
