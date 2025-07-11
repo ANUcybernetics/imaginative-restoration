@@ -5,6 +5,8 @@ defmodule ImaginativeRestorationWeb.AdminLiveTest do
 
   alias ImaginativeRestoration.Sketches.Sketch
   alias Phoenix.Socket.Broadcast
+  
+  require Ash.Query
 
   defp authenticated_conn(conn) do
     auth_header = "Basic " <> Base.encode64("test:test")
@@ -212,6 +214,42 @@ defmodule ImaginativeRestorationWeb.AdminLiveTest do
       # Should display the threshold value
       assert html =~ "Current threshold:"
       assert html =~ to_string(configured_threshold)
+    end
+  end
+
+  describe "processed sketch counts display" do
+    test "displays processed sketch count headers", %{conn: conn} do
+      {:ok, _view, html} = live(authenticated_conn(conn), "/admin")
+      
+      # Check that all three time-based headers are displayed
+      assert html =~ "Processed (5 min)"
+      assert html =~ "Processed (1 hr)"
+      assert html =~ "Processed (24 hrs)"
+    end
+
+    test "displays count colors appropriately", %{conn: conn} do
+      {:ok, _view, html} = live(authenticated_conn(conn), "/admin")
+      
+      # Check that each count has the appropriate color
+      # 5 minutes: green
+      assert html =~ "text-green-400"
+      # 1 hour: yellow
+      assert html =~ "text-yellow-400"
+      # 24 hours: blue
+      assert html =~ "text-blue-400"
+    end
+
+    test "updates counts when timer fires", %{conn: conn} do
+      {:ok, view, _html} = live(authenticated_conn(conn), "/admin")
+      
+      # Trigger the update timer
+      send(view.pid, :update_processed_counts)
+      
+      # Should render without error
+      html = render(view)
+      assert html =~ "Processed (5 min)"
+      assert html =~ "Processed (1 hr)"
+      assert html =~ "Processed (24 hrs)"
     end
   end
 

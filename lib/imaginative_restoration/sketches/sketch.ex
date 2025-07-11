@@ -37,7 +37,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
   end
 
   actions do
-    defaults [:read]
+    defaults [:read, :destroy]
 
     create :init do
       accept [:raw]
@@ -66,6 +66,8 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
       change {Pipeline, stage: :process}
     end
   end
+
+
 
   pub_sub do
     module ImaginativeRestorationWeb.Endpoint

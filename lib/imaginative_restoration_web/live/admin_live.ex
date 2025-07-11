@@ -5,12 +5,14 @@ defmodule ImaginativeRestorationWeb.AdminLive do
   use ImaginativeRestorationWeb, :live_view
 
   import ImaginativeRestorationWeb.AppComponents
+  import Ash.Expr
 
   alias ImaginativeRestoration.Sketches.Prompt
   alias ImaginativeRestoration.Sketches.Sketch
   alias ImaginativeRestoration.Utils
 
   require Logger
+  require Ash.Query
 
   @impl true
   def render(assigns) do
@@ -74,7 +76,7 @@ defmodule ImaginativeRestorationWeb.AdminLive do
       <!-- System Information -->
       <div class="bg-gray-800 p-4 rounded-lg">
         <h2 class="text-lg font-semibold mb-4">System Information</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div class="bg-gray-900 p-3 rounded">
             <h3 class="text-sm font-medium text-gray-400">Disk Space</h3>
             <p class="text-2xl font-mono">{@disk_free_gb} GB free</p>
@@ -92,6 +94,24 @@ defmodule ImaginativeRestorationWeb.AdminLive do
           <div class="bg-gray-900 p-3 rounded">
             <h3 class="text-sm font-medium text-gray-400">Total Sketches</h3>
             <p class="text-2xl font-mono">{@total_sketches}</p>
+          </div>
+        </div>
+        
+        <!-- Processed Sketches Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-gray-900 p-3 rounded">
+            <h3 class="text-sm font-medium text-gray-400">Processed (5 min)</h3>
+            <p class="text-2xl font-mono text-green-400">{@processed_last_5_minutes}</p>
+          </div>
+          
+          <div class="bg-gray-900 p-3 rounded">
+            <h3 class="text-sm font-medium text-gray-400">Processed (1 hr)</h3>
+            <p class="text-2xl font-mono text-yellow-400">{@processed_last_hour}</p>
+          </div>
+          
+          <div class="bg-gray-900 p-3 rounded">
+            <h3 class="text-sm font-medium text-gray-400">Processed (24 hrs)</h3>
+            <p class="text-2xl font-mono text-blue-400">{@processed_last_24_hours}</p>
           </div>
         </div>
       </div>
@@ -151,6 +171,8 @@ defmodule ImaginativeRestorationWeb.AdminLive do
       ImaginativeRestorationWeb.Endpoint.subscribe("sketch:updated")
       # Update disk space every 30 seconds
       :timer.send_interval(30_000, self(), :update_disk_space)
+      # Update processed counts every 30 seconds
+      :timer.send_interval(30_000, self(), :update_processed_counts)
     end
 
     # Check if capture_box URL parameter is present
@@ -169,6 +191,9 @@ defmodule ImaginativeRestorationWeb.AdminLive do
 
     # Get total sketch count
     total_sketches = Sketch |> Ash.count!()
+
+    # Get processed sketch counts for different time windows
+    processed_counts = get_processed_counts()
 
     # Get configuration values
     difference_threshold = Application.get_env(:imaginative_restoration, :image_difference_threshold)
@@ -194,7 +219,10 @@ defmodule ImaginativeRestorationWeb.AdminLive do
        disk_total_gb: disk_total_gb,
        disk_used_percent: disk_used_percent,
        camera_error: nil,
-       has_capture_box_param: has_capture_box_param
+       has_capture_box_param: has_capture_box_param,
+       processed_last_5_minutes: processed_counts.last_5_minutes,
+       processed_last_hour: processed_counts.last_hour,
+       processed_last_24_hours: processed_counts.last_24_hours
      )}
   end
 
@@ -280,6 +308,53 @@ defmodule ImaginativeRestorationWeb.AdminLive do
        disk_total_gb: disk_total_gb,
        disk_used_percent: disk_used_percent
      )}
+  end
+
+  @impl true
+  def handle_info(:update_processed_counts, socket) do
+    # Get updated processed sketch counts
+    processed_counts = get_processed_counts()
+    
+    {:noreply,
+     assign(socket,
+       processed_last_5_minutes: processed_counts.last_5_minutes,
+       processed_last_hour: processed_counts.last_hour,
+       processed_last_24_hours: processed_counts.last_24_hours
+     )}
+  end
+
+  defp get_processed_counts do
+    now = DateTime.utc_now()
+    
+    # Count processed sketches in last 5 minutes
+    five_min_ago = DateTime.add(now, -5, :minute)
+    count_5_min = 
+      Sketch
+      |> Ash.Query.for_read(:read)
+      |> Ash.Query.filter(expr(not is_nil(processed) and updated_at > ^five_min_ago))
+      |> Ash.count!()
+
+    # Count processed sketches in last hour
+    one_hour_ago = DateTime.add(now, -1, :hour)
+    count_hour = 
+      Sketch
+      |> Ash.Query.for_read(:read)
+      |> Ash.Query.filter(expr(not is_nil(processed) and updated_at > ^one_hour_ago))
+      |> Ash.count!()
+
+    # Count processed sketches in last 24 hours
+    one_day_ago = DateTime.add(now, -24, :hour)
+    count_24h = 
+      Sketch
+      |> Ash.Query.for_read(:read)
+      |> Ash.Query.filter(expr(not is_nil(processed) and updated_at > ^one_day_ago))
+      |> Ash.count!()
+
+    %{
+      last_5_minutes: count_5_min,
+      last_hour: count_hour,
+      last_24_hours: count_24h
+    }
   end
 
   defp get_disk_space_info do
