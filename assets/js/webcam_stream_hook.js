@@ -18,6 +18,9 @@ const WebcamStreamHook = {
     // Get reference to flash overlay
     this.flashOverlay = document.getElementById("flash-overlay");
     
+    // Initialize shutter sound
+    this.initShutterSound();
+    
     // Listen for capture trigger events from server
     this.handleEvent("capture_triggered", () => {
       this.triggerFlash();
@@ -445,6 +448,37 @@ const WebcamStreamHook = {
       duration: 300,
       easing: "ease-out",
     });
+
+    // Play shutter sound
+    this.playShutterSound();
+  },
+
+  async initShutterSound() {
+    try {
+      // Create audio element
+      this.shutterSound = new Audio();
+      this.shutterSound.src = "/sounds/shutter.mp3";
+      
+      // Preload the audio to ensure it's ready when needed
+      this.shutterSound.preload = "auto";
+      
+      // Load the audio
+      await this.shutterSound.load();
+    } catch (error) {
+      console.warn("Failed to initialize shutter sound:", error);
+    }
+  },
+
+  playShutterSound() {
+    if (this.shutterSound) {
+      // Clone the audio element to allow overlapping sounds
+      const soundClone = this.shutterSound.cloneNode();
+      
+      // Play the sound and let it complete
+      soundClone.play().catch(error => {
+        console.warn("Failed to play shutter sound:", error);
+      });
+    }
   },
 };
 
