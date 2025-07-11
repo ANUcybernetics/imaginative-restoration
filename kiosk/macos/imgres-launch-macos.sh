@@ -3,12 +3,19 @@ set -e
 set -u
 set -o pipefail
 
-# Configuration
-readonly SCREEN1_URL="http://${IMGRES_AUTH}@imgres.fly.dev/?capture_box=150,0,410,280"
+# Configuration - use environment variables with defaults
+CAPTURE_BOX="${IMGRES_CAPTURE_BOX:-150,0,410,280}"
+
+# Build URLs
+if [[ -n "${CAPTURE_BOX}" ]]; then
+    readonly SCREEN1_URL="http://${IMGRES_AUTH}@imgres.fly.dev/?capture_box=${CAPTURE_BOX}"
+else
+    readonly SCREEN1_URL="http://${IMGRES_AUTH}@imgres.fly.dev"
+fi
 readonly SCREEN2_URL="http://${IMGRES_AUTH}@imgres.fly.dev"
 readonly MAX_RETRIES=3
 readonly RETRY_DELAY=10
-readonly LOG_FILE="$HOME/Library/Logs/imgres-kiosk.log"
+readonly LOG_FILE="$HOME/.kiosk/logs/launch.log"
 
 # Logging function
 log() {

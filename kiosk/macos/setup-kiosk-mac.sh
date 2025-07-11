@@ -43,42 +43,105 @@ if [[ ! -f "$SCRIPT_DIR/imgres-launch-macos.sh" ]]; then
     exit 1
 fi
 
-# Step 1: Configure auto-login
+# Step 1: Create kiosk directory structure
+KIOSK_SCRIPTS_DIR="$HOME/.kiosk"
+print_status "Creating kiosk directory structure..."
+mkdir -p "$KIOSK_SCRIPTS_DIR/logs"
+chmod 755 "$KIOSK_SCRIPTS_DIR"
+
+# Step 2: Copy launch script to avoid "Operation not permitted" errors
+print_status "Copying launch script to kiosk directory..."
+cp "$SCRIPT_DIR/imgres-launch-macos.sh" "$KIOSK_SCRIPTS_DIR/imgres-launch-macos.sh"
+chmod +x "$KIOSK_SCRIPTS_DIR/imgres-launch-macos.sh"
+
+# Step 3: Create .env file template
+print_status "Creating environment configuration file..."
+cat > "$KIOSK_SCRIPTS_DIR/.env" <<EOF
+# ImgRes authentication credentials
+# Replace with your actual credentials
+IMGRES_AUTH="your-username:your-password"
+
+# Optional: Capture box configuration (x,y,width,height)
+# Default: 150,0,410,280
+IMGRES_CAPTURE_BOX="150,0,410,280"
+EOF
+
+print_warning "IMPORTANT: Edit $KIOSK_SCRIPTS_DIR/.env with your actual credentials"
+
+# Step 4: Create launch wrapper that properly exports variables
+print_status "Creating launch wrapper script..."
+cat > "$KIOSK_SCRIPTS_DIR/launch.sh" <<'EOF'
+#!/bin/bash
+set -e           # Exit on error
+set -u           # Exit on undefined variable
+set -o pipefail  # Exit on pipe failure
+
+# Log output
+exec 1>> ~/.kiosk/logs/launch.log 2>&1
+echo "[$(date)] Starting kiosk launch script"
+
+# Source environment if available
+if [ -f ~/.kiosk/.env ]; then
+    source ~/.kiosk/.env
+fi
+
+# Check if IMGRES_AUTH environment variable is set
+if [[ -z "${IMGRES_AUTH:-}" ]]; then
+    echo "Error: IMGRES_AUTH environment variable is not set" >&2
+    exit 1
+fi
+
+# Export all required variables
+export IMGRES_AUTH
+export IMGRES_CAPTURE_BOX="${IMGRES_CAPTURE_BOX:-}"
+
+# Kill any existing Chrome instances
+pkill -f "Google Chrome" || true
+sleep 2
+
+# Launch the script
+~/.kiosk/imgres-launch-macos.sh
+
+echo "[$(date)] Kiosk launch complete"
+EOF
+chmod +x "$KIOSK_SCRIPTS_DIR/launch.sh"
+
+# Step 5: Configure auto-login
 print_status "Configuring automatic login..."
+print_warning "Note: You may need to manually enable auto-login in System Settings > Users & Groups"
 sudo defaults write /Library/Preferences/com.apple.loginwindow autoLoginUser -string "$KIOSK_USER"
 
-# Step 2: Disable screen saver and sleep
+# Step 6: Check FileVault status
+FILEVAULT_STATUS=$(sudo fdesetup status 2>/dev/null || echo "Unknown")
+if [[ "$FILEVAULT_STATUS" == *"FileVault is On"* ]]; then
+    print_warning "FileVault is enabled - automatic login will NOT work!"
+    print_warning "To disable FileVault: sudo fdesetup disable"
+fi
+
+# Step 7: Disable screen saver and sleep
 print_status "Disabling screen saver and sleep..."
 defaults write com.apple.screensaver askForPassword -int 0
 defaults write com.apple.screensaver idleTime -int 0
 sudo pmset -a displaysleep 0 disksleep 0 sleep 0
 sudo pmset -a womp 1  # Wake on network access
 
-# Step 3: Hide desktop icons and dock
+# Step 8: Hide desktop icons and dock
 print_status "Configuring desktop for kiosk mode..."
 defaults write com.apple.finder CreateDesktop -bool false
 defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock autohide-delay -float 1000
 defaults write com.apple.dock launchanim -bool false
 
-# Step 4: Disable various macOS features
+# Step 9: Disable various macOS features
 print_status "Disabling unnecessary macOS features..."
 defaults write com.apple.LaunchServices LSQuarantine -bool false
 defaults write NSGlobalDomain AppleShowAllExtensions -bool false
 defaults write com.apple.finder ShowStatusBar -bool false
 defaults write com.apple.finder ShowPathbar -bool false
 
-# Step 5: Create launch directory if it doesn't exist
+# Step 10: Create LaunchAgent plist
 LAUNCH_AGENTS_DIR="$HOME/Library/LaunchAgents"
 mkdir -p "$LAUNCH_AGENTS_DIR"
-
-# Step 6: Copy launch script to a stable location
-KIOSK_SCRIPTS_DIR="$HOME/.kiosk"
-mkdir -p "$KIOSK_SCRIPTS_DIR"
-cp "$SCRIPT_DIR/imgres-launch-macos.sh" "$KIOSK_SCRIPTS_DIR/launch.sh"
-chmod +x "$KIOSK_SCRIPTS_DIR/launch.sh"
-
-# Step 7: Create LaunchAgent plist
 PLIST_NAME="com.imgres.kiosk"
 PLIST_PATH="$LAUNCH_AGENTS_DIR/$PLIST_NAME.plist"
 
@@ -100,76 +163,36 @@ cat > "$PLIST_PATH" <<EOF
     <dict>
         <key>SuccessfulExit</key>
         <false/>
-        <key>Crashed</key>
-        <true/>
     </dict>
-    <key>StartInterval</key>
-    <integer>60</integer>
     <key>StandardOutPath</key>
-    <string>$HOME/Library/Logs/imgres-kiosk.log</string>
+    <string>$KIOSK_SCRIPTS_DIR/logs/stdout.log</string>
     <key>StandardErrorPath</key>
-    <string>$HOME/Library/Logs/imgres-kiosk.error.log</string>
-    <key>EnvironmentVariables</key>
-    <dict>
-        <key>IMGRES_AUTH</key>
-        <string>\${IMGRES_AUTH}</string>
-    </dict>
+    <string>$KIOSK_SCRIPTS_DIR/logs/stderr.log</string>
+    <key>WorkingDirectory</key>
+    <string>$HOME</string>
 </dict>
 </plist>
 EOF
 
-# Step 8: Check IMGRES_AUTH environment variable
-print_warning "IMPORTANT: You need to set IMGRES_AUTH environment variable"
-print_warning "Add this to $HOME/.zshrc or $HOME/.bash_profile:"
-print_warning "export IMGRES_AUTH='your-auth-string-here'"
-
-# Create a .env file for the LaunchAgent to source
-cat > "$KIOSK_SCRIPTS_DIR/.env" <<EOF
-# Add your IMGRES_AUTH value here
-# IMGRES_AUTH=your-auth-string-here
-EOF
-
-# Step 9: Create wrapper script that sources environment
-cat > "$KIOSK_SCRIPTS_DIR/launch-wrapper.sh" <<'EOF'
-#!/bin/bash
-# Source environment variables
-if [[ -f "$HOME/.kiosk/.env" ]]; then
-    source "$HOME/.kiosk/.env"
-fi
-
-# Also try to source from shell profile
-if [[ -f "$HOME/.zshrc" ]]; then
-    source "$HOME/.zshrc"
-elif [[ -f "$HOME/.bash_profile" ]]; then
-    source "$HOME/.bash_profile"
-fi
-
-# Execute the actual launch script
-exec "$HOME/.kiosk/launch.sh"
-EOF
-chmod +x "$KIOSK_SCRIPTS_DIR/launch-wrapper.sh"
-
-# Update plist to use wrapper
-sed -i '' "s|<string>$KIOSK_SCRIPTS_DIR/launch.sh</string>|<string>$KIOSK_SCRIPTS_DIR/launch-wrapper.sh</string>|" "$PLIST_PATH"
-
-# Step 10: Load the LaunchAgent
+# Step 11: Load the LaunchAgent
 print_status "Loading LaunchAgent..."
 launchctl unload "$PLIST_PATH" 2>/dev/null || true
-launchctl load "$PLIST_PATH"
+launchctl load -w "$PLIST_PATH"
 
-# Step 11: Disable automatic updates
+# Step 12: Disable automatic updates
 print_status "Disabling automatic updates..."
 sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticDownload -bool false
 sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -bool false
 sudo defaults write /Library/Preferences/com.apple.commerce AutoUpdate -bool false
 
-# Step 12: Create uninstall script
+# Step 13: Create uninstall script
 print_status "Creating uninstall script..."
 cat > "$KIOSK_SCRIPTS_DIR/uninstall.sh" <<EOF
 #!/bin/bash
 echo "Uninstalling kiosk mode..."
 
 # Unload and remove LaunchAgent
+launchctl stop com.imgres.kiosk 2>/dev/null || true
 launchctl unload "$PLIST_PATH" 2>/dev/null || true
 rm -f "$PLIST_PATH"
 
@@ -199,7 +222,13 @@ print_status "Setup complete!"
 print_status ""
 print_status "Next steps:"
 print_status "1. Edit $KIOSK_SCRIPTS_DIR/.env and add your IMGRES_AUTH value"
-print_status "2. Restart the Mac mini"
+print_status "2. If auto-login didn't work, manually enable it:"
+print_status "   - Go to System Settings > Users & Groups > Login Options"
+print_status "   - Set 'Automatic login' to '$KIOSK_USER'"
+print_status "   - Enter your password when prompted"
+print_status "3. Test the kiosk: launchctl start com.imgres.kiosk"
+print_status "4. Check logs: tail -f $KIOSK_SCRIPTS_DIR/logs/launch.log"
+print_status "5. Restart the Mac mini when ready"
 print_status ""
 print_status "To uninstall: $KIOSK_SCRIPTS_DIR/uninstall.sh"
 print_status ""

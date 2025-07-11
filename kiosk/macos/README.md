@@ -43,7 +43,17 @@ This directory contains scripts to configure a Mac mini as a dual-screen Chrome 
    IMGRES_CAPTURE_BOX="150,0,410,280"
    ```
 
-5. **Restart the Mac mini**
+5. **Enable automatic login (IMPORTANT)**
+   
+   The script will attempt to enable auto-login via command line, but this often requires manual configuration:
+   
+   a. Go to **System Settings > Users & Groups**
+   b. Click **Login Options** (you may need to unlock with your password)
+   c. Set **Automatic login** to your username
+   d. Enter your password when prompted
+   e. Save the settings
+
+6. **Restart the Mac mini**
    ```bash
    sudo reboot
    ```
@@ -56,7 +66,7 @@ This directory contains scripts to configure a Mac mini as a dual-screen Chrome 
 - Installs a LaunchAgent to start the kiosk on login
 - Configures Chrome to launch in fullscreen on both displays
 - Monitors Chrome and automatically restarts if it crashes
-- Logs all activity to `~/Library/Logs/imgres-kiosk.log`
+- Logs all activity to `~/.kiosk/logs/` directory
 
 ## Display Configuration
 
@@ -75,10 +85,12 @@ tail -f ~/.kiosk/logs/stderr.log
 ### Manually start/stop the kiosk
 ```bash
 # Stop
+launchctl stop com.imgres.kiosk
 launchctl unload ~/Library/LaunchAgents/com.imgres.kiosk.plist
 
 # Start
-launchctl load ~/Library/LaunchAgents/com.imgres.kiosk.plist
+launchctl load -w ~/Library/LaunchAgents/com.imgres.kiosk.plist
+launchctl start com.imgres.kiosk
 ```
 
 ### Test the launch script manually
@@ -109,11 +121,28 @@ This will:
 - Restore the dock
 - Remove all kiosk scripts
 
+## Known Issues & Solutions
+
+### Auto-login not working after setup
+- FileVault must be disabled for auto-login to work
+- The command-line method may not be sufficient; manual configuration through System Settings is often required
+- Check FileVault status: `sudo fdesetup status`
+
+### "Operation not permitted" errors
+- macOS security may block scripts copied from external sources
+- The setup script copies the launch script to `~/.kiosk/` to avoid this issue
+- If you still see errors, check extended attributes: `xattr -l <file>`
+
+### Chrome not launching
+- Ensure `IMGRES_AUTH` is properly set in `~/.kiosk/.env`
+- Check that variables are being exported in the launch wrapper
+- Verify Chrome is installed at `/Applications/Google Chrome.app`
+
 ## Security Considerations
 
 - The `IMGRES_AUTH` credential is stored in plaintext in `~/.kiosk/.env`
 - Auto-login is enabled, so physical access equals full access
-- Consider using FileVault if the Mac mini is in an unsecured location
+- Consider using FileVault if the Mac mini is in an unsecured location (but note this prevents auto-login)
 - The setup disables various security features (sleep, screen lock)
 
 ## Customization
