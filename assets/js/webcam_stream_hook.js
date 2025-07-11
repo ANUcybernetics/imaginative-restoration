@@ -15,9 +15,13 @@ const WebcamStreamHook = {
       this.captureBox = null;
     }
 
-    // Get references to existing SVG elements
-    this.progressLine = document.getElementById("progress-line");
+    // Get reference to flash overlay
     this.flashOverlay = document.getElementById("flash-overlay");
+    
+    // Listen for capture trigger events from server
+    this.handleEvent("capture_triggered", () => {
+      this.triggerFlash();
+    });
 
     // Add resize handler for crop box overlay
     this.resizeHandler = () => this.drawCropBoxOverlay();
@@ -378,8 +382,8 @@ const WebcamStreamHook = {
   },
 
   captureFrame() {
-    // Always run the flash animation
-    this.animateCaptureProgress();
+    // No longer automatically flash on every capture
+    // Flash will be triggered by server when capture actually happens
 
     if (!this.isOperatingHours()) {
       return;
@@ -419,39 +423,28 @@ const WebcamStreamHook = {
     }
   },
   animateCaptureProgress() {
-    // Cancel any existing animations
-    if (this.currentAnimations) {
-      this.currentAnimations.forEach((animation) => animation.cancel());
-    }
-    this.currentAnimations = [];
+    // This method is now a no-op, but kept for compatibility
+    // Flash animation will be triggered by server events
+  },
 
-    // Define progress bar keyframes
-    const progressKeyframes = [
-      {
-        transform: "scaleX(1)",
-        stroke: "#a07003",
-      },
-      {
-        transform: "scaleX(0)",
-        stroke: "#006e33",
-      },
-    ];
+  triggerFlash() {
+    // Cancel any existing flash animation
+    if (this.flashAnimation) {
+      this.flashAnimation.cancel();
+    }
 
     // Define flash keyframes
-    const flashKeyframes = [{ opacity: 1 }, { opacity: 0, offset: 1 / 20 }];
-
-    // Define animation options
-    const animationOptions = {
-      duration: this.captureInterval,
-      easing: "linear",
-      fill: "forwards",
-    };
-
-    // Start the animations using the stored references
-    this.currentAnimations = [
-      this.progressLine.animate(progressKeyframes, animationOptions),
-      this.flashOverlay.animate(flashKeyframes, animationOptions),
+    const flashKeyframes = [
+      { opacity: 0 },
+      { opacity: 1, offset: 0.1 },
+      { opacity: 0, offset: 1 }
     ];
+
+    // Start flash animation
+    this.flashAnimation = this.flashOverlay.animate(flashKeyframes, {
+      duration: 300,
+      easing: "ease-out",
+    });
   },
 };
 

@@ -35,8 +35,9 @@ config :imaginative_restoration,
   generators: [timestamp_type: :utc_datetime]
 
 config :imaginative_restoration,
-  image_difference_threshold: 0,
-  webcam_capture_interval: 20_000
+  # Using RMSE on 0-100 scale. For sketches, 5-10% difference is typically significant
+  image_difference_threshold: 3,
+  webcam_capture_interval: 1_000
 
 # Configures Elixir's Logger
 config :logger, :console,

@@ -36,16 +36,6 @@ defmodule ImaginativeRestorationWeb.AppComponents do
       </div>
       
       <svg class="absolute inset-0 w-full h-full pointer-events-none">
-        <line
-          id="progress-line"
-          x1="0"
-          y1="10"
-          x2="100%"
-          y2="10"
-          stroke-width="20"
-          stroke="#a07003"
-          transform-origin="center"
-        />
         <rect id="flash-overlay" x="0" y="0" width="100%" height="100%" fill="#ffffff" opacity="0" />
       </svg>
     </div>

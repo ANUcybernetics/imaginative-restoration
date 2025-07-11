@@ -83,35 +83,22 @@ defmodule ImaginativeRestorationWeb.AppLive do
        page_title: (capture? && "Capture") || "Display",
        image_difference_threshold: difference_threshold,
        # camera error state
-       camera_error: nil
+       camera_error: nil,
+       # flag indicating if we're currently processing
+       is_processing: false,
+       # last frame we actually processed (for comparison)
+       last_processed_frame: nil
      ), layout: {ImaginativeRestorationWeb.Layouts, :canvas}}
   end
 
   @impl true
-  def handle_event("webcam_frame", %{"frame" => dataurl}, socket) do
-    frame_image = Utils.to_image!(dataurl)
-
-    skip_process? =
-      case get_oldest_processed_image(socket.assigns.recent_images) do
-        nil ->
-          false
-
-        oldest_image ->
-          frame_difference(oldest_image, frame_image) <= socket.assigns.image_difference_threshold
-      end
-
-    if skip_process? do
-      Logger.info("No significant changes detected in webcam frame, skipping processing")
+  def handle_event("webcam_frame", %{"frame" => dataurl} = params, socket) do
+    # Admin frames are never processed
+    if Map.get(params, "is_admin", false) do
+      {:noreply, socket}
     else
-      start_processing_task(dataurl)
+      handle_capture_frame(dataurl, socket)
     end
-
-    {:noreply,
-     assign(
-       socket,
-       skip_process?: skip_process?,
-       frame_image: frame_image
-     )}
   end
 
   @impl true
@@ -132,6 +119,12 @@ defmodule ImaginativeRestorationWeb.AppLive do
     {:noreply, assign(socket, camera_error: camera_error)}
   end
 
+  @impl true
+  def handle_info(:processing_complete, socket) do
+    # Processing is done, allow new captures
+    {:noreply, assign(socket, is_processing: false)}
+  end
+  
   @impl true
   def handle_info(%Broadcast{topic: "sketch:updated", event: "process"} = message, socket) do
     sketch = message.payload.data
@@ -180,30 +173,83 @@ defmodule ImaginativeRestorationWeb.AppLive do
     {:noreply, push_event(socket, "add_sketches", %{sketches: [%{id: id, dataurl: processed}]})}
   end
 
+  defp handle_capture_frame(dataurl, socket) do
+    frame_image = Utils.to_image!(dataurl)
+    
+    # Check if we're currently processing
+    if socket.assigns.is_processing do
+      # Currently processing, drop this frame
+      Logger.debug("Currently processing, dropping frame")
+      {:noreply, assign(socket, frame_image: frame_image)}
+    else
+      # Check if frame has changed enough
+      skip_process? =
+        case socket.assigns.last_processed_frame do
+          nil ->
+            false
+
+          last_frame ->
+            difference = frame_difference(last_frame, frame_image)
+            threshold = socket.assigns.image_difference_threshold
+            Logger.info("Frame difference: #{difference}, threshold: #{threshold}")
+            difference <= threshold
+        end
+
+      if skip_process? do
+        # Frame hasn't changed enough, skip
+        Logger.info("No significant changes detected in webcam frame, skipping processing")
+        {:noreply, assign(socket, frame_image: frame_image, skip_process?: true)}
+      else
+        # Process immediately and trigger flash
+        Logger.info("Processing webcam frame")
+        start_processing_task(dataurl)
+        
+        {:noreply,
+         socket
+         |> assign(
+           frame_image: frame_image,
+           skip_process?: false,
+           is_processing: true,
+           # Save this frame as the last processed one
+           last_processed_frame: frame_image
+         )
+         |> push_event("capture_triggered", %{})}
+      end
+    end
+  end
+  
   defp start_processing_task(dataurl) do
+    pid = self()
+    
     Task.start(fn ->
-      dataurl
-      |> ImaginativeRestoration.Sketches.init!()
-      |> ImaginativeRestoration.Sketches.process!()
+      result = 
+        dataurl
+        |> ImaginativeRestoration.Sketches.init!()
+        |> ImaginativeRestoration.Sketches.process!()
+        
+      # Notify that processing is complete
+      send(pid, :processing_complete)
+      
+      result
     end)
   end
 
   defp frame_difference(frame1, frame2) do
-    {:ok, distance} = Image.hamming_distance(frame1, frame2)
-    distance
-  end
-
-  defp get_oldest_processed_image([]), do: nil
-
-  defp get_oldest_processed_image(recent_images) do
-    recent_images
-    |> Enum.reverse()
-    |> Enum.find(& &1.processed)
-    |> case do
-      nil -> nil
-      sketch -> Utils.to_image!(sketch.processed)
+    # For sketches, we'll use RMSE comparison which gives us a value between 0.0 and 1.0
+    # where 0.0 means identical and 1.0 means completely different
+    case Image.compare(frame1, frame2, metric: :rmse) do
+      {:ok, difference, _diff_image} ->
+        # Convert to percentage scale (0-100) for easier threshold configuration
+        diff_percent = difference * 100
+        Logger.debug("RMSE raw: #{difference}, percentage: #{diff_percent}")
+        diff_percent
+      {:error, _reason} ->
+        # Fallback to hamming distance if compare fails
+        {:ok, distance} = Image.hamming_distance(frame1, frame2)
+        distance
     end
   end
+
 
   defp update_recent_images(recent_images, new_sketch) do
     # Find if this sketch already exists in the list

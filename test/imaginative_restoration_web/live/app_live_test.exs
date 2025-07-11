@@ -90,8 +90,26 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       # Should start processing since no previous images
       render_hook(view, "webcam_frame", %{"frame" => frame_data})
       
+      # Should receive capture_triggered event
+      assert_push_event(view, "capture_triggered", %{})
+      
       # Since we can't access assigns directly in tests, we just verify
       # the hook was called without error
+      assert html =~ "WebcamStream"
+    end
+    
+    test "admin frames are not processed", %{conn: conn} do
+      {:ok, view, html} = live(authenticated_conn(conn), "/?capture=true")
+      
+      # Send an admin frame
+      frame_data = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+      
+      # Admin frames should not trigger any processing
+      render_hook(view, "webcam_frame", %{"frame" => frame_data, "is_admin" => true})
+      
+      # Should not receive capture_triggered event
+      refute_push_event(view, "capture_triggered", %{})
+      
       assert html =~ "WebcamStream"
     end
 
@@ -322,6 +340,45 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
     end
   end
 
+  describe "processing concurrency" do
+    test "drops frames during processing", %{conn: conn} do
+      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
+      
+      # Send first frame - should process immediately
+      frame1 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+      render_hook(view, "webcam_frame", %{"frame" => frame1})
+      
+      # Should receive capture_triggered event for first frame
+      assert_push_event(view, "capture_triggered", %{})
+      
+      # Send second frame immediately - should be dropped since still processing
+      frame2 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+      render_hook(view, "webcam_frame", %{"frame" => frame2})
+      
+      # Should not receive another capture_triggered event
+      refute_push_event(view, "capture_triggered", %{})
+    end
+    
+    test "allows new capture after processing completes", %{conn: conn} do
+      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
+      
+      # Send first frame
+      frame1 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+      render_hook(view, "webcam_frame", %{"frame" => frame1})
+      assert_push_event(view, "capture_triggered", %{})
+      
+      # Simulate processing complete
+      send(view.pid, :processing_complete)
+      
+      # Send another frame - should process immediately
+      frame2 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+      render_hook(view, "webcam_frame", %{"frame" => frame2})
+      
+      # Should process the new frame
+      assert_push_event(view, "capture_triggered", %{})
+    end
+  end
+  
   describe "configuration" do
     test "uses configured webcam capture interval", %{conn: conn} do
       {:ok, _view, html} = live(authenticated_conn(conn), "/?capture=true")
@@ -337,6 +394,13 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       configured_threshold = Application.get_env(:imaginative_restoration, :image_difference_threshold)
       assert configured_threshold != nil
     end
+    
+    test "capture interval is now 1 second", %{conn: conn} do
+      {:ok, _view, html} = live(authenticated_conn(conn), "/?capture=true")
+      
+      # Verify the new 1s interval is used
+      assert html =~ "data-capture-interval=\"1000\""
+    end
   end
 
   describe "responsive layout" do
@@ -346,6 +410,48 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       # Check aspect ratio classes
       assert html =~ "aspect-[4/3]"
       assert html =~ "max-w-[calc(100vh*4/3)]"
+    end
+  end
+  
+  describe "flash overlay" do
+    test "does not show progress line", %{conn: conn} do
+      {:ok, _view, html} = live(authenticated_conn(conn), "/?capture=true")
+      
+      # Verify progress line is removed
+      refute html =~ "progress-line"
+      refute html =~ "stroke=\"#a07003\""
+      
+      # But flash overlay should still exist
+      assert html =~ "flash-overlay"
+    end
+  end
+  
+  describe "camera error handling" do
+    test "handles camera ready status", %{conn: conn} do
+      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
+      
+      # Send camera ready status
+      render_hook(view, "camera_status", %{"status" => "ready"})
+      
+      # Should clear any camera error
+      html = render(view)
+      refute html =~ "Camera Not Available"
+    end
+    
+    test "handles camera error status", %{conn: conn} do
+      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
+      
+      # Send camera error
+      render_hook(view, "camera_status", %{
+        "status" => "error",
+        "error_type" => "permission_denied",
+        "error_message" => "Camera permission denied. Please allow camera access."
+      })
+      
+      # Should display error message
+      html = render(view)
+      assert html =~ "Camera Not Available"
+      assert html =~ "Camera permission denied"
     end
   end
 end

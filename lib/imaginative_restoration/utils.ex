@@ -108,8 +108,16 @@ defmodule ImaginativeRestoration.Utils do
     images
     |> Enum.chunk_every(2, 1, :discard)
     |> Enum.map(fn [a, b] ->
-      {:ok, d} = Image.hamming_distance(a, b)
-      d
+      # Use RMSE comparison (same as in app_live.ex)
+      case Image.compare(a, b, metric: :rmse) do
+        {:ok, difference, _diff_image} ->
+          # Convert to percentage scale (0-100)
+          difference * 100
+        {:error, _reason} ->
+          # Fallback to hamming distance
+          {:ok, d} = Image.hamming_distance(a, b)
+          d
+      end
     end)
   end
 end
