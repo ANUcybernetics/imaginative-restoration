@@ -55,6 +55,8 @@ defmodule ImaginativeRestoration.AI.Pipeline do
           final_image_dataurl = Utils.to_dataurl!(final_image_url)
 
           Ash.Changeset.force_change_attribute(changeset, :processed, final_image_dataurl)
+        else
+          _ -> changeset
         end
     end
   end
