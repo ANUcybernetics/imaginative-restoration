@@ -38,6 +38,9 @@ force_quit_chrome() {
 launch_kiosk() {
     log "Starting kiosk launch sequence..."
 
+    # Ensure logs directory exists
+    mkdir -p "$HOME/.kiosk/logs"
+
     # Check if IMGRES_AUTH environment variable is set
     if [[ -z "${IMGRES_AUTH:-}" ]]; then
         log "Error: IMGRES_AUTH environment variable is not set"
@@ -70,7 +73,11 @@ launch_kiosk() {
         --disable-restore-session-state \
         --no-first-run \
         --disable-features=TranslateUI \
-        --overscroll-history-navigation=0
+        --overscroll-history-navigation=0 \
+        --enable-logging \
+        --log-level=0 \
+        --dump-dom \
+        --log-file="$HOME/.kiosk/logs/chrome-console.log"
 
     # Wait for Chrome to be responsive
     local chrome_wait=0
