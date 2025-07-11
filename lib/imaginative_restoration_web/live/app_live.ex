@@ -191,17 +191,14 @@ defmodule ImaginativeRestorationWeb.AppLive do
           last_frame ->
             difference = frame_difference(last_frame, frame_image)
             threshold = socket.assigns.image_difference_threshold
-            Logger.info("Frame difference: #{difference}, threshold: #{threshold}")
             difference <= threshold
         end
 
       if skip_process? do
         # Frame hasn't changed enough, skip
-        Logger.info("No significant changes detected in webcam frame, skipping processing")
         {:noreply, assign(socket, frame_image: frame_image, skip_process?: true)}
       else
         # Process immediately and trigger flash
-        Logger.info("Processing webcam frame")
         start_processing_task(dataurl)
         
         {:noreply,
@@ -241,7 +238,6 @@ defmodule ImaginativeRestorationWeb.AppLive do
       {:ok, difference, _diff_image} ->
         # Convert to percentage scale (0-100) for easier threshold configuration
         diff_percent = difference * 100
-        Logger.debug("RMSE raw: #{difference}, percentage: #{diff_percent}")
         diff_percent
       {:error, _reason} ->
         # Fallback to hamming distance if compare fails
