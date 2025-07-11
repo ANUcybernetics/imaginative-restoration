@@ -1,7 +1,7 @@
 ---
 id: task-2
 title: Verify script restarts on power cycle
-status: To Do
+status: Done
 assignee: []
 created_date: "2025-07-08"
 labels: []
