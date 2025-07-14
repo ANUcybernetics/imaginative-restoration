@@ -31,7 +31,8 @@ To run this installation you'll need:
 - A computer which can run Chrome (inc. keyboard & mouse for setup purposes)
 - A camera (e.g. a webcam)
 - Pens & paper for drawing
-- A physical setup where the camera can see the "drawing area" (any flat surface where people can place their drawings in view of the camera)
+- A physical setup where the camera can see the "drawing area" (any flat surface
+  where people can place their drawings in view of the camera)
 
 ### Quick Start
 
@@ -47,9 +48,11 @@ If the kiosk scripts aren't working, you can run manually:
 IMGRES_AUTH=user:pass ./imgres-launch.sh
 ```
 
-Or visit <https://imgres.fly.dev?capture> in Chrome (enter username & password when prompted).
+Or visit <https://imgres.fly.dev?capture> in Chrome (enter username & password
+when prompted).
 
-To configure a "crop area" for the camera, provide crop parameters (`x_offset,y_offset,width,height`) via URL:
+To configure a "crop area" for the camera, provide crop parameters
+(`x_offset,y_offset,width,height`) via URL:
 
 ```
 https://imgres.fly.dev?capture_box=70,90,470,300
@@ -113,6 +116,10 @@ Centre. Brought to life by:
 - **Background removal** model: Carve,
   [_Tracer b7, finetuned on the CarveSet dataset_](https://huggingface.co/Carve/tracer_b7),
   hosted on [Replicate](https://replicate.com/lucataco/remove-bg)
+
+- **Camera shutter sound**:
+  [Camera shutter and flash combined](https://freesound.org/people/montclairguy/sounds/353044/)
+  by [montclairguy](https://freesound.org/people/montclairguy/)
 
 ## Licence
 
