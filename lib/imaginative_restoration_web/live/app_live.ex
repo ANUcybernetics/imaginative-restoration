@@ -29,14 +29,14 @@ defmodule ImaginativeRestorationWeb.AppLive do
         <div :if={@capture?} class="absolute top-[100px] left-[350px] flex gap-8 h-[120px]">
           <!-- Live webcam feed -->
           <div class="relative h-full aspect-[4/3]">
-            <.webcam_capture 
+            <.webcam_capture
               capture_interval={
                 Application.get_env(:imaginative_restoration, :webcam_capture_interval)
               }
               camera_error={@camera_error}
             />
           </div>
-          
+
     <!-- Recent processed images -->
           <div :for={image <- @recent_images} class="relative h-full aspect-[4/3]">
             <img
@@ -74,20 +74,14 @@ defmodule ImaginativeRestorationWeb.AppLive do
      assign(socket,
        # boolean: whether to capture webcam frames (set via URL params)
        capture?: capture?,
-       # the most recent webcam frame (whether or not it was processed)
+       # the most recent webcam frame (for comparison with next frame)
        frame_image: nil,
        # list of the 5 most recent processed images
        recent_images: [],
-       # are we skipping (not processing) the last frame because it didn't change?
-       skip_process?: true,
        page_title: (capture? && "Capture") || "Display",
        image_difference_threshold: difference_threshold,
        # camera error state
-       camera_error: nil,
-       # flag indicating if we're currently processing
-       is_processing: false,
-       # last frame we actually processed (for comparison)
-       last_processed_frame: nil
+       camera_error: nil
      ), layout: {ImaginativeRestorationWeb.Layouts, :canvas}}
   end
 
@@ -113,18 +107,28 @@ defmodule ImaginativeRestorationWeb.AppLive do
       type: params["error_type"],
       message: params["error_message"]
     }
-    
+
     Logger.warning("Camera error: #{camera_error.type} - #{camera_error.message}")
-    
+
     {:noreply, assign(socket, camera_error: camera_error)}
   end
 
   @impl true
-  def handle_info(:processing_complete, socket) do
-    # Processing is done, allow new captures
-    {:noreply, assign(socket, is_processing: false)}
+  def handle_async(:process_frame, {:ok, _sketch}, socket) do
+    # Frame processing completed successfully
+    # The sketch was already broadcast via PubSub and will be handled by handle_info
+    Logger.debug("Frame processing completed successfully")
+    {:noreply, socket}
   end
-  
+
+  @impl true
+  def handle_async(:process_frame, {:exit, reason}, socket) do
+    # Frame processing crashed or failed
+    Logger.error("Frame processing failed: #{inspect(reason)}")
+    # System will automatically recover on next frame - no manual state cleanup needed
+    {:noreply, socket}
+  end
+
   @impl true
   def handle_info(%Broadcast{topic: "sketch:updated", event: "process"} = message, socket) do
     sketch = message.payload.data
@@ -175,61 +179,41 @@ defmodule ImaginativeRestorationWeb.AppLive do
 
   defp handle_capture_frame(dataurl, socket) do
     frame_image = Utils.to_image!(dataurl)
-    
-    # Check if we're currently processing
-    if socket.assigns.is_processing do
-      # Currently processing, drop this frame
-      Logger.debug("Currently processing, dropping frame")
+
+    # Check if frame has changed enough compared to the last one
+    skip_process? =
+      case socket.assigns.frame_image do
+        nil ->
+          false
+
+        last_frame ->
+          difference = frame_difference(last_frame, frame_image)
+          threshold = socket.assigns.image_difference_threshold
+          difference <= threshold
+      end
+
+    if skip_process? do
+      # Frame hasn't changed enough, skip processing
+      Logger.debug("Frame hasn't changed enough (below threshold), skipping processing")
       {:noreply, assign(socket, frame_image: frame_image)}
     else
-      # Check if frame has changed enough
-      skip_process? =
-        case socket.assigns.last_processed_frame do
-          nil ->
-            false
+      # Frame has changed enough - start async processing
+      # This will automatically cancel any previous in-flight :process_frame task
+      socket =
+        socket
+        |> assign(frame_image: frame_image)
+        |> start_async(:process_frame, fn ->
+          dataurl
+          |> ImaginativeRestoration.Sketches.init!()
+          |> ImaginativeRestoration.Sketches.process!()
+        end)
+        |> push_event("capture_triggered", %{})
 
-          last_frame ->
-            difference = frame_difference(last_frame, frame_image)
-            threshold = socket.assigns.image_difference_threshold
-            difference <= threshold
-        end
-
-      if skip_process? do
-        # Frame hasn't changed enough, skip
-        {:noreply, assign(socket, frame_image: frame_image, skip_process?: true)}
-      else
-        # Process immediately and trigger flash
-        start_processing_task(dataurl)
-        
-        {:noreply,
-         socket
-         |> assign(
-           frame_image: frame_image,
-           skip_process?: false,
-           is_processing: true,
-           # Save this frame as the last processed one
-           last_processed_frame: frame_image
-         )
-         |> push_event("capture_triggered", %{})}
-      end
+      {:noreply, socket}
     end
   end
-  
-  defp start_processing_task(dataurl) do
-    pid = self()
-    
-    Task.start(fn ->
-      result = 
-        dataurl
-        |> ImaginativeRestoration.Sketches.init!()
-        |> ImaginativeRestoration.Sketches.process!()
-        
-      # Notify that processing is complete
-      send(pid, :processing_complete)
-      
-      result
-    end)
-  end
+
+
 
   defp frame_difference(frame1, frame2) do
     # For sketches, we'll use RMSE comparison which gives us a value between 0.0 and 1.0
