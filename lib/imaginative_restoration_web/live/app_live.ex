@@ -36,7 +36,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
               camera_error={@camera_error}
             />
           </div>
-
+          
     <!-- Recent processed images -->
           <div :for={image <- @recent_images} class="relative h-full aspect-[4/3]">
             <img
@@ -81,7 +81,9 @@ defmodule ImaginativeRestorationWeb.AppLive do
        page_title: (capture? && "Capture") || "Display",
        image_difference_threshold: difference_threshold,
        # camera error state
-       camera_error: nil
+       camera_error: nil,
+       # boolean: whether a frame is currently being processed
+       processing?: false
      ), layout: {ImaginativeRestorationWeb.Layouts, :canvas}}
   end
 
@@ -118,7 +120,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
     # Frame processing completed successfully
     # The sketch was already broadcast via PubSub and will be handled by handle_info
     Logger.debug("Frame processing completed successfully")
-    {:noreply, socket}
+    {:noreply, assign(socket, processing?: false)}
   end
 
   @impl true
@@ -126,7 +128,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
     # Frame processing crashed or failed
     Logger.error("Frame processing failed: #{inspect(reason)}")
     # System will automatically recover on next frame - no manual state cleanup needed
-    {:noreply, socket}
+    {:noreply, assign(socket, processing?: false)}
   end
 
   @impl true
@@ -178,42 +180,44 @@ defmodule ImaginativeRestorationWeb.AppLive do
   end
 
   defp handle_capture_frame(dataurl, socket) do
-    frame_image = Utils.to_image!(dataurl)
-
-    # Check if frame has changed enough compared to the last one
-    skip_process? =
-      case socket.assigns.frame_image do
-        nil ->
-          false
-
-        last_frame ->
-          difference = frame_difference(last_frame, frame_image)
-          threshold = socket.assigns.image_difference_threshold
-          difference <= threshold
-      end
-
-    if skip_process? do
-      # Frame hasn't changed enough, skip processing
-      Logger.debug("Frame hasn't changed enough (below threshold), skipping processing")
-      {:noreply, assign(socket, frame_image: frame_image)}
-    else
-      # Frame has changed enough - start async processing
-      # This will automatically cancel any previous in-flight :process_frame task
-      socket =
-        socket
-        |> assign(frame_image: frame_image)
-        |> start_async(:process_frame, fn ->
-          dataurl
-          |> ImaginativeRestoration.Sketches.init!()
-          |> ImaginativeRestoration.Sketches.process!()
-        end)
-        |> push_event("capture_triggered", %{})
-
+    # Skip if already processing a frame
+    if socket.assigns.processing? do
       {:noreply, socket}
+    else
+      frame_image = Utils.to_image!(dataurl)
+
+      # Check if frame has changed enough compared to the last one
+      skip_process? =
+        case socket.assigns.frame_image do
+          nil ->
+            false
+
+          last_frame ->
+            difference = frame_difference(last_frame, frame_image)
+            threshold = socket.assigns.image_difference_threshold
+            difference <= threshold
+        end
+
+      if skip_process? do
+        # Frame hasn't changed enough, skip processing
+        Logger.debug("Frame hasn't changed enough (below threshold), skipping processing")
+        {:noreply, assign(socket, frame_image: frame_image)}
+      else
+        # Frame has changed enough - start async processing
+        socket =
+          socket
+          |> assign(frame_image: frame_image, processing?: true)
+          |> start_async(:process_frame, fn ->
+            dataurl
+            |> ImaginativeRestoration.Sketches.init!()
+            |> ImaginativeRestoration.Sketches.process!()
+          end)
+          |> push_event("capture_triggered", %{})
+
+        {:noreply, socket}
+      end
     end
   end
-
-
 
   defp frame_difference(frame1, frame2) do
     # For sketches, we'll use RMSE comparison which gives us a value between 0.0 and 1.0
@@ -223,13 +227,13 @@ defmodule ImaginativeRestorationWeb.AppLive do
         # Convert to percentage scale (0-100) for easier threshold configuration
         diff_percent = difference * 100
         diff_percent
+
       {:error, _reason} ->
         # Fallback to hamming distance if compare fails
         {:ok, distance} = Image.hamming_distance(frame1, frame2)
         distance
     end
   end
-
 
   defp update_recent_images(recent_images, new_sketch) do
     # Find if this sketch already exists in the list
