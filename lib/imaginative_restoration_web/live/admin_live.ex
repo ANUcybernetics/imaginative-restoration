@@ -4,15 +4,15 @@ defmodule ImaginativeRestorationWeb.AdminLive do
   """
   use ImaginativeRestorationWeb, :live_view
 
-  import ImaginativeRestorationWeb.AppComponents
   import Ash.Expr
+  import ImaginativeRestorationWeb.AppComponents
 
   alias ImaginativeRestoration.Sketches.Prompt
   alias ImaginativeRestoration.Sketches.Sketch
   alias ImaginativeRestoration.Utils
 
-  require Logger
   require Ash.Query
+  require Logger
 
   @impl true
   def render(assigns) do
@@ -21,19 +21,30 @@ defmodule ImaginativeRestorationWeb.AdminLive do
       <!-- Header -->
       <h1 class="text-2xl font-bold">Admin Dashboard</h1>
       
-      <!-- Live Webcam with Crop Box and Frame Differences -->
+    <!-- Live Webcam with Crop Box and Frame Differences -->
       <div class="bg-gray-800 p-4 rounded-lg">
         <h2 class="text-lg font-semibold mb-4">Live Webcam Configuration</h2>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div>
             <h3 class="text-sm font-medium mb-2">Live Stream with Crop Box</h3>
             <div class="relative h-[300px] bg-black">
-              <.webcam_capture class="h-full" capture_interval={1_000} show_full_frame={true} camera_error={@camera_error} />
+              <.webcam_capture
+                class="h-full"
+                capture_interval={1_000}
+                show_full_frame={true}
+                camera_error={@camera_error}
+              />
               <!-- Crop box overlay will be drawn by JavaScript -->
-              <div id="crop-box-overlay" phx-update="ignore" class="absolute inset-0 pointer-events-none" style="z-index: 30;"></div>
+              <div
+                id="crop-box-overlay"
+                phx-update="ignore"
+                class="absolute inset-0 pointer-events-none"
+                style="z-index: 30;"
+              >
+              </div>
             </div>
           </div>
-          
+
           <div>
             <h3 class="text-sm font-medium mb-2">Cropped Image Preview</h3>
             <div class="relative h-[300px] bg-black flex items-center justify-center">
@@ -41,9 +52,18 @@ defmodule ImaginativeRestorationWeb.AdminLive do
                 <img :if={@cropped_frame} class="h-full object-contain" src={@cropped_frame} />
               <% else %>
                 <div class="text-center p-4">
-                  <svg class="w-12 h-12 mx-auto text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                  <svg
+                    class="w-12 h-12 mx-auto text-gray-600 mb-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    >
                     </path>
                   </svg>
                   <p class="text-sm text-gray-400">No capture_box URL param specified</p>
@@ -52,11 +72,14 @@ defmodule ImaginativeRestorationWeb.AdminLive do
               <% end %>
             </div>
           </div>
-          
+
           <div>
             <h3 class="text-sm font-medium mb-2">Frame Difference Calibration</h3>
             <div class="bg-gray-900 p-3 rounded">
-              <p class="text-sm mb-2">Current threshold: <span class="font-mono text-yellow-400">{@image_difference_threshold}</span></p>
+              <p class="text-sm mb-2">
+                Current threshold:
+                <span class="font-mono text-yellow-400">{@image_difference_threshold}</span>
+              </p>
               <p class="text-sm mb-2">Inter-frame distances:</p>
               <div class="font-mono text-lg">
                 <%= for distance <- Utils.inter_image_distances(@recent_images) do %>
@@ -72,8 +95,8 @@ defmodule ImaginativeRestorationWeb.AdminLive do
           </div>
         </div>
       </div>
-
-      <!-- System Information -->
+      
+    <!-- System Information -->
       <div class="bg-gray-800 p-4 rounded-lg">
         <h2 class="text-lg font-semibold mb-4">System Information</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -85,38 +108,38 @@ defmodule ImaginativeRestorationWeb.AdminLive do
               <div class="bg-blue-500 h-2 rounded-full" style={"width: #{@disk_used_percent}%"}></div>
             </div>
           </div>
-          
+
           <div class="bg-gray-900 p-3 rounded">
             <h3 class="text-sm font-medium text-gray-400">Capture Interval</h3>
             <p class="text-2xl font-mono">{@capture_interval_seconds}s</p>
           </div>
-          
+
           <div class="bg-gray-900 p-3 rounded">
             <h3 class="text-sm font-medium text-gray-400">Total Sketches</h3>
             <p class="text-2xl font-mono">{@total_sketches}</p>
           </div>
         </div>
         
-        <!-- Processed Sketches Statistics -->
+    <!-- Processed Sketches Statistics -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="bg-gray-900 p-3 rounded">
             <h3 class="text-sm font-medium text-gray-400">Processed (5 min)</h3>
             <p class="text-2xl font-mono text-green-400">{@processed_last_5_minutes}</p>
           </div>
-          
+
           <div class="bg-gray-900 p-3 rounded">
             <h3 class="text-sm font-medium text-gray-400">Processed (1 hr)</h3>
             <p class="text-2xl font-mono text-yellow-400">{@processed_last_hour}</p>
           </div>
-          
+
           <div class="bg-gray-900 p-3 rounded">
             <h3 class="text-sm font-medium text-gray-400">Processed (24 hrs)</h3>
             <p class="text-2xl font-mono text-blue-400">{@processed_last_24_hours}</p>
           </div>
         </div>
       </div>
-
-      <!-- Recent Sketches -->
+      
+    <!-- Recent Sketches -->
       <div class="bg-gray-800 p-4 rounded-lg">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-semibold">Recent Sketch Pipeline Results</h2>
@@ -124,10 +147,13 @@ defmodule ImaginativeRestorationWeb.AdminLive do
             Process Recent Sketches
           </.button>
         </div>
-        
+
         <div id="sketches" phx-update="stream" class="space-y-4">
-          <div :for={{dom_id, sketch} <- @streams.sketches} id={dom_id} 
-               class="bg-gray-900 p-3 rounded-lg">
+          <div
+            :for={{dom_id, sketch} <- @streams.sketches}
+            id={dom_id}
+            class="bg-gray-900 p-3 rounded-lg"
+          >
             <div class="flex gap-4 items-center">
               <div class="flex-1">
                 <p class="text-sm text-gray-400 mb-1">
@@ -140,8 +166,10 @@ defmodule ImaginativeRestorationWeb.AdminLive do
                   </div>
                   <div>
                     <p class="text-xs text-gray-400 mb-1">Output</p>
-                    <img src={sketch.processed || sketch.raw} 
-                         class={["h-full rounded", !sketch.processed && "opacity-50"]} />
+                    <img
+                      src={sketch.processed || sketch.raw}
+                      class={["h-full rounded", !sketch.processed && "opacity-50"]}
+                    />
                     <span :if={!sketch.processed} class="text-xs text-yellow-400">Processing...</span>
                   </div>
                 </div>
@@ -150,8 +178,8 @@ defmodule ImaginativeRestorationWeb.AdminLive do
           </div>
         </div>
       </div>
-
-      <!-- Prompt Examples -->
+      
+    <!-- Prompt Examples -->
       <div class="bg-gray-800 p-4 rounded-lg">
         <h2 class="text-lg font-semibold mb-4">Example Prompts</h2>
         <ul class="list-disc list-inside space-y-1">
@@ -190,7 +218,7 @@ defmodule ImaginativeRestorationWeb.AdminLive do
       |> Ash.read!()
 
     # Get total sketch count
-    total_sketches = Sketch |> Ash.count!()
+    total_sketches = Ash.count!(Sketch)
 
     # Get processed sketch counts for different time windows
     processed_counts = get_processed_counts()
@@ -198,7 +226,7 @@ defmodule ImaginativeRestorationWeb.AdminLive do
     # Get configuration values
     difference_threshold = Application.get_env(:imaginative_restoration, :image_difference_threshold)
     capture_interval = Application.get_env(:imaginative_restoration, :webcam_capture_interval)
-    
+
     # Get disk space info
     {disk_free_gb, disk_used_gb, disk_total_gb, disk_used_percent} = get_disk_space_info()
 
@@ -235,18 +263,19 @@ defmodule ImaginativeRestorationWeb.AdminLive do
       Enum.take([latest_raw_image | socket.assigns.recent_images], number_of_images)
 
     # For admin view, only update the cropped frame preview
-    assigns = if Map.get(params, "is_admin", false) do
-      %{
-        cropped_frame: dataurl,
-        recent_images: recent_images
-      }
-    else
-      # Regular behavior - update frame for non-admin view
-      %{
-        frame: dataurl,
-        recent_images: recent_images
-      }
-    end
+    assigns =
+      if Map.get(params, "is_admin", false) do
+        %{
+          cropped_frame: dataurl,
+          recent_images: recent_images
+        }
+      else
+        # Regular behavior - update frame for non-admin view
+        %{
+          frame: dataurl,
+          recent_images: recent_images
+        }
+      end
 
     {:noreply, assign(socket, assigns)}
   end
@@ -263,9 +292,9 @@ defmodule ImaginativeRestorationWeb.AdminLive do
       type: params["error_type"],
       message: params["error_message"]
     }
-    
+
     Logger.warning("Camera error: #{camera_error.type} - #{camera_error.message}")
-    
+
     {:noreply, assign(socket, camera_error: camera_error)}
   end
 
@@ -300,7 +329,7 @@ defmodule ImaginativeRestorationWeb.AdminLive do
   @impl true
   def handle_info(:update_disk_space, socket) do
     {disk_free_gb, disk_used_gb, disk_total_gb, disk_used_percent} = get_disk_space_info()
-    
+
     {:noreply,
      assign(socket,
        disk_free_gb: disk_free_gb,
@@ -314,7 +343,7 @@ defmodule ImaginativeRestorationWeb.AdminLive do
   def handle_info(:update_processed_counts, socket) do
     # Get updated processed sketch counts
     processed_counts = get_processed_counts()
-    
+
     {:noreply,
      assign(socket,
        processed_last_5_minutes: processed_counts.last_5_minutes,
@@ -325,10 +354,11 @@ defmodule ImaginativeRestorationWeb.AdminLive do
 
   defp get_processed_counts do
     now = DateTime.utc_now()
-    
+
     # Count processed sketches in last 5 minutes
     five_min_ago = DateTime.add(now, -5, :minute)
-    count_5_min = 
+
+    count_5_min =
       Sketch
       |> Ash.Query.for_read(:read)
       |> Ash.Query.filter(expr(not is_nil(processed) and updated_at > ^five_min_ago))
@@ -336,7 +366,8 @@ defmodule ImaginativeRestorationWeb.AdminLive do
 
     # Count processed sketches in last hour
     one_hour_ago = DateTime.add(now, -1, :hour)
-    count_hour = 
+
+    count_hour =
       Sketch
       |> Ash.Query.for_read(:read)
       |> Ash.Query.filter(expr(not is_nil(processed) and updated_at > ^one_hour_ago))
@@ -344,7 +375,8 @@ defmodule ImaginativeRestorationWeb.AdminLive do
 
     # Count processed sketches in last 24 hours
     one_day_ago = DateTime.add(now, -24, :hour)
-    count_24h = 
+
+    count_24h =
       Sketch
       |> Ash.Query.for_read(:read)
       |> Ash.Query.filter(expr(not is_nil(processed) and updated_at > ^one_day_ago))
@@ -367,7 +399,7 @@ defmodule ImaginativeRestorationWeb.AdminLive do
         case Enum.at(lines, 1) do
           nil ->
             {0, 0, 0, 0}
-          
+
           line ->
             # Split by whitespace and get relevant fields
             parts = String.split(line, ~r/\s+/)
@@ -378,15 +410,15 @@ defmodule ImaginativeRestorationWeb.AdminLive do
                 total_gb = parse_size_to_gb(size)
                 used_gb = parse_size_to_gb(used)
                 free_gb = parse_size_to_gb(avail)
-                percent = String.trim_trailing(use_percent, "%") |> String.to_integer()
-                
+                percent = use_percent |> String.trim_trailing("%") |> String.to_integer()
+
                 {free_gb, used_gb, total_gb, percent}
-              
+
               _ ->
                 {0, 0, 0, 0}
             end
         end
-      
+
       _ ->
         {0, 0, 0, 0}
     end
@@ -397,6 +429,7 @@ defmodule ImaginativeRestorationWeb.AdminLive do
     case Regex.run(~r/^([\d.]+)([KMGT]?)/, size_str) do
       [_, number, unit] ->
         num = String.to_float(number)
+
         case unit do
           "T" -> round(num * 1024)
           "G" -> round(num)
@@ -404,7 +437,7 @@ defmodule ImaginativeRestorationWeb.AdminLive do
           "K" -> round(num / 1024 / 1024)
           _ -> round(num)
         end
-      
+
       _ ->
         0
     end

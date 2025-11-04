@@ -60,14 +60,18 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       {:ok, _view, html} = live(authenticated_conn(conn), "/")
 
       # Check initial state through rendered HTML
-      assert html =~ "Display" # page title for non-capture mode
-      assert html =~ "background-audio" # has audio in display mode
-      refute html =~ "Processing..." # no processing indicators initially
+      # page title for non-capture mode
+      assert html =~ "Display"
+      # has audio in display mode
+      assert html =~ "background-audio"
+      # no processing indicators initially
+      refute html =~ "Processing..."
     end
   end
 
   describe "pre-populating sketches" do
-    @tag :skip  # Requires database setup
+    # Requires database setup
+    @tag :skip
     test "handles pre_populate_sketches message", %{conn: conn} do
       {:ok, _view, html} = live(authenticated_conn(conn), "/")
 
@@ -85,7 +89,8 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       {:ok, view, html} = live(authenticated_conn(conn), "/?capture=true")
 
       # Send a webcam frame
-      frame_data = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+      frame_data =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
 
       # Should start processing since no previous images
       render_hook(view, "webcam_frame", %{"frame" => frame_data})
@@ -102,7 +107,8 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       {:ok, view, html} = live(authenticated_conn(conn), "/?capture=true")
 
       # Send an admin frame
-      frame_data = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+      frame_data =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
 
       # Admin frames should not trigger any processing
       render_hook(view, "webcam_frame", %{"frame" => frame_data, "is_admin" => true})
@@ -113,7 +119,8 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       assert html =~ "WebcamStream"
     end
 
-    @tag :skip  # Requires image processing library
+    # Requires image processing library
+    @tag :skip
     test "skips processing when frame is similar to previous", %{conn: conn} do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
@@ -135,21 +142,25 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       assert view.assigns.skip_process? == true
     end
 
-    @tag :skip  # Requires image processing library
+    # Requires image processing library
+    @tag :skip
     test "processes frame when it differs significantly", %{conn: conn} do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
       # Create a processed sketch with a simple image
       processed_sketch = %Sketch{
         id: Ash.UUID.generate(),
-        processed: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+        processed:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
       }
 
       # Set recent_images
       send(view.pid, {:update_assigns, recent_images: [processed_sketch]})
 
       # Send different frame (white pixel instead of black)
-      different_frame = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+      different_frame =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+
       render_hook(view, "webcam_frame", %{"frame" => different_frame})
 
       # Should process the different frame
@@ -163,7 +174,8 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
 
       # Create a new sketch with valid base64 image data
       # This is a 1x1 transparent PNG
-      valid_image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+      valid_image =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
 
       sketch = %Sketch{
         id: Ash.UUID.generate(),
@@ -205,16 +217,19 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
       # Add 6 sketches
-      _sketches = for i <- 1..6 do
-        sketch = %Sketch{id: "sketch-#{i}"}
-        broadcast = %Broadcast{
-          topic: "sketch:updated",
-          event: "update",
-          payload: %{data: sketch}
-        }
-        send(view.pid, broadcast)
-        sketch
-      end
+      _sketches =
+        for i <- 1..6 do
+          sketch = %Sketch{id: "sketch-#{i}"}
+
+          broadcast = %Broadcast{
+            topic: "sketch:updated",
+            event: "update",
+            payload: %{data: sketch}
+          }
+
+          send(view.pid, broadcast)
+          sketch
+        end
 
       # In real usage, this would keep only 5 most recent
       # and drop the oldest sketch
@@ -225,6 +240,7 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
 
       # Add initial sketch
       sketch_id = Ash.UUID.generate()
+
       initial_sketch = %Sketch{
         id: sketch_id,
         processed: nil
@@ -264,6 +280,7 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
 
       # Should push event to client
       sketch_id = sketch.id
+
       assert_push_event(view, "add_sketches", %{
         sketches: [%{id: ^sketch_id, dataurl: ^thumbnail}]
       })
@@ -297,7 +314,8 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
       # Add some sketches with varying processing states
-      valid_image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+      valid_image =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
 
       sketches = [
         %Sketch{id: Ash.UUID.generate(), processed: valid_image},
@@ -325,14 +343,16 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
   end
 
   describe "error handling" do
-    @tag :skip  # Can't easily test error handling with LiveView test
+    # Can't easily test error handling with LiveView test
+    @tag :skip
     test "handles invalid frame data gracefully", %{conn: _conn} do
       # In real usage, invalid frame data would crash the LiveView process
       # Testing this properly would require mocking Utils.to_image!
       assert true
     end
 
-    @tag :skip  # Can't easily test error handling with LiveView test
+    # Can't easily test error handling with LiveView test
+    @tag :skip
     test "handles missing frame parameter", %{conn: _conn} do
       # In real usage, missing frame would cause a function clause error
       # Testing this properly would require catching the LiveView crash
@@ -345,7 +365,9 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
       # Send first frame - should process immediately
-      frame1 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+      frame1 =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+
       render_hook(view, "webcam_frame", %{"frame" => frame1})
 
       # Should receive capture_triggered event for first frame
@@ -353,7 +375,9 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
 
       # Send second frame immediately - with start_async it cancels previous processing
       # and starts new processing for the latest frame
-      frame2 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+      frame2 =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+
       render_hook(view, "webcam_frame", %{"frame" => frame2})
 
       # Should receive another capture_triggered event (previous task is cancelled)
@@ -364,12 +388,16 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
       # Send first frame
-      frame1 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+      frame1 =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+
       render_hook(view, "webcam_frame", %{"frame" => frame1})
       assert_push_event(view, "capture_triggered", %{})
 
       # Send another frame - should process immediately (no waiting for completion message)
-      frame2 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+      frame2 =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+
       render_hook(view, "webcam_frame", %{"frame" => frame2})
 
       # Should process the new frame (start_async handles lifecycle automatically)

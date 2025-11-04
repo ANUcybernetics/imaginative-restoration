@@ -67,8 +67,6 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
     end
   end
 
-
-
   pub_sub do
     module ImaginativeRestorationWeb.Endpoint
     prefix "sketch"

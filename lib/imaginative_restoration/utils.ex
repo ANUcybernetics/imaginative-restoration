@@ -113,6 +113,7 @@ defmodule ImaginativeRestoration.Utils do
         {:ok, difference, _diff_image} ->
           # Convert to percentage scale (0-100)
           difference * 100
+
         {:error, _reason} ->
           # Fallback to hamming distance
           {:ok, d} = Image.hamming_distance(a, b)
