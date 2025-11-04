@@ -11,7 +11,7 @@
 #   - https://pkgs.org/ - resource for finding needed packages
 #   - Ex: elixir:1.18-otp-27
 #
-ARG BUILDER_IMAGE="elixir:1.18-otp-27"
+ARG BUILDER_IMAGE="elixir:1.18-otp-28"
 ARG RUNNER_IMAGE="debian:bookworm-slim"
 
 FROM ${BUILDER_IMAGE} AS builder
