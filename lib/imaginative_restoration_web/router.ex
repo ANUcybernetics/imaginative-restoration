@@ -15,6 +15,16 @@ defmodule ImaginativeRestorationWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :webhook do
+    plug :accepts, ["json"]
+  end
+
+  scope "/webhooks", ImaginativeRestorationWeb do
+    pipe_through :webhook
+
+    post "/replicate/:sketch_id", ReplicateWebhookController, :replicate
+  end
+
   scope "/", ImaginativeRestorationWeb do
     pipe_through :browser
 

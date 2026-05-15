@@ -55,6 +55,7 @@ defmodule ImaginativeRestoration.MixProject do
       {:ash, "~> 3.4"},
       {:ash_sqlite, "~> 0.2"},
       {:ash_phoenix, "~> 2.1"},
+      {:ash_state_machine, "~> 0.2"},
       {:styler, "~> 1.1", only: [:dev, :test], runtime: false},
       {:req, "~> 0.5"},
       {:req_s3, "~> 0.2"},

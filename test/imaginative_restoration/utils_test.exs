@@ -1,7 +1,6 @@
 defmodule ImaginativeRestoration.UtilsTest do
   use ImaginativeRestoration.DataCase
 
-  alias ImaginativeRestoration.Sketches
   alias ImaginativeRestoration.Utils
 
   # Simple fixture for testing
@@ -50,14 +49,12 @@ defmodule ImaginativeRestoration.UtilsTest do
 
     test "returns sketches with processed images" do
       raw_data = sketch_fixture_dataurl_png()
-      {:ok, sketch} = Sketches.init(raw_data)
 
-      # Manually set processed field for test
       processed_sketch =
-        sketch
-        |> Ash.Changeset.for_update(:process, %{})
+        ImaginativeRestoration.Sketches.Sketch
+        |> Ash.Changeset.for_create(:init, %{raw: raw_data})
         |> Ash.Changeset.force_change_attribute(:processed, "data:image/webp;base64,processed_data")
-        |> Ash.update!()
+        |> Ash.create!()
 
       recent = Utils.recent_sketches(1)
       assert length(recent) == 1

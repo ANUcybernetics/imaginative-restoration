@@ -20,6 +20,14 @@ if System.get_env("PHX_SERVER") do
   config :imaginative_restoration, ImaginativeRestorationWeb.Endpoint, server: true
 end
 
+if config_env() == :dev do
+  # Set WEBHOOK_BASE_URL via mise.local.toml (or your shell) to a public tunnel
+  # (e.g. ngrok / cloudflared) so Replicate can call back. Without it, generation
+  # predictions will submit but never complete.
+  config :imaginative_restoration,
+    webhook_base_url: System.get_env("WEBHOOK_BASE_URL", "http://localhost:4000")
+end
+
 if config_env() == :prod do
   database_path =
     System.get_env("DATABASE_PATH") ||
@@ -68,6 +76,7 @@ if config_env() == :prod do
     secret_key_base: secret_key_base
 
   config :imaginative_restoration, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
+  config :imaginative_restoration, webhook_base_url: "https://#{host}"
 
   # ## SSL Support
   #

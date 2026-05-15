@@ -14,8 +14,7 @@ defmodule ImaginativeRestoration.Application do
       {DNSCluster, query: Application.get_env(:imaginative_restoration, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: ImaginativeRestoration.PubSub},
       {Task.Supervisor, name: ImaginativeRestoration.TaskSupervisor},
-      # Start a worker by calling: ImaginativeRestoration.Worker.start_link(arg)
-      # {ImaginativeRestoration.Worker, arg},
+      ImaginativeRestoration.Sketches.Sweeper,
       # Start to serve requests, typically the last entry
       ImaginativeRestorationWeb.Endpoint
     ]

@@ -14,6 +14,8 @@ config :imaginative_restoration, ImaginativeRestorationWeb.Endpoint,
   secret_key_base: "Sa/NkY7mcze1duwlfbIO6Kj9Iqx3JuJMURw1Jl5t0CCopSJwUalMbqMBNDGKvVRR",
   server: false
 
+config :imaginative_restoration, webhook_base_url: "http://localhost:4002"
+
 # Print only warnings and errors during test
 config :logger, level: :warning
 

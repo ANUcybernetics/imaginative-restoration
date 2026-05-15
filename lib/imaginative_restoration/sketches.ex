@@ -10,7 +10,10 @@ defmodule ImaginativeRestoration.Sketches do
     resource Sketch do
       define :init, args: [:raw]
       define :init_with_model, args: [:raw, :model], action: :init
-      define :process
+      define :submit_generation
+      define :complete_generation, args: [:intermediate_image]
+      define :complete, args: [:processed]
+      define :fail, args: [:error]
     end
   end
 end

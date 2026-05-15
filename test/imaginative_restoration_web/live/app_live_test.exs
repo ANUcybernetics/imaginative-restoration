@@ -361,47 +361,22 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
   end
 
   describe "processing concurrency" do
-    test "cancels previous processing when new frame arrives", %{conn: conn} do
+    test "skips new frames while a submission is in flight", %{conn: conn} do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
-      # Send first frame - should process immediately
-      frame1 =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
-
-      render_hook(view, "webcam_frame", %{"frame" => frame1})
-
-      # Should receive capture_triggered event for first frame
-      assert_push_event(view, "capture_triggered", %{})
-
-      # Send second frame immediately - with start_async it cancels previous processing
-      # and starts new processing for the latest frame
-      frame2 =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
-
-      render_hook(view, "webcam_frame", %{"frame" => frame2})
-
-      # Should receive another capture_triggered event (previous task is cancelled)
-      assert_push_event(view, "capture_triggered", %{})
-    end
-
-    test "processes frames continuously without manual state management", %{conn: conn} do
-      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
-
-      # Send first frame
       frame1 =
         "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
 
       render_hook(view, "webcam_frame", %{"frame" => frame1})
       assert_push_event(view, "capture_triggered", %{})
 
-      # Send another frame - should process immediately (no waiting for completion message)
+      # While the first submission is in flight, a second frame should not
+      # trigger another capture.
       frame2 =
         "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
 
       render_hook(view, "webcam_frame", %{"frame" => frame2})
-
-      # Should process the new frame (start_async handles lifecycle automatically)
-      assert_push_event(view, "capture_triggered", %{})
+      refute_push_event(view, "capture_triggered", %{})
     end
   end
 
