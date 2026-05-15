@@ -12,7 +12,7 @@
 #   - Ex: elixir:1.18-otp-27
 #
 ARG BUILDER_IMAGE="elixir:1.18-otp-28"
-ARG RUNNER_IMAGE="debian:bookworm-slim"
+ARG RUNNER_IMAGE="debian:trixie-slim"
 
 FROM ${BUILDER_IMAGE} AS builder
 
@@ -66,7 +66,7 @@ RUN mix release
 FROM ${RUNNER_IMAGE}
 
 RUN apt-get update -y && \
-    apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
+    apt-get install -y libstdc++6 openssl libncurses6 locales ca-certificates \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # Set the locale
