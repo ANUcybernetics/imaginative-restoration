@@ -15,24 +15,6 @@ defmodule ImaginativeRestorationWeb.Router do
     plug :accepts, ["json"]
   end
 
-  pipeline :mcp do
-    plug :accepts, ["json"]
-  end
-
-  # MCP (Model Context Protocol) servers - must come before catch-all routes
-  scope "/ash_ai/mcp" do
-    pipe_through :mcp
-
-    forward "/", AshAi.Mcp.Router,
-      tools: [
-        :read_sketches,
-        :create_sketch,
-        :process_sketch
-      ],
-      protocol_version_statement: "2024-11-05",
-      otp_app: :imaginative_restoration
-  end
-
   scope "/", ImaginativeRestorationWeb do
     pipe_through :browser
 

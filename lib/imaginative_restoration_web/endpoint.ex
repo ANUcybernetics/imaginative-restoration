@@ -36,10 +36,6 @@ defmodule ImaginativeRestorationWeb.Endpoint do
     plug Phoenix.LiveReloader
     plug Phoenix.CodeReloader
     plug Phoenix.Ecto.CheckRepoStatus, otp_app: :imaginative_restoration
-
-    plug AshAi.Mcp.Dev,
-      protocol_version_statement: "2024-11-05",
-      otp_app: :imaginative_restoration
   end
 
   plug Plug.RequestId

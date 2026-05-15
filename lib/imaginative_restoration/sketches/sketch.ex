@@ -43,20 +43,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
       accept [:raw]
       argument :model, :string, default: "black-forest-labs/flux-canny-dev"
 
-      change fn changeset, _context ->
-        model_arg = Ash.Changeset.get_argument(changeset, :model)
-
-        actual_model =
-          case model_arg do
-            # Default if empty string is passed
-            "" -> "black-forest-labs/flux-canny-dev"
-            # Default if nil is passed (should be caught by arg default if not provided)
-            nil -> "black-forest-labs/flux-canny-dev"
-            _ -> model_arg
-          end
-
-        Ash.Changeset.force_change_attribute(changeset, :model, actual_model)
-      end
+      change ImaginativeRestoration.Sketches.Sketch.Changes.SetModelOrDefault
     end
 
     update :process do

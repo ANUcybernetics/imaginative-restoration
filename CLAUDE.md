@@ -12,8 +12,6 @@ This is an Elixir app powered by Ash & Phoenix LiveView.
 - prefer using LiveView instead of regular Controllers
 - once you are done with changes, run `mix compile` and fix any issues
 - write tests for your changes and ALWAYS run `mix test` afterwards
-- use `ExUnitProperties` for property-based testing and `use Ash.Generator` to
-  create seed data for these tests
 - in tests, don't require exact matches of error messages - raising the right
   type of error is enough
 - use `list_generators` to list available generators when available, otherwise
@@ -174,13 +172,4 @@ _A code generation and project patching framework _
 - Use `Task.async_stream/3` for concurrent enumeration with back-pressure
 
 <!-- usage_rules:otp-end -->
-<!-- ash_ai-start -->
-
-## ash_ai usage
-
-_Integrated LLM features for your Ash application. _
-
-@deps/ash_ai/usage-rules.md
-
-<!-- ash_ai-end -->
 <!-- usage-rules-end -->

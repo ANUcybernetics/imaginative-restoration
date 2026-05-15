@@ -418,7 +418,7 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
 
       # Can't access assigns directly, but we know it uses the configured threshold
       configured_threshold = Application.get_env(:imaginative_restoration, :image_difference_threshold)
-      assert configured_threshold != nil
+      assert configured_threshold
     end
 
     test "capture interval is now 1 second", %{conn: conn} do
