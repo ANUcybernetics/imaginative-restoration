@@ -17,7 +17,7 @@ ARG RUNNER_IMAGE="debian:trixie-slim"
 FROM ${BUILDER_IMAGE} AS builder
 
 # install build dependencies
-RUN apt-get update -y && apt-get install -y build-essential git wget npm \
+RUN apt-get update -y && apt-get install -y build-essential git wget \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # prepare build dir
@@ -45,11 +45,9 @@ COPY priv priv
 
 COPY lib lib
 
-# install npm packages
 COPY assets assets
-RUN cd assets && npm ci --loglevel verbose
 
-# compile assets
+# compile assets (esbuild resolves Phoenix JS via NODE_PATH=../deps, set in config.exs)
 RUN mix assets.deploy
 
 # Compile the release
