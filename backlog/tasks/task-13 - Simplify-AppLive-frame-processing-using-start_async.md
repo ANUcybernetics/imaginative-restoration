@@ -1,9 +1,10 @@
 ---
 id: task-13
 title: Simplify AppLive frame processing using start_async
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-11-03 11:02'
+updated_date: '2026-05-15 22:46'
 labels:
   - bug
   - refactor
@@ -29,11 +30,17 @@ Files to modify:
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Remove is_processing, last_processed_frame, skip_process? from socket state
-- [ ] #2 Replace handle_capture_frame logic to use start_async(:process_frame, fn -> ... end)
-- [ ] #3 Add handle_async(:process_frame, {:ok, _}, socket) for successful completion
-- [ ] #4 Add handle_async(:process_frame, {:exit, reason}, socket) for crash handling
-- [ ] #5 Remove start_processing_task/1 helper function
-- [ ] #6 Remove :processing_complete message handler
-- [ ] #7 System correctly processes frames and recovers from failures without manual intervention
+- [x] #1 Remove is_processing, last_processed_frame, skip_process? from socket state
+- [x] #2 Replace handle_capture_frame logic to use start_async(:process_frame, fn -> ... end)
+- [x] #3 Add handle_async(:process_frame, {:ok, _}, socket) for successful completion
+- [x] #4 Add handle_async(:process_frame, {:exit, reason}, socket) for crash handling
+- [x] #5 Remove start_processing_task/1 helper function
+- [x] #6 Remove :processing_complete message handler
+- [x] #7 System correctly processes frames and recovers from failures without manual intervention
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Done as part of the Replicate webhook refactor (lib/imaginative_restoration_web/live/app_live.ex). Socket state now uses current_sketch_id (nil | :pending | integer) instead of is_processing / last_processed_frame / skip_process?. Frame submission goes through start_async(:submit, ...) with matching handle_async clauses for {:ok, sketch} and {:exit, reason}. start_processing_task/1 and :processing_complete are gone. Note: the async name in the implementation is :submit rather than :process_frame because the action now fire-and-forgets to Replicate via webhook rather than waiting for processing to complete.
+<!-- SECTION:NOTES:END -->
