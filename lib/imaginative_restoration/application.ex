@@ -34,7 +34,8 @@ defmodule ImaginativeRestoration.Application do
   end
 
   defp skip_migrations? do
-    # By default, sqlite migrations are run when using a release
+    # In releases, run migrations manually via /app/bin/migrate rather than on boot —
+    # the sketches table is multi-GB and we want explicit control over when it runs.
     System.get_env("RELEASE_NAME") != nil
   end
 end
