@@ -162,15 +162,17 @@ defmodule ImaginativeRestorationWeb.AdminLive do
                 <div class="flex gap-4 h-[120px]">
                   <div>
                     <p class="text-xs text-gray-400 mb-1">Input</p>
-                    <img src={sketch.raw} class="h-full rounded" />
+                    <img src={Sketch.raw_url(sketch)} class="h-full rounded" />
                   </div>
                   <div>
                     <p class="text-xs text-gray-400 mb-1">Output</p>
                     <img
-                      src={sketch.processed || sketch.raw}
-                      class={["h-full rounded", !sketch.processed && "opacity-50"]}
+                      src={Sketch.processed_url(sketch) || Sketch.raw_url(sketch)}
+                      class={["h-full rounded", !Sketch.processed_url(sketch) && "opacity-50"]}
                     />
-                    <span :if={!sketch.processed} class="text-xs text-yellow-400">Processing...</span>
+                    <span :if={!Sketch.processed_url(sketch)} class="text-xs text-yellow-400">
+                      Processing...
+                    </span>
                   </div>
                 </div>
               </div>
@@ -361,7 +363,7 @@ defmodule ImaginativeRestorationWeb.AdminLive do
     count_5_min =
       Sketch
       |> Ash.Query.for_read(:read)
-      |> Ash.Query.filter(expr(not is_nil(processed) and updated_at > ^five_min_ago))
+      |> Ash.Query.filter(expr(state == :succeeded and updated_at > ^five_min_ago))
       |> Ash.count!()
 
     # Count processed sketches in last hour
@@ -370,7 +372,7 @@ defmodule ImaginativeRestorationWeb.AdminLive do
     count_hour =
       Sketch
       |> Ash.Query.for_read(:read)
-      |> Ash.Query.filter(expr(not is_nil(processed) and updated_at > ^one_hour_ago))
+      |> Ash.Query.filter(expr(state == :succeeded and updated_at > ^one_hour_ago))
       |> Ash.count!()
 
     # Count processed sketches in last 24 hours
@@ -379,7 +381,7 @@ defmodule ImaginativeRestorationWeb.AdminLive do
     count_24h =
       Sketch
       |> Ash.Query.for_read(:read)
-      |> Ash.Query.filter(expr(not is_nil(processed) and updated_at > ^one_day_ago))
+      |> Ash.Query.filter(expr(state == :succeeded and updated_at > ^one_day_ago))
       |> Ash.count!()
 
     %{

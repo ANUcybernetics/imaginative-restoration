@@ -268,21 +268,25 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
     end
   end
 
-  describe "thumbnail generation" do
-    test "pushes thumbnail to client when ready", %{conn: conn} do
+  describe "thumbnail push on succeeded broadcast" do
+    test "pushes the stored thumbnail to the client when a sketch reaches :succeeded", %{conn: conn} do
       {:ok, view, _html} = live(authenticated_conn(conn), "/")
 
-      sketch = %Sketch{id: Ash.UUID.generate()}
-      thumbnail = "data:image/png;base64,thumbnail"
+      sketch_id = Ash.UUID.generate()
+      thumbnail_bytes = <<1, 2, 3, 4>>
 
-      # Simulate thumbnail ready message
-      send(view.pid, {:thumbnail_ready, sketch, thumbnail})
+      sketch = %Sketch{id: sketch_id, state: :succeeded, thumbnail: thumbnail_bytes}
 
-      # Should push event to client
-      sketch_id = sketch.id
+      send(view.pid, %Broadcast{
+        topic: "sketch:updated",
+        event: "update",
+        payload: %{data: sketch}
+      })
+
+      expected_dataurl = "data:image/avif;base64," <> Base.encode64(thumbnail_bytes)
 
       assert_push_event(view, "add_sketches", %{
-        sketches: [%{id: ^sketch_id, dataurl: ^thumbnail}]
+        sketches: [%{id: ^sketch_id, dataurl: ^expected_dataurl}]
       })
     end
   end

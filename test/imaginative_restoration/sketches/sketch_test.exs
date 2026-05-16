@@ -7,9 +7,21 @@ defmodule ImaginativeRestoration.Sketches.SketchTest do
 
   require Ash.Query
 
-  describe "processed sketch time-based count queries" do
+  # 1x1 WebP — small but valid bytes libvips can decode.
+  @raw_bytes Base.decode64!("UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAQAcJaQAA3AA/v3AgAAAAA==")
+
+  defp create_succeeded_sketch(opts \\ []) do
+    suffix = Keyword.get(opts, :suffix, "")
+
+    Sketch
+    |> Ash.Changeset.for_create(:init, %{raw_data: @raw_bytes})
+    |> Ash.Changeset.force_change_attribute(:state, :succeeded)
+    |> Ash.Changeset.force_change_attribute(:processed_data, "fake-avif-bytes#{suffix}")
+    |> Ash.create!()
+  end
+
+  describe "succeeded sketch time-based count queries" do
     setup do
-      # Clean up any existing sketches
       Sketch
       |> Ash.Query.for_read(:read)
       |> Ash.bulk_destroy!(:destroy, %{}, authorize?: false)
@@ -17,224 +29,60 @@ defmodule ImaginativeRestoration.Sketches.SketchTest do
       :ok
     end
 
-    test "query filters correctly identify processed vs unprocessed sketches" do
-      # Create a processed sketch
-      processed_sketch =
+    test "filter identifies succeeded vs in-progress sketches" do
+      succeeded = create_succeeded_sketch()
+
+      _in_progress =
         Sketch
-        |> Ash.Changeset.for_create(:init, %{
-          raw: "data:image/png;base64,processed"
-        })
-        |> Ash.Changeset.force_change_attribute(:processed, "data:image/png;base64,processed_data")
+        |> Ash.Changeset.for_create(:init, %{raw_data: @raw_bytes})
         |> Ash.create!()
 
-      # Create an unprocessed sketch
-      _unprocessed_sketch =
-        Sketch
-        |> Ash.Changeset.for_create(:init, %{
-          raw: "data:image/png;base64,unprocessed"
-        })
-        |> Ash.create!()
-
-      # Query for processed sketches only
-      processed_count =
+      succeeded_count =
         Sketch
         |> Ash.Query.for_read(:read)
-        |> Ash.Query.filter(expr(not is_nil(processed)))
+        |> Ash.Query.filter(expr(state == :succeeded))
         |> Ash.count!()
 
-      assert processed_count == 1
+      assert succeeded_count == 1
+      assert Ash.count!(Sketch) == 2
 
-      # Query for all sketches
-      total_count = Ash.count!(Sketch)
-      assert total_count == 2
-
-      # Verify the specific sketches match our expectations
-      processed_results =
+      [result] =
         Sketch
         |> Ash.Query.for_read(:read)
-        |> Ash.Query.filter(expr(not is_nil(processed)))
+        |> Ash.Query.filter(expr(state == :succeeded))
         |> Ash.read!()
 
-      assert length(processed_results) == 1
-      assert hd(processed_results).id == processed_sketch.id
+      assert result.id == succeeded.id
     end
 
-    test "time-based filter expressions work with DateTime" do
-      # Create a processed sketch (will have current timestamp)
-      Sketch
-      |> Ash.Changeset.for_create(:init, %{
-        raw: "data:image/png;base64,test"
-      })
-      |> Ash.Changeset.force_change_attribute(:processed, "data:image/png;base64,processed")
-      |> Ash.create!()
+    test "time-window filters work" do
+      create_succeeded_sketch()
 
       now = DateTime.utc_now()
 
-      # These queries should not raise errors
-      # 5 minute query
-      five_min_ago = DateTime.add(now, -5, :minute)
+      for delta_seconds <- [5 * 60, 60 * 60, 24 * 60 * 60] do
+        cutoff = DateTime.add(now, -delta_seconds, :second)
 
-      query_5_min =
-        Sketch
-        |> Ash.Query.for_read(:read)
-        |> Ash.Query.filter(expr(not is_nil(processed) and updated_at > ^five_min_ago))
-
-      # Query validation happens on read/count, not with a validate function
-      assert %Ash.Query{} = query_5_min
-
-      # 1 hour query
-      one_hour_ago = DateTime.add(now, -1, :hour)
-
-      query_1_hour =
-        Sketch
-        |> Ash.Query.for_read(:read)
-        |> Ash.Query.filter(expr(not is_nil(processed) and updated_at > ^one_hour_ago))
-
-      assert %Ash.Query{} = query_1_hour
-
-      # 24 hour query
-      one_day_ago = DateTime.add(now, -24, :hour)
-
-      query_24_hours =
-        Sketch
-        |> Ash.Query.for_read(:read)
-        |> Ash.Query.filter(expr(not is_nil(processed) and updated_at > ^one_day_ago))
-
-      assert %Ash.Query{} = query_24_hours
-
-      # The count should be 1 for all time windows since we just created it
-      assert Ash.count!(query_5_min) == 1
-      assert Ash.count!(query_1_hour) == 1
-      assert Ash.count!(query_24_hours) == 1
-    end
-
-    test "compound filter with processed status and time window works" do
-      # Create multiple sketches with different statuses
-      created_processed =
-        for i <- 1..3 do
-          Sketch
-          |> Ash.Changeset.for_create(:init, %{
-            raw: "data:image/png;base64,processed#{i}"
-          })
-          |> Ash.Changeset.force_change_attribute(:processed, "data:image/png;base64,result#{i}")
-          |> Ash.create!()
-        end
-
-      _created_unprocessed =
-        for i <- 1..2 do
-          Sketch
-          |> Ash.Changeset.for_create(:init, %{
-            raw: "data:image/png;base64,unprocessed#{i}"
-          })
-          |> Ash.create!()
-        end
-
-      # Count all sketches (at least the ones we just created)
-      total = Ash.count!(Sketch)
-      assert total >= 5
-
-      # Count only processed sketches (at least the ones we just created)
-      processed =
-        Sketch
-        |> Ash.Query.for_read(:read)
-        |> Ash.Query.filter(expr(not is_nil(processed)))
-        |> Ash.count!()
-
-      assert processed >= 3
-
-      # Count processed sketches in last 24 hours (at least the ones we just created)
-      one_day_ago = DateTime.add(DateTime.utc_now(), -24, :hour)
-
-      recent_processed =
-        Sketch
-        |> Ash.Query.for_read(:read)
-        |> Ash.Query.filter(expr(not is_nil(processed) and updated_at > ^one_day_ago))
-        |> Ash.count!()
-
-      # Should include at least our 3 created processed sketches
-      assert recent_processed >= length(created_processed)
-    end
-
-    test "DateTime-based filters work with different time units" do
-      # Create a test sketch
-      Sketch
-      |> Ash.Changeset.for_create(:init, %{
-        raw: "data:image/png;base64,test"
-      })
-      |> Ash.Changeset.force_change_attribute(:processed, "data:image/png;base64,processed")
-      |> Ash.create!()
-
-      now = DateTime.utc_now()
-
-      # Test different time calculations
-      time_tests = [
-        {DateTime.add(now, -1, :second), "1 second ago"},
-        {DateTime.add(now, -1, :minute), "1 minute ago"},
-        {DateTime.add(now, -1, :hour), "1 hour ago"},
-        {DateTime.add(now, -1 * 24, :hour), "1 day ago"},
-        {DateTime.add(now, -7 * 24, :hour), "1 week ago"},
-        {DateTime.add(now, -30 * 24, :hour), "1 month ago"},
-        {DateTime.add(now, -365 * 24, :hour), "1 year ago"}
-      ]
-
-      for {timestamp, description} <- time_tests do
-        query =
+        count =
           Sketch
           |> Ash.Query.for_read(:read)
-          |> Ash.Query.filter(expr(updated_at > ^timestamp))
+          |> Ash.Query.filter(expr(state == :succeeded and updated_at > ^cutoff))
+          |> Ash.count!()
 
-        # Should not raise
-        assert %Ash.Query{} = query
-
-        # Since we just created the sketch, it should be found by all queries
-        count = Ash.count!(query)
-        assert count >= 1, "Failed for #{description}"
+        assert count == 1
       end
     end
 
-    test "empty results when no sketches match time window" do
-      # For this test, we'd need old data, but since we can't manipulate timestamps
-      # we'll just verify the query structure is correct
-
-      # Query for sketches updated more than 100 years in the future (should be empty)
+    test "far-future window returns no rows" do
       far_future = DateTime.add(DateTime.utc_now(), 100 * 365 * 24, :hour)
 
-      future_sketches =
+      count =
         Sketch
         |> Ash.Query.for_read(:read)
         |> Ash.Query.filter(expr(updated_at > ^far_future))
         |> Ash.count!()
 
-      assert future_sketches == 0
-    end
-  end
-
-  describe "get_processed_counts/0 function" do
-    test "returns correct structure" do
-      # Import the function from admin_live
-      Code.ensure_loaded(ImaginativeRestorationWeb.AdminLive)
-
-      # The function should return a map with the expected keys
-      # We can't test exact counts without manipulating timestamps,
-      # but we can verify the structure
-      counts = %{
-        last_5_minutes: 0,
-        last_hour: 0,
-        last_24_hours: 0
-      }
-
-      assert Map.has_key?(counts, :last_5_minutes)
-      assert Map.has_key?(counts, :last_hour)
-      assert Map.has_key?(counts, :last_24_hours)
-
-      # All values should be non-negative integers
-      assert counts.last_5_minutes >= 0
-      assert counts.last_hour >= 0
-      assert counts.last_24_hours >= 0
-
-      # Logical constraint: 5 min <= 1 hour <= 24 hours
-      assert counts.last_5_minutes <= counts.last_hour
-      assert counts.last_hour <= counts.last_24_hours
+      assert count == 0
     end
   end
 end

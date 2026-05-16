@@ -4,9 +4,11 @@ defmodule ImaginativeRestoration.Sketches.SweeperTest do
   alias ImaginativeRestoration.Sketches.Sketch
   alias ImaginativeRestoration.Sketches.Sweeper
 
+  @raw_bytes Base.decode64!("UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAQAcJaQAA3AA/v3AgAAAAA==")
+
   defp create_sketch_in_state(state, updated_at) do
     Sketch
-    |> Ash.Changeset.for_create(:init, %{raw: "data:image/webp;base64,test"})
+    |> Ash.Changeset.for_create(:init, %{raw_data: @raw_bytes})
     |> Ash.Changeset.force_change_attribute(:state, state)
     |> Ash.Changeset.force_change_attribute(:updated_at, updated_at)
     |> Ash.create!()

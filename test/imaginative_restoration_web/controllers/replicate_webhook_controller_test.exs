@@ -3,11 +3,11 @@ defmodule ImaginativeRestorationWeb.ReplicateWebhookControllerTest do
 
   alias ImaginativeRestoration.Sketches.Sketch
 
-  defp create_sketch_in_state(state, attrs \\ %{}) do
-    base = %{raw: "data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAQAcJaQAA3AA/v3AgAAAAA=="}
+  @raw_bytes Base.decode64!("UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAQAcJaQAA3AA/v3AgAAAAA==")
 
+  defp create_sketch_in_state(state, attrs \\ %{}) do
     Sketch
-    |> Ash.Changeset.for_create(:init, base)
+    |> Ash.Changeset.for_create(:init, %{raw_data: @raw_bytes})
     |> Ash.Changeset.force_change_attribute(:state, state)
     |> Ash.Changeset.force_change_attribute(:prediction_id, "pred_test")
     |> then(fn cs ->
@@ -29,7 +29,7 @@ defmodule ImaginativeRestorationWeb.ReplicateWebhookControllerTest do
       output_url =
         "https://fly.storage.tigris.dev/imaginative-restoration-sketches/test.webp"
 
-      # The controller calls Utils.to_dataurl! on the output URL, which fetches over HTTP.
+      # The controller calls Utils.to_image! on the output URL, which fetches over HTTP.
       # We can't easily stub that here, so accept that we'll get either 200 (on fetch
       # success) or 500 (on fetch failure) -- the important thing is the controller
       # routes correctly. A pure dispatch test would require introducing a mock.

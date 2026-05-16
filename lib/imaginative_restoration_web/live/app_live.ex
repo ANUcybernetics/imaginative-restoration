@@ -41,14 +41,14 @@ defmodule ImaginativeRestorationWeb.AppLive do
     <!-- Recent processed images -->
           <div :for={image <- @recent_images} class="relative h-full aspect-[4/3]">
             <img
-              src={image.processed || image.raw}
+              src={Sketch.display_url(image)}
               class={[
                 "w-full h-full object-contain",
-                !image.processed && "sketch-processing"
+                !processed?(image) && "sketch-processing"
               ]}
             />
             <span
-              :if={!image.processed}
+              :if={!processed?(image)}
               class="absolute left-1/2 bottom-2 -translate-x-1/2 text-sm font-lacquer font-semibold px-1 py-0.5 text-[#8B2E15] backdrop-blur-md rounded-sm"
             >
               Processing...
@@ -88,7 +88,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
   end
 
   @impl true
-  def handle_event("webcam_frame", %{"frame" => dataurl} = params, socket) do
+  def handle_event("webcam_frame", %{"frame" => "data:image/" <> _ = dataurl} = params, socket) do
     if Map.get(params, "is_admin", false) do
       {:noreply, socket}
     else
@@ -128,13 +128,9 @@ defmodule ImaginativeRestorationWeb.AppLive do
     |> noreply()
   end
 
-  def handle_info({:thumbnail_ready, sketch, thumbnail_dataurl}, socket) do
-    {:noreply, push_event(socket, "add_sketches", %{sketches: [%{id: sketch.id, dataurl: thumbnail_dataurl}]})}
-  end
-
   def handle_info(:pre_populate_sketches, socket) do
     recent_sketches = Utils.recent_sketches(5)
-    sketches = Enum.map(recent_sketches, fn %Sketch{id: id, processed: processed} -> %{id: id, dataurl: processed} end)
+    sketches = Enum.map(recent_sketches, fn sketch -> %{id: sketch.id, dataurl: Sketch.display_url(sketch)} end)
 
     {:noreply,
      socket
@@ -161,11 +157,13 @@ defmodule ImaginativeRestorationWeb.AppLive do
         Logger.debug("Frame hasn't changed enough (below threshold), skipping processing")
         {:noreply, assign(socket, frame_image: frame_image)}
       else
+        raw_data = Utils.decode_dataurl!(dataurl)
+
         socket =
           socket
           |> assign(frame_image: frame_image, current_sketch_id: :pending)
           |> start_async(:submit, fn ->
-            dataurl
+            raw_data
             |> Sketches.init!()
             |> Sketches.submit_generation!()
           end)
@@ -197,18 +195,19 @@ defmodule ImaginativeRestorationWeb.AppLive do
 
   defp clear_current_if_done(socket, _sketch), do: socket
 
-  defp maybe_push_thumbnail(socket, %Sketch{state: :succeeded, processed: processed} = sketch)
-       when is_binary(processed) do
-    pid = self()
-
-    Task.Supervisor.start_child(ImaginativeRestoration.TaskSupervisor, fn ->
-      send(pid, {:thumbnail_ready, sketch, Utils.thumbnail!(processed)})
-    end)
-
-    socket
+  defp maybe_push_thumbnail(socket, %Sketch{state: :succeeded} = sketch) do
+    case Sketch.display_url(sketch) do
+      nil -> socket
+      dataurl -> push_event(socket, "add_sketches", %{sketches: [%{id: sketch.id, dataurl: dataurl}]})
+    end
   end
 
   defp maybe_push_thumbnail(socket, _sketch), do: socket
+
+  defp processed?(%Sketch{thumbnail: t}) when is_binary(t), do: true
+  defp processed?(%Sketch{processed_data: p}) when is_binary(p), do: true
+  defp processed?(%Sketch{processed: p}) when is_binary(p), do: true
+  defp processed?(_), do: false
 
   defp update_recent_images(recent_images, new_sketch) do
     case Enum.find_index(recent_images, &(&1.id == new_sketch.id)) do

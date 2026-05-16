@@ -14,6 +14,7 @@ defmodule ImaginativeRestorationWeb.ReplicateWebhookController do
   alias ImaginativeRestoration.AI.Replicate
   alias ImaginativeRestoration.Sketches
   alias ImaginativeRestoration.Sketches.Sketch
+  alias ImaginativeRestoration.Utils
 
   require Logger
 
@@ -48,8 +49,10 @@ defmodule ImaginativeRestorationWeb.ReplicateWebhookController do
   defp handle({:ok, %Sketch{state: :removing_background} = sketch}, %{"status" => "succeeded"} = payload) do
     case Replicate.extract_output(@bg_removal_model, payload) do
       {:ok, output_url} ->
-        processed = ImaginativeRestoration.Utils.to_dataurl!(output_url)
-        Sketches.complete(sketch, processed)
+        image = Utils.to_image!(output_url)
+        processed_data = Utils.to_avif!(image)
+        thumbnail = Utils.to_thumbnail_avif!(image)
+        Sketches.complete(sketch, processed_data, thumbnail)
 
       {:error, reason} ->
         Sketches.fail(sketch, inspect(reason))

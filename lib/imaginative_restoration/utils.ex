@@ -16,32 +16,63 @@ defmodule ImaginativeRestoration.Utils do
 
   def to_image!("data:image/" <> _ = dataurl) do
     dataurl
-    |> String.split(",", parts: 2)
-    |> List.last()
-    |> Base.decode64!()
+    |> decode_dataurl!()
     |> Image.open!()
   end
 
-  def to_dataurl!(%Vix.Vips.Image{} = image) do
-    image
-    |> Image.write!(:memory, suffix: ".webp", effort: 10)
-    |> Base.encode64()
-    |> then(&("data:image/webp;base64," <> &1))
-  end
+  def to_image!(bytes) when is_binary(bytes), do: Image.open!(bytes)
 
-  def to_dataurl!("http" <> _ = url) do
-    url
-    |> to_image!()
-    |> to_dataurl!()
-  end
-
-  def to_dataurl!("data:image/webp" <> _ = dataurl), do: dataurl
-
-  # convert other dataurls to webp
-  def to_dataurl!("data:image/" <> _ = dataurl) do
+  @doc """
+  Strips the `data:image/<format>;base64,` prefix from a data URL and returns
+  the raw image bytes.
+  """
+  @spec decode_dataurl!(String.t()) :: binary()
+  def decode_dataurl!("data:image/" <> _ = dataurl) do
     dataurl
-    |> to_image!()
-    |> to_dataurl!()
+    |> String.split(",", parts: 2)
+    |> List.last()
+    |> Base.decode64!()
+  end
+
+  @doc """
+  Wraps raw image bytes in a `data:image/<format>;base64,` URL for inline
+  rendering in HTML.
+  """
+  @spec encode_dataurl(binary(), atom() | String.t()) :: String.t()
+  def encode_dataurl(bytes, format) when is_binary(bytes) do
+    "data:image/#{format};base64," <> Base.encode64(bytes)
+  end
+
+  @doc """
+  Encodes a Vix image or raw bytes as AVIF.
+
+  Defaults to libvips' `effort: 4` — a good balance between encode speed and
+  file size. Larger effort values compress further but get much slower.
+  """
+  @spec to_avif!(Vix.Vips.Image.t() | binary(), keyword()) :: binary()
+  def to_avif!(image_or_bytes, opts \\ [])
+
+  def to_avif!(%Vix.Vips.Image{} = image, opts) do
+    effort = Keyword.get(opts, :effort, 4)
+    Image.write!(image, :memory, suffix: ".avif", effort: effort)
+  end
+
+  def to_avif!(bytes, opts) when is_binary(bytes) do
+    bytes |> to_image!() |> to_avif!(opts)
+  end
+
+  @doc """
+  Resizes the image to a thumbnail and encodes it as AVIF.
+  """
+  @spec to_thumbnail_avif!(Vix.Vips.Image.t() | binary(), pos_integer()) :: binary()
+  def to_thumbnail_avif!(image_or_bytes, length \\ 300)
+
+  def to_thumbnail_avif!(%Vix.Vips.Image{} = image, length) do
+    image |> Image.thumbnail!(length) |> to_avif!()
+  end
+
+  def to_thumbnail_avif!(bytes, length) when is_binary(bytes) do
+    bytes |> to_image!() |> to_thumbnail_avif!(length)
   end
 
   def crop!("data:image/" <> _ = dataurl, x, y, w, h) do
@@ -52,13 +83,6 @@ defmodule ImaginativeRestoration.Utils do
 
   def crop!(%Vix.Vips.Image{} = image, x, y, w, h) do
     Image.crop!(image, x, y, w, h)
-  end
-
-  def thumbnail!("data:image/" <> _ = dataurl, length \\ 300) do
-    dataurl
-    |> to_image!()
-    |> Image.thumbnail!(length)
-    |> to_dataurl!()
   end
 
   def upload_to_s3!(%Vix.Vips.Image{} = image, filename) do
@@ -83,22 +107,38 @@ defmodule ImaginativeRestoration.Utils do
     end
   end
 
-  def write_image_from_db(id, attribute \\ :processed) do
-    filename = "#{id}-#{attribute}.webp"
+  @doc """
+  Writes a stored image attribute to a file for inspection.
 
-    Sketch
-    |> Ash.get!(id)
-    |> Map.get(attribute)
-    |> ImaginativeRestoration.Utils.to_image!()
-    |> Image.write!(filename)
-
+  Handles both the new binary columns (`:raw_data`, `:processed_data`,
+  `:thumbnail`) and the legacy data-URL columns (`:raw`, `:processed`).
+  """
+  def write_image_from_db(id, attribute \\ :processed_data) do
+    sketch = Ash.get!(Sketch, id)
+    bytes = sketch |> Map.get(attribute) |> to_bytes!()
+    ext = extension_for(attribute)
+    filename = "#{id}-#{attribute}.#{ext}"
+    File.write!(filename, bytes)
     IO.puts("Image has been written to #{filename}")
   end
+
+  defp to_bytes!(bytes) when is_binary(bytes) do
+    case bytes do
+      "data:image/" <> _ -> decode_dataurl!(bytes)
+      _ -> bytes
+    end
+  end
+
+  defp extension_for(:raw_data), do: "jpg"
+  defp extension_for(:raw), do: "jpg"
+  defp extension_for(:processed_data), do: "avif"
+  defp extension_for(:thumbnail), do: "avif"
+  defp extension_for(:processed), do: "webp"
 
   def recent_sketches(count) do
     Sketch
     |> Ash.Query.for_read(:read)
-    |> Ash.Query.filter(not is_nil(processed))
+    |> Ash.Query.filter(state == :succeeded)
     |> Ash.Query.sort(inserted_at: :desc)
     |> Ash.Query.limit(count)
     |> Ash.read!()

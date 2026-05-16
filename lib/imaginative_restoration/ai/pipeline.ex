@@ -12,6 +12,7 @@ defmodule ImaginativeRestoration.AI.Pipeline do
   alias Ash.Changeset
   alias ImaginativeRestoration.AI.Replicate
   alias ImaginativeRestoration.Sketches.Prompt
+  alias ImaginativeRestoration.Sketches.Sketch
 
   @impl true
   def init(opts) do
@@ -34,8 +35,9 @@ defmodule ImaginativeRestoration.AI.Pipeline do
   defp submit(changeset, :submit_generation) do
     sketch = changeset.data
     prompt = Prompt.random_prompt()
+    raw_dataurl = Sketch.raw_url(sketch)
 
-    case Replicate.submit(sketch.model, sketch.raw, prompt: prompt, webhook_url: webhook_url(sketch)) do
+    case Replicate.submit(sketch.model, raw_dataurl, prompt: prompt, webhook_url: webhook_url(sketch)) do
       {:ok, prediction_id} ->
         changeset
         |> Changeset.force_change_attribute(:prediction_id, prediction_id)

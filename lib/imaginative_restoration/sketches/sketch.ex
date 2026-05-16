@@ -46,7 +46,18 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
   attributes do
     integer_primary_key :id
 
-    attribute :raw, :string, allow_nil?: false
+    attribute :raw_data, :binary
+    attribute :processed_data, :binary
+    attribute :thumbnail, :binary
+    # `:raw` is the legacy text data-URL column, kept NOT NULL at the DB
+    # level because SQLite can't drop the constraint in place. New rows get
+    # an empty placeholder via the default; the column will be removed in a
+    # follow-up migration after backfill.
+    attribute :raw, :string,
+      allow_nil?: false,
+      default: "",
+      constraints: [allow_empty?: true, trim?: false]
+
     attribute :processed, :string
     attribute :intermediate_image, :string
     attribute :prompt, :string
@@ -63,14 +74,16 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
     defaults [:read, :destroy]
 
     create :init do
-      accept [:raw]
+      accept [:raw_data]
       argument :model, :string, default: "black-forest-labs/flux-canny-dev"
+
+      validate present(:raw_data), message: "cannot create without a raw image"
 
       change ImaginativeRestoration.Sketches.Sketch.Changes.SetModelOrDefault
     end
 
     update :submit_generation do
-      validate present(:raw), message: "cannot process without a raw image"
+      validate present(:raw_data), message: "cannot process without a raw image"
       require_atomic? false
 
       change {Pipeline, stage: :submit_generation}
@@ -86,7 +99,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
     end
 
     update :complete do
-      accept [:processed]
+      accept [:processed_data, :thumbnail]
       require_atomic? false
 
       change transition_state(:succeeded)
@@ -98,6 +111,11 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
       change transition_state(:failed)
     end
+
+    update :backfill_images do
+      accept [:raw_data, :processed_data, :thumbnail]
+      require_atomic? false
+    end
   end
 
   pub_sub do
@@ -106,4 +124,37 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
     publish_all :create, "updated"
     publish_all :update, "updated"
   end
+
+  alias ImaginativeRestoration.Utils
+
+  @doc """
+  Returns a data URL suitable for an `<img src=>`, preferring the smallest
+  cached representation available (thumbnail → processed → raw). Legacy
+  data-URL text columns are returned as-is.
+  """
+  def display_url(nil), do: nil
+  def display_url(%{thumbnail: t}) when is_binary(t), do: Utils.encode_dataurl(t, :avif)
+  def display_url(%{processed_data: p}) when is_binary(p), do: Utils.encode_dataurl(p, :avif)
+  def display_url(%{processed: p}) when is_binary(p), do: p
+  def display_url(%{raw_data: r}) when is_binary(r), do: Utils.encode_dataurl(r, :jpeg)
+  def display_url(%{raw: r}) when is_binary(r), do: r
+  def display_url(_), do: nil
+
+  @doc """
+  Like `display_url/1` but only returns the full-resolution processed image,
+  skipping the thumbnail. Used by the admin view for side-by-side previews.
+  """
+  def processed_url(nil), do: nil
+  def processed_url(%{processed_data: p}) when is_binary(p), do: Utils.encode_dataurl(p, :avif)
+  def processed_url(%{processed: p}) when is_binary(p), do: p
+  def processed_url(_), do: nil
+
+  @doc """
+  Returns the raw input image as a data URL. Used by the admin "Input" column
+  and by the Pipeline when submitting to Replicate.
+  """
+  def raw_url(nil), do: nil
+  def raw_url(%{raw_data: r}) when is_binary(r), do: Utils.encode_dataurl(r, :jpeg)
+  def raw_url(%{raw: r}) when is_binary(r), do: r
+  def raw_url(_), do: nil
 end

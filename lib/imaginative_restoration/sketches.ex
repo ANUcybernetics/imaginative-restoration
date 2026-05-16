@@ -8,11 +8,11 @@ defmodule ImaginativeRestoration.Sketches do
 
   resources do
     resource Sketch do
-      define :init, args: [:raw]
-      define :init_with_model, args: [:raw, :model], action: :init
+      define :init, args: [:raw_data]
+      define :init_with_model, args: [:raw_data, :model], action: :init
       define :submit_generation
       define :complete_generation, args: [:intermediate_image]
-      define :complete, args: [:processed]
+      define :complete, args: [:processed_data, :thumbnail]
       define :fail, args: [:error]
     end
   end

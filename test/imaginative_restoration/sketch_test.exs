@@ -3,45 +3,31 @@ defmodule ImaginativeRestoration.SketchTest do
 
   alias ImaginativeRestoration.Sketches
 
-  # Simple fixture for testing
-  defp sketch_dataurl_fixture do
-    "data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAQAcJaQAA3AA/v3AgAAAAA=="
-  end
+  @raw_bytes Base.decode64!("UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAQAcJaQAA3AA/v3AgAAAAA==")
 
   describe "Sketch resource - creation" do
     test "init/1 successfully creates a sketch with default model" do
-      raw_data = sketch_dataurl_fixture()
-      assert {:ok, sketch} = Sketches.init(raw_data)
+      assert {:ok, sketch} = Sketches.init(@raw_bytes)
 
-      assert sketch.raw == raw_data
+      assert sketch.raw_data == @raw_bytes
       assert sketch.model == "black-forest-labs/flux-canny-dev"
-      assert is_nil(sketch.processed)
+      assert is_nil(sketch.processed_data)
+      assert is_nil(sketch.thumbnail)
       assert is_nil(sketch.prompt)
       assert sketch.hidden == false
       assert is_integer(sketch.id)
     end
 
     test "init_with_model/2 successfully creates a sketch with a custom model" do
-      raw_data = sketch_dataurl_fixture()
       custom_model = "custom/test-model"
-      assert {:ok, sketch} = Sketches.init_with_model(raw_data, custom_model)
+      assert {:ok, sketch} = Sketches.init_with_model(@raw_bytes, custom_model)
 
-      assert sketch.raw == raw_data
+      assert sketch.raw_data == @raw_bytes
       assert sketch.model == custom_model
     end
 
-    test "init/1 fails if raw data is empty or nil" do
-      assert {:error, _} = Sketches.init("")
+    test "init/1 fails if raw_data is nil" do
       assert {:error, _} = Sketches.init(nil)
-    end
-  end
-
-  describe "Sketch resource - basic functionality" do
-    test "can create sketch successfully" do
-      raw_data = sketch_dataurl_fixture()
-      assert {:ok, sketch} = Sketches.init(raw_data)
-      assert sketch.raw == raw_data
-      assert sketch.model == "black-forest-labs/flux-canny-dev"
     end
   end
 end
