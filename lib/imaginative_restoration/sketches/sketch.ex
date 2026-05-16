@@ -25,6 +25,10 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
   sqlite do
     table "sketches"
     repo ImaginativeRestoration.Repo
+
+    custom_indexes do
+      index [:inserted_at]
+    end
   end
 
   state_machine do
