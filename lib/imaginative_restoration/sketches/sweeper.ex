@@ -48,20 +48,35 @@ defmodule ImaginativeRestoration.Sketches.Sweeper do
   defp do_sweep do
     cutoff = DateTime.add(DateTime.utc_now(), -@stuck_after_seconds, :second)
 
-    stuck =
-      Sketch
-      |> Ash.Query.for_read(:read)
-      |> Ash.Query.filter(state in [:generating, :removing_background] and updated_at < ^cutoff)
-      |> Ash.read!()
+    case fetch_stuck(cutoff) do
+      {:ok, stuck} ->
+        Enum.each(stuck, fn sketch ->
+          Logger.warning(
+            "Failing stuck sketch #{sketch.id} (state=#{sketch.state}, updated_at=#{sketch.updated_at})"
+          )
 
-    Enum.each(stuck, fn sketch ->
-      Logger.warning(
-        "Failing stuck sketch #{sketch.id} (state=#{sketch.state}, updated_at=#{sketch.updated_at})"
-      )
+          Sketches.fail(sketch, "Timed out after #{@stuck_after_seconds}s in state #{sketch.state}")
+        end)
 
-      Sketches.fail(sketch, "Timed out after #{@stuck_after_seconds}s in state #{sketch.state}")
-    end)
+        length(stuck)
 
-    length(stuck)
+      {:error, reason} ->
+        Logger.warning("Sweep skipped: #{inspect(reason)}")
+        0
+    end
+  end
+
+  # If the DB pool is saturated (e.g. a backfill or burst of LV traffic is in
+  # flight), the sweep's checkout would block for the default 15s timeout and
+  # then crash the GenServer. The sweep is best-effort housekeeping; skip and
+  # try again next tick rather than taking the supervisor restart hit.
+  defp fetch_stuck(cutoff) do
+    {:ok,
+     Sketch
+     |> Ash.Query.for_read(:read)
+     |> Ash.Query.filter(state in [:generating, :removing_background] and updated_at < ^cutoff)
+     |> Ash.read!(timeout: :timer.seconds(5))}
+  rescue
+    e -> {:error, Exception.message(e)}
   end
 end

@@ -206,7 +206,6 @@ defmodule ImaginativeRestorationWeb.AppLive do
 
   defp processed?(%Sketch{thumbnail: t}) when is_binary(t), do: true
   defp processed?(%Sketch{processed_data: p}) when is_binary(p), do: true
-  defp processed?(%Sketch{processed: p}) when is_binary(p), do: true
   defp processed?(_), do: false
 
   defp update_recent_images(recent_images, new_sketch) do

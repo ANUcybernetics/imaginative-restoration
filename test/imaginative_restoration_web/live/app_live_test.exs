@@ -127,15 +127,15 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       # Create a processed sketch
       processed_sketch = %Sketch{
         id: Ash.UUID.generate(),
-        raw: "data:image/png;base64,raw",
-        processed: "data:image/png;base64,processed"
+        raw_data: <<1, 2, 3>>,
+        processed_data: <<4, 5, 6>>
       }
 
       # Manually set recent_images
       send(view.pid, {:update_assigns, recent_images: [processed_sketch]})
 
       # Send similar frame
-      similar_frame = processed_sketch.processed
+      similar_frame = "data:image/png;base64,iVBORw0KGgo"
       render_hook(view, "webcam_frame", %{"frame" => similar_frame})
 
       # Should skip processing
@@ -150,8 +150,7 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       # Create a processed sketch with a simple image
       processed_sketch = %Sketch{
         id: Ash.UUID.generate(),
-        processed:
-          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+        processed_data: <<1, 2, 3>>
       }
 
       # Set recent_images
@@ -172,15 +171,10 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
     test "handles process broadcast and updates recent images", %{conn: conn} do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
-      # Create a new sketch with valid base64 image data
-      # This is a 1x1 transparent PNG
-      valid_image =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
-
       sketch = %Sketch{
         id: Ash.UUID.generate(),
-        raw: valid_image,
-        processed: valid_image
+        raw_data: <<1, 2, 3>>,
+        processed_data: <<4, 5, 6>>
       }
 
       # Simulate broadcast with "update" event instead of "process" to avoid thumbnail generation
@@ -243,7 +237,7 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
 
       initial_sketch = %Sketch{
         id: sketch_id,
-        processed: nil
+        processed_data: nil
       }
 
       send(view.pid, %Broadcast{
@@ -256,7 +250,7 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       assert html =~ "sketch-canvas"
 
       # Update same sketch with processed image
-      updated_sketch = %{initial_sketch | processed: "data:image/png;base64,processed"}
+      updated_sketch = %{initial_sketch | processed_data: <<1, 2, 3>>}
 
       send(view.pid, %Broadcast{
         topic: "sketch:updated",
@@ -297,7 +291,7 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       # Create a test sketch
       _sketch = %Sketch{
         id: "test-sketch",
-        processed: "data:image/png;base64,test"
+        processed_data: <<1, 2, 3>>
       }
 
       {:ok, view, _html} = live(authenticated_conn(conn), "/")
@@ -317,14 +311,10 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
     test "shows recent processed images in capture mode", %{conn: conn} do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
-      # Add some sketches with varying processing states
-      valid_image =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
-
       sketches = [
-        %Sketch{id: Ash.UUID.generate(), processed: valid_image},
-        %Sketch{id: Ash.UUID.generate(), processed: nil, raw: valid_image},
-        %Sketch{id: Ash.UUID.generate(), processed: valid_image}
+        %Sketch{id: Ash.UUID.generate(), processed_data: <<1, 2, 3>>},
+        %Sketch{id: Ash.UUID.generate(), processed_data: nil, raw_data: <<4, 5, 6>>},
+        %Sketch{id: Ash.UUID.generate(), processed_data: <<7, 8, 9>>}
       ]
 
       Enum.each(sketches, fn sketch ->
@@ -338,7 +328,7 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       html = render(view)
 
       # Check that images are displayed (3 images should be rendered)
-      assert html =~ valid_image
+      assert html =~ "data:image/"
 
       # Check processing indicator for unprocessed sketch
       assert html =~ "Processing..."

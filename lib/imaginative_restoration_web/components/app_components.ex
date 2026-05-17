@@ -51,11 +51,13 @@ defmodule ImaginativeRestorationWeb.AppComponents do
     """
   end
 
+  alias ImaginativeRestoration.Sketches.Sketch
+
   def sketch(assigns) do
     ~H"""
     <div id={@id} class="flex h-[150px] justify-between">
-      <img src={@sketch.raw} class="h-full" />
-      <img src={@sketch.processed} class="h-full" />
+      <img src={Sketch.raw_url(@sketch)} class="h-full" />
+      <img src={Sketch.processed_url(@sketch)} class="h-full" />
     </div>
     """
   end

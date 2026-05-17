@@ -120,8 +120,8 @@ defmodule ImaginativeRestorationWeb.AdminLiveTest do
       # Create a test sketch
       sketch = %Sketch{
         id: Ash.UUID.generate(),
-        raw: "data:image/png;base64,raw",
-        processed: "data:image/png;base64,processed",
+        raw_data: <<1, 2, 3>>,
+        processed_data: <<4, 5, 6>>,
         inserted_at: DateTime.utc_now()
       }
 
@@ -146,8 +146,8 @@ defmodule ImaginativeRestorationWeb.AdminLiveTest do
       for i <- 1..6 do
         sketch = %Sketch{
           id: "sketch-#{i}",
-          raw: "data:image/png;base64,raw#{i}",
-          processed: "data:image/png;base64,processed#{i}",
+          raw_data: <<i>>,
+          processed_data: <<i + 100>>,
           inserted_at: DateTime.utc_now()
         }
 
@@ -319,8 +319,8 @@ defmodule ImaginativeRestorationWeb.AdminLiveTest do
       # Add an unprocessed sketch
       sketch = %Sketch{
         id: Ash.UUID.generate(),
-        raw: "data:image/png;base64,raw",
-        processed: nil,
+        raw_data: <<1, 2, 3>>,
+        processed_data: nil,
         inserted_at: DateTime.utc_now()
       }
 

@@ -53,7 +53,7 @@ if config_env() == :prod do
 
   config :imaginative_restoration, ImaginativeRestoration.Repo,
     database: database_path,
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "20"),
     timeout: 30_000,
     queue_target: 5_000,
     queue_interval: 1_000,

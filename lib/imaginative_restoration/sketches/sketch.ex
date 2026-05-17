@@ -46,19 +46,12 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
   attributes do
     integer_primary_key :id
 
+    # Kept nullable at the DB level because SQLite can't ALTER COLUMN to add
+    # NOT NULL in place. Action-level `validate present(:raw_data)` enforces
+    # the invariant.
     attribute :raw_data, :binary
     attribute :processed_data, :binary
     attribute :thumbnail, :binary
-    # `:raw` is the legacy text data-URL column, kept NOT NULL at the DB
-    # level because SQLite can't drop the constraint in place. New rows get
-    # an empty placeholder via the default; the column will be removed in a
-    # follow-up migration after backfill.
-    attribute :raw, :string,
-      allow_nil?: false,
-      default: "",
-      constraints: [allow_empty?: true, trim?: false]
-
-    attribute :processed, :string
     attribute :intermediate_image, :string
     attribute :prompt, :string
     attribute :model, :string, allow_nil?: false
@@ -111,11 +104,6 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
       change transition_state(:failed)
     end
-
-    update :backfill_images do
-      accept [:raw_data, :processed_data, :thumbnail]
-      require_atomic? false
-    end
   end
 
   pub_sub do
@@ -129,15 +117,12 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
   @doc """
   Returns a data URL suitable for an `<img src=>`, preferring the smallest
-  cached representation available (thumbnail → processed → raw). Legacy
-  data-URL text columns are returned as-is.
+  cached representation available (thumbnail → processed → raw).
   """
   def display_url(nil), do: nil
   def display_url(%{thumbnail: t}) when is_binary(t), do: Utils.encode_dataurl(t, :avif)
   def display_url(%{processed_data: p}) when is_binary(p), do: Utils.encode_dataurl(p, :avif)
-  def display_url(%{processed: p}) when is_binary(p), do: p
   def display_url(%{raw_data: r}) when is_binary(r), do: Utils.encode_dataurl(r, :jpeg)
-  def display_url(%{raw: r}) when is_binary(r), do: r
   def display_url(_), do: nil
 
   @doc """
@@ -146,7 +131,6 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
   """
   def processed_url(nil), do: nil
   def processed_url(%{processed_data: p}) when is_binary(p), do: Utils.encode_dataurl(p, :avif)
-  def processed_url(%{processed: p}) when is_binary(p), do: p
   def processed_url(_), do: nil
 
   @doc """
@@ -155,6 +139,5 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
   """
   def raw_url(nil), do: nil
   def raw_url(%{raw_data: r}) when is_binary(r), do: Utils.encode_dataurl(r, :jpeg)
-  def raw_url(%{raw: r}) when is_binary(r), do: r
   def raw_url(_), do: nil
 end

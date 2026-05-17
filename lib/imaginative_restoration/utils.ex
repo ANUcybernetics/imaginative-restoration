@@ -109,31 +109,19 @@ defmodule ImaginativeRestoration.Utils do
 
   @doc """
   Writes a stored image attribute to a file for inspection.
-
-  Handles both the new binary columns (`:raw_data`, `:processed_data`,
-  `:thumbnail`) and the legacy data-URL columns (`:raw`, `:processed`).
   """
   def write_image_from_db(id, attribute \\ :processed_data) do
     sketch = Ash.get!(Sketch, id)
-    bytes = sketch |> Map.get(attribute) |> to_bytes!()
+    bytes = Map.fetch!(sketch, attribute)
     ext = extension_for(attribute)
     filename = "#{id}-#{attribute}.#{ext}"
     File.write!(filename, bytes)
     IO.puts("Image has been written to #{filename}")
   end
 
-  defp to_bytes!(bytes) when is_binary(bytes) do
-    case bytes do
-      "data:image/" <> _ -> decode_dataurl!(bytes)
-      _ -> bytes
-    end
-  end
-
   defp extension_for(:raw_data), do: "jpg"
-  defp extension_for(:raw), do: "jpg"
   defp extension_for(:processed_data), do: "avif"
   defp extension_for(:thumbnail), do: "avif"
-  defp extension_for(:processed), do: "webp"
 
   def recent_sketches(count) do
     Sketch
