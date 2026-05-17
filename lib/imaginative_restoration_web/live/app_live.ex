@@ -4,6 +4,8 @@ defmodule ImaginativeRestorationWeb.AppLive do
 
   import ImaginativeRestorationWeb.AppComponents
 
+  alias ImaginativeRestoration.CameraWatchdog
+  alias ImaginativeRestoration.OperatingHours
   alias ImaginativeRestoration.Sketches
   alias ImaginativeRestoration.Sketches.Sketch
   alias ImaginativeRestoration.Utils
@@ -68,22 +70,32 @@ defmodule ImaginativeRestorationWeb.AppLive do
     end
 
     capture? = Map.has_key?(params, "capture") or Map.has_key?(params, "capture_box")
-    difference_threshold = Application.get_env(:imaginative_restoration, :image_difference_threshold)
+    change_threshold = Application.get_env(:imaginative_restoration, :image_difference_threshold)
+    settle_threshold = Application.get_env(:imaginative_restoration, :frame_settle_threshold)
+    lock_timeout_ms = Application.get_env(:imaginative_restoration, :lock_timeout_ms)
 
     {:ok,
      assign(socket,
        # boolean: whether to capture webcam frames (set via URL params)
        capture?: capture?,
-       # the most recent webcam frame (for comparison with next frame)
-       frame_image: nil,
+       # reference frame to compare against — the last frame that triggered
+       # processing (or the first frame seen, while bootstrapping)
+       baseline_image: nil,
+       # previous tick's frame, used for the "scene has come to rest" check
+       previous_image: nil,
        # list of the 5 most recent sketches
        recent_images: [],
        page_title: (capture? && "Capture") || "Display",
-       image_difference_threshold: difference_threshold,
+       change_threshold: change_threshold,
+       settle_threshold: settle_threshold,
        # camera error state
        camera_error: nil,
        # sketch id of the currently in-flight submission (or :pending while submitting)
-       current_sketch_id: nil
+       current_sketch_id: nil,
+       # safety net: cleared when the sketch broadcast arrives, fires if not
+       stuck_lock_timer: nil,
+       lock_generation: 0,
+       lock_timeout_ms: lock_timeout_ms
      ), layout: {ImaginativeRestorationWeb.Layouts, :canvas}}
   end
 
@@ -114,7 +126,11 @@ defmodule ImaginativeRestorationWeb.AppLive do
 
   def handle_async(:submit, {:exit, reason}, socket) do
     Logger.error("Sketch submission failed: #{inspect(reason)}")
-    {:noreply, assign(socket, current_sketch_id: nil)}
+
+    socket
+    |> assign(current_sketch_id: nil)
+    |> cancel_stuck_lock_timer()
+    |> noreply()
   end
 
   @impl true
@@ -138,40 +154,89 @@ defmodule ImaginativeRestorationWeb.AppLive do
      |> push_event("add_sketches", %{sketches: sketches})}
   end
 
-  defp handle_capture_frame(dataurl, socket) do
-    if socket.assigns.current_sketch_id do
-      {:noreply, socket}
+  def handle_info({:stuck_lock_timeout, generation}, socket) do
+    if socket.assigns.lock_generation == generation and socket.assigns.current_sketch_id do
+      Logger.warning(
+        "LiveView submission lock stuck (#{inspect(socket.assigns.current_sketch_id)}); clearing as safety net"
+      )
+
+      {:noreply, assign(socket, current_sketch_id: nil, stuck_lock_timer: nil)}
     else
-      frame_image = Utils.to_image!(dataurl)
-
-      skip? =
-        case socket.assigns.frame_image do
-          nil ->
-            false
-
-          last_frame ->
-            frame_difference(last_frame, frame_image) <= socket.assigns.image_difference_threshold
-        end
-
-      if skip? do
-        Logger.debug("Frame hasn't changed enough (below threshold), skipping processing")
-        {:noreply, assign(socket, frame_image: frame_image)}
-      else
-        raw_data = Utils.decode_dataurl!(dataurl)
-
-        socket =
-          socket
-          |> assign(frame_image: frame_image, current_sketch_id: :pending)
-          |> start_async(:submit, fn ->
-            raw_data
-            |> Sketches.init!()
-            |> Sketches.submit_generation!()
-          end)
-          |> push_event("capture_triggered", %{})
-
-        {:noreply, socket}
-      end
+      {:noreply, socket}
     end
+  end
+
+  defp handle_capture_frame(dataurl, socket) do
+    cond do
+      socket.assigns.current_sketch_id ->
+        {:noreply, socket}
+
+      not OperatingHours.open?() ->
+        # Outside hours: track latest frame as baseline/previous so the first
+        # frame after opening doesn't trip on an overnight lighting drift,
+        # but don't run change detection or submit.
+        frame_image = Utils.to_image!(dataurl)
+        {:noreply, assign(socket, baseline_image: frame_image, previous_image: frame_image)}
+
+      true ->
+        CameraWatchdog.heartbeat()
+        frame_image = Utils.to_image!(dataurl)
+
+        case classify_frame(frame_image, socket.assigns) do
+          :trigger ->
+            trigger_capture(frame_image, dataurl, socket)
+
+          :bootstrap ->
+            {:noreply, assign(socket, baseline_image: frame_image, previous_image: frame_image)}
+
+          reason when reason in [:no_change, :still_moving] ->
+            Logger.debug("Frame skipped (#{reason}), advancing previous only")
+            {:noreply, assign(socket, previous_image: frame_image)}
+        end
+    end
+  end
+
+  # The classifier returns one of:
+  #
+  #   :bootstrap     — first frame in this session, just adopt as baseline
+  #   :no_change     — too similar to baseline (nothing new to process)
+  #   :still_moving  — different from baseline but scene is not yet at rest
+  #   :trigger       — scene differs from baseline AND has settled
+  defp classify_frame(_frame_image, %{baseline_image: nil}), do: :bootstrap
+  defp classify_frame(_frame_image, %{previous_image: nil}), do: :bootstrap
+
+  defp classify_frame(frame_image, %{
+         baseline_image: baseline,
+         previous_image: previous,
+         change_threshold: change_threshold,
+         settle_threshold: settle_threshold
+       }) do
+    change = frame_difference(baseline, frame_image)
+    settle = frame_difference(previous, frame_image)
+
+    cond do
+      change <= change_threshold -> :no_change
+      settle > settle_threshold -> :still_moving
+      true -> :trigger
+    end
+  end
+
+  defp trigger_capture(frame_image, dataurl, socket) do
+    raw_data = Utils.decode_dataurl!(dataurl)
+
+    socket
+    # The current frame becomes the new baseline immediately — so a failed
+    # submission won't retrigger on the same scene, and the artist has to
+    # change something for the next capture.
+    |> assign(baseline_image: frame_image, previous_image: frame_image, current_sketch_id: :pending)
+    |> arm_stuck_lock_timer()
+    |> start_async(:submit, fn ->
+      raw_data
+      |> Sketches.init!()
+      |> Sketches.submit_generation!()
+    end)
+    |> push_event("capture_triggered", %{})
+    |> noreply()
   end
 
   defp frame_difference(frame1, frame2) do
@@ -185,9 +250,31 @@ defmodule ImaginativeRestorationWeb.AppLive do
     end
   end
 
+  defp arm_stuck_lock_timer(socket) do
+    socket = cancel_stuck_lock_timer(socket)
+    generation = socket.assigns.lock_generation + 1
+    timeout = socket.assigns.lock_timeout_ms
+    timer = Process.send_after(self(), {:stuck_lock_timeout, generation}, timeout)
+
+    assign(socket, stuck_lock_timer: timer, lock_generation: generation)
+  end
+
+  defp cancel_stuck_lock_timer(socket) do
+    case socket.assigns.stuck_lock_timer do
+      nil ->
+        socket
+
+      ref ->
+        Process.cancel_timer(ref)
+        assign(socket, stuck_lock_timer: nil)
+    end
+  end
+
   defp clear_current_if_done(socket, %Sketch{state: state} = sketch) when state in [:succeeded, :failed] do
     if socket.assigns.current_sketch_id == sketch.id do
-      assign(socket, current_sketch_id: nil)
+      socket
+      |> assign(current_sketch_id: nil)
+      |> cancel_stuck_lock_timer()
     else
       socket
     end

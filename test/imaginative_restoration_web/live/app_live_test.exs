@@ -6,6 +6,12 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
   alias ImaginativeRestoration.Sketches.Sketch
   alias Phoenix.Socket.Broadcast
 
+  # Two distinct 1x1 PNGs — RMSE difference is ~100 between them and 0 between
+  # identical frames, which is plenty either side of the dev thresholds
+  # (change=3, settle=2).
+  @black_png "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+  @white_png "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+
   defp authenticated_conn(conn) do
     auth_header = "Basic " <> Base.encode64("test:test")
     put_req_header(conn, "authorization", auth_header)
@@ -84,86 +90,47 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
     end
   end
 
-  describe "webcam frame handling" do
-    test "processes frame when no previous images exist", %{conn: conn} do
-      {:ok, view, html} = live(authenticated_conn(conn), "/?capture=true")
+  describe "baseline + settle change detection" do
+    test "first frame establishes baseline and does not trigger", %{conn: conn} do
+      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
-      # Send a webcam frame
-      frame_data =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
 
-      # Should start processing since no previous images
-      render_hook(view, "webcam_frame", %{"frame" => frame_data})
+      # Bootstrap: no capture event for the very first frame.
+      refute_push_event(view, "capture_triggered", %{})
+    end
 
-      # Should receive capture_triggered event
+    test "repeated identical frames stay quiet", %{conn: conn} do
+      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
+
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+
+      refute_push_event(view, "capture_triggered", %{})
+    end
+
+    test "different-then-settled sequence fires capture", %{conn: conn} do
+      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
+
+      # 1. Bootstrap baseline.
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+
+      # 2. Scene changes but isn't settled vs the previous frame yet.
+      render_hook(view, "webcam_frame", %{"frame" => @white_png})
+      refute_push_event(view, "capture_triggered", %{})
+
+      # 3. Same frame again → settled vs previous → trigger.
+      render_hook(view, "webcam_frame", %{"frame" => @white_png})
       assert_push_event(view, "capture_triggered", %{})
-
-      # Since we can't access assigns directly in tests, we just verify
-      # the hook was called without error
-      assert html =~ "WebcamStream"
     end
 
     test "admin frames are not processed", %{conn: conn} do
-      {:ok, view, html} = live(authenticated_conn(conn), "/?capture=true")
+      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
-      # Send an admin frame
-      frame_data =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+      render_hook(view, "webcam_frame", %{"frame" => @black_png, "is_admin" => true})
 
-      # Admin frames should not trigger any processing
-      render_hook(view, "webcam_frame", %{"frame" => frame_data, "is_admin" => true})
-
-      # Should not receive capture_triggered event
       refute_push_event(view, "capture_triggered", %{})
-
-      assert html =~ "WebcamStream"
-    end
-
-    # Requires image processing library
-    @tag :skip
-    test "skips processing when frame is similar to previous", %{conn: conn} do
-      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
-
-      # Create a processed sketch
-      processed_sketch = %Sketch{
-        id: Ash.UUID.generate(),
-        raw_data: <<1, 2, 3>>,
-        processed_data: <<4, 5, 6>>
-      }
-
-      # Manually set recent_images
-      send(view.pid, {:update_assigns, recent_images: [processed_sketch]})
-
-      # Send similar frame
-      similar_frame = "data:image/png;base64,iVBORw0KGgo"
-      render_hook(view, "webcam_frame", %{"frame" => similar_frame})
-
-      # Should skip processing
-      assert view.assigns.skip_process? == true
-    end
-
-    # Requires image processing library
-    @tag :skip
-    test "processes frame when it differs significantly", %{conn: conn} do
-      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
-
-      # Create a processed sketch with a simple image
-      processed_sketch = %Sketch{
-        id: Ash.UUID.generate(),
-        processed_data: <<1, 2, 3>>
-      }
-
-      # Set recent_images
-      send(view.pid, {:update_assigns, recent_images: [processed_sketch]})
-
-      # Send different frame (white pixel instead of black)
-      different_frame =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
-
-      render_hook(view, "webcam_frame", %{"frame" => different_frame})
-
-      # Should process the different frame
-      assert view.assigns.skip_process? == false
     end
   end
 
@@ -358,19 +325,71 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
     test "skips new frames while a submission is in flight", %{conn: conn} do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
-      frame1 =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
-
-      render_hook(view, "webcam_frame", %{"frame" => frame1})
+      # Drive the gate to a trigger: bootstrap → change → settled.
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+      render_hook(view, "webcam_frame", %{"frame" => @white_png})
+      render_hook(view, "webcam_frame", %{"frame" => @white_png})
       assert_push_event(view, "capture_triggered", %{})
 
-      # While the first submission is in flight, a second frame should not
-      # trigger another capture.
-      frame2 =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
-
-      render_hook(view, "webcam_frame", %{"frame" => frame2})
+      # While the first submission is in flight, a subsequent frame must not
+      # trigger another capture — even if it would otherwise meet the gate.
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
       refute_push_event(view, "capture_triggered", %{})
+    end
+  end
+
+  describe "operating hours gate" do
+    setup do
+      original = Application.get_env(:imaginative_restoration, :operating_hours)
+
+      Application.put_env(
+        :imaginative_restoration,
+        :operating_hours,
+        Keyword.put(original, :blackout_ranges, [{{1, 1}, {12, 31}}])
+      )
+
+      on_exit(fn ->
+        Application.put_env(:imaginative_restoration, :operating_hours, original)
+      end)
+
+      :ok
+    end
+
+    test "drops frames when closed", %{conn: conn} do
+      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
+
+      # Even after the full bootstrap+change+settle dance, no capture fires.
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+      render_hook(view, "webcam_frame", %{"frame" => @white_png})
+      render_hook(view, "webcam_frame", %{"frame" => @white_png})
+
+      refute_push_event(view, "capture_triggered", %{})
+    end
+  end
+
+  describe "stuck-lock safety net" do
+    test "self-clears the in-flight lock when the timeout fires", %{conn: conn} do
+      original = Application.get_env(:imaginative_restoration, :lock_timeout_ms)
+      Application.put_env(:imaginative_restoration, :lock_timeout_ms, 50)
+      on_exit(fn -> Application.put_env(:imaginative_restoration, :lock_timeout_ms, original) end)
+
+      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
+
+      # Trigger a capture so the lock is set and the timer is armed.
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+      render_hook(view, "webcam_frame", %{"frame" => @white_png})
+      render_hook(view, "webcam_frame", %{"frame" => @white_png})
+      assert_push_event(view, "capture_triggered", %{})
+
+      # Wait for the safety-net timer to fire and clear the lock.
+      Process.sleep(150)
+
+      # A fresh trigger must work again. Use a third distinct value (black)
+      # against the current baseline (white) and settle it.
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+
+      assert_push_event(view, "capture_triggered", %{})
     end
   end
 

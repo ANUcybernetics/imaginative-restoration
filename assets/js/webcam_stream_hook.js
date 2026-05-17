@@ -193,27 +193,6 @@ const WebcamStreamHook = {
     }
   },
 
-  isOperatingHours() {
-    const now = new Date();
-    const hour = now.getHours();
-    const day = now.getDay();
-    const month = now.getMonth();
-    const date = now.getDate();
-
-    // Check if in holiday period
-    const isHolidayPeriod =
-      (month === 11 && date >= 21) || // December
-      (month === 0 && date <= 6); // January
-
-    // Check if weekday (0 is Sunday, 6 is Saturday)
-    const isWeekday = day > 0 && day < 6;
-
-    // Check if within operating hours (9am-10pm)
-    const isWorkingHours = hour >= 9 && hour < 22;
-
-    return isWeekday && isWorkingHours && !isHolidayPeriod;
-  },
-
   updateDisplay() {
     const video = this.el;
     
@@ -387,10 +366,7 @@ const WebcamStreamHook = {
   captureFrame() {
     // No longer automatically flash on every capture
     // Flash will be triggered by server when capture actually happens
-
-    if (!this.isOperatingHours()) {
-      return;
-    }
+    // Operating-hours gating now lives on the server (OperatingHours.open?/1).
 
     if (!this.context || !this.canvas) {
       console.warn("Canvas not initialized - skipping frame capture");

@@ -38,9 +38,24 @@ config :imaginative_restoration,
   generators: [timestamp_type: :utc_datetime]
 
 config :imaginative_restoration,
-  # Using RMSE on 0-100 scale. For sketches, 5-10% difference is typically significant
+  # Frame-comparison thresholds, both on RMSE * 100 (0-100 scale).
+  #
+  # The capture pipeline uses a two-condition gate:
+  #
+  #   * `image_difference_threshold` — current frame must differ from the
+  #     *baseline* (last triggered scene) by more than this for processing to
+  #     fire. Filters out trivial flicker and "nothing has changed."
+  #
+  #   * `frame_settle_threshold` — current frame must differ from the
+  #     *previous tick* by less than this. Acts as a "scene has come to rest"
+  #     gate so we don't capture mid-stroke or with a hand in frame.
   image_difference_threshold: 3,
+  frame_settle_threshold: 2,
   webcam_capture_interval: 1_000,
+  # Safety net: LiveView clears its in-flight submission lock if a sketch
+  # broadcast never arrives. Sweeper handles the DB side after 5 min; this
+  # is the matching LV-side timeout.
+  lock_timeout_ms: to_timeout(second: 420),
   # Operating hours for the installation. The server drops frames received
   # outside these hours, and the watchdog uses the same gate to decide
   # whether silence is unexpected. See ImaginativeRestoration.OperatingHours.
