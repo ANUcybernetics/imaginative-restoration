@@ -60,6 +60,7 @@ defmodule ImaginativeRestoration.MixProject do
       {:req, "~> 0.5"},
       {:req_s3, "~> 0.2"},
       {:image, "~> 0.54"},
+      {:tzdata, "~> 1.1"},
       {:igniter, "~> 0.3", only: [:dev], runtime: false}
     ]
   end

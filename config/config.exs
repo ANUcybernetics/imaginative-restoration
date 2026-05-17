@@ -9,6 +9,9 @@ import Config
 
 config :ash, :default_belongs_to_type, :integer
 
+# Use tzdata so OperatingHours can resolve "Australia/Sydney" across DST.
+config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.17.11",
@@ -37,7 +40,20 @@ config :imaginative_restoration,
 config :imaginative_restoration,
   # Using RMSE on 0-100 scale. For sketches, 5-10% difference is typically significant
   image_difference_threshold: 3,
-  webcam_capture_interval: 1_000
+  webcam_capture_interval: 1_000,
+  # Operating hours for the installation. The server drops frames received
+  # outside these hours, and the watchdog uses the same gate to decide
+  # whether silence is unexpected. See ImaginativeRestoration.OperatingHours.
+  operating_hours: [
+    timezone: "Australia/Sydney",
+    start_hour: 9,
+    end_hour: 22,
+    weekdays: [1, 2, 3, 4, 5],
+    blackout_ranges: [
+      # MM-DD pairs; if start > end, the range wraps the year boundary.
+      {{12, 21}, {1, 6}}
+    ]
+  ]
 
 # Configures Elixir's Logger
 config :logger, :console,

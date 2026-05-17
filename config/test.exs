@@ -14,6 +14,18 @@ config :imaginative_restoration, ImaginativeRestorationWeb.Endpoint,
   secret_key_base: "Sa/NkY7mcze1duwlfbIO6Kj9Iqx3JuJMURw1Jl5t0CCopSJwUalMbqMBNDGKvVRR",
   server: false
 
+# Operating hours wide open during tests so AppLive/Watchdog assertions don't
+# flap with wall-clock time. OperatingHours has its own tests for the real
+# rules.
+config :imaginative_restoration,
+  operating_hours: [
+    timezone: "Etc/UTC",
+    start_hour: 0,
+    end_hour: 24,
+    weekdays: [1, 2, 3, 4, 5, 6, 7],
+    blackout_ranges: []
+  ]
+
 config :imaginative_restoration, webhook_base_url: "http://localhost:4002"
 
 # Print only warnings and errors during test
