@@ -15,6 +15,7 @@ defmodule ImaginativeRestoration.Application do
       {Phoenix.PubSub, name: ImaginativeRestoration.PubSub},
       {Task.Supervisor, name: ImaginativeRestoration.TaskSupervisor},
       ImaginativeRestoration.Sketches.Sweeper,
+      ImaginativeRestoration.CameraWatchdog,
       # Start to serve requests, typically the last entry
       ImaginativeRestorationWeb.Endpoint
     ]
