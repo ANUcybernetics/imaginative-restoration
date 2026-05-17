@@ -47,8 +47,10 @@ defmodule ImaginativeRestoration.AI.Replicate do
   def extract_output("philz1337x/controlnet-deliberate", %{"output" => [_canny, output]}), do: {:ok, output}
   def extract_output("xlabs-ai/flux-dev-controlnet", %{"output" => [output]}), do: {:ok, output}
   def extract_output("black-forest-labs/flux-canny-dev", %{"output" => [output]}), do: {:ok, output}
+  def extract_output("lucataco/sdxl-lightning-multi-controlnet", %{"output" => [_control, output]}), do: {:ok, output}
   def extract_output("lucataco/remove-bg", %{"output" => output}) when is_binary(output), do: {:ok, output}
   def extract_output("851-labs/background-remover", %{"output" => output}) when is_binary(output), do: {:ok, output}
+  def extract_output("men1scus/birefnet", %{"output" => output}) when is_binary(output), do: {:ok, output}
   def extract_output(model, payload), do: {:error, "Unexpected output shape for #{model}: #{inspect(payload)}"}
 
   @doc """
@@ -215,6 +217,20 @@ defmodule ImaginativeRestoration.AI.Replicate do
     }
   end
 
+  defp build_input("lucataco/sdxl-lightning-multi-controlnet", image, prompt) do
+    %{
+      prompt: prompt,
+      negative_prompt: "blurry, low quality, worst quality, watermark, signature",
+      controlnet_1: "lineart",
+      controlnet_1_image: image,
+      controlnet_1_conditioning_scale: 0.85,
+      num_inference_steps: 4,
+      guidance_scale: 0,
+      apply_watermark: false
+    }
+  end
+
   defp build_input("lucataco/remove-bg", image, _prompt), do: %{image: image}
   defp build_input("851-labs/background-remover", image, _prompt), do: %{image: image}
+  defp build_input("men1scus/birefnet", image, _prompt), do: %{image: image}
 end

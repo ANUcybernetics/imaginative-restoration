@@ -21,6 +21,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
     notifiers: [Ash.Notifier.PubSub]
 
   alias ImaginativeRestoration.AI.Pipeline
+  alias ImaginativeRestoration.Utils
 
   sqlite do
     table "sketches"
@@ -68,7 +69,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
     create :init do
       accept [:raw_data]
-      argument :model, :string, default: "black-forest-labs/flux-canny-dev"
+      argument :model, :string, default: "lucataco/sdxl-lightning-multi-controlnet"
 
       validate present(:raw_data), message: "cannot create without a raw image"
 
@@ -112,8 +113,6 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
     publish_all :create, "updated"
     publish_all :update, "updated"
   end
-
-  alias ImaginativeRestoration.Utils
 
   @doc """
   Returns a data URL suitable for an `<img src=>`, preferring the smallest

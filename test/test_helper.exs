@@ -1,4 +1,4 @@
-ExUnit.start()
+ExUnit.start(exclude: [:replicate_live])
 Ecto.Adapters.SQL.Sandbox.mode(ImaginativeRestoration.Repo, :manual)
 
 defmodule ImaginativeRestoration.Fixtures do
