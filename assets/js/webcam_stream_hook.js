@@ -151,8 +151,18 @@ const WebcamStreamHook = {
         svg.style.zIndex = "10";
       }
 
-      // Start display update loop (for cropped view or to update overlay)
+      // Draw display once now; subsequent draws are driven by real video
+      // frame arrivals (cropped view) or window resize (admin view).
       this.updateDisplay();
+      if (!this.showFullFrame && typeof video.requestVideoFrameCallback === "function") {
+        const onFrame = () => {
+          this.drawCroppedFrame();
+          if (this.displayCanvas) {
+            video.requestVideoFrameCallback(onFrame);
+          }
+        };
+        video.requestVideoFrameCallback(onFrame);
+      }
 
       // Start frame capture (in 1s to give the auto-exposure time to adjust)
       setTimeout(() => this.captureFrame(), 1000);
@@ -194,40 +204,29 @@ const WebcamStreamHook = {
   },
 
   updateDisplay() {
-    const video = this.el;
-    
-    // Update crop box overlay if we're in admin view
     if (this.showFullFrame) {
       this.drawCropBoxOverlay();
-      // Continue updating for admin view
-      requestAnimationFrame(() => this.updateDisplay());
-      return;
+    } else {
+      this.drawCroppedFrame();
     }
-    
-    // Only update display canvas if we're showing cropped view
-    if (!this.displayContext || !this.displayCanvas) {
-      return;
-    }
+  },
 
+  drawCroppedFrame() {
+    if (!this.displayContext || !this.displayCanvas) return;
+    const video = this.el;
+    if (video.readyState < 2) return;
     const captureBox = this.captureBox;
-
-    if (video.readyState >= 2) {
-      // Draw cropped video frame to display canvas
-      this.displayContext.drawImage(
-        video,
-        captureBox[0],
-        captureBox[1],
-        captureBox[2],
-        captureBox[3],
-        0,
-        0,
-        captureBox[2],
-        captureBox[3],
-      );
-    }
-
-    // Continue updating display
-    requestAnimationFrame(() => this.updateDisplay());
+    this.displayContext.drawImage(
+      video,
+      captureBox[0],
+      captureBox[1],
+      captureBox[2],
+      captureBox[3],
+      0,
+      0,
+      captureBox[2],
+      captureBox[3],
+    );
   },
 
   drawCropBoxOverlay() {
@@ -389,17 +388,22 @@ const WebcamStreamHook = {
       captureBox[3],
     );
 
-    const dataUrl = this.canvas.toDataURL("image/jpeg");
-    
-    // For admin view, mark it as admin frame so server knows to handle it differently
-    if (this.showFullFrame) {
-      this.pushEvent("webcam_frame", { 
-        frame: dataUrl,
-        is_admin: true
-      });
-    } else {
-      this.pushEvent("webcam_frame", { frame: dataUrl });
-    }
+    // Async JPEG encode keeps the main thread free; FileReader returns a
+    // data: URL the LiveView already knows how to decode.
+    this.canvas.toBlob(
+      (blob) => {
+        if (!blob) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const payload = { frame: reader.result };
+          if (this.showFullFrame) payload.is_admin = true;
+          this.pushEvent("webcam_frame", payload);
+        };
+        reader.readAsDataURL(blob);
+      },
+      "image/jpeg",
+      0.85,
+    );
   },
   animateCaptureProgress() {
     // This method is now a no-op, but kept for compatibility
