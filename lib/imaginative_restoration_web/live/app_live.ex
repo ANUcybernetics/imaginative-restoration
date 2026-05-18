@@ -65,6 +65,12 @@ defmodule ImaginativeRestorationWeb.AppLive do
   @impl true
   def mount(params, _session, socket) do
     if connected?(socket) do
+      # Force a fullsweep GC every few minor GCs so refc binaries and Vix NIF
+      # resources from per-frame image processing don't accumulate in C-heap.
+      # Without this the LV's Erlang heap stays small (the Vix.Vips.Image
+      # references are tiny) so GC rarely runs, and libvips memory leaks until
+      # the OS OOM-kills the BEAM.
+      Process.flag(:fullsweep_after, 5)
       ImaginativeRestorationWeb.Endpoint.subscribe("sketch:updated")
       Process.send_after(self(), :pre_populate_sketches, 1000)
     end
