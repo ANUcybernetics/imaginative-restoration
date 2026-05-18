@@ -1,116 +1,121 @@
-# Raspberry Pi Kiosk Setup
+# Raspberry Pi 5 kiosk setup
 
-This directory contains scripts and configuration files to set up a Raspberry Pi as a dual-screen Chrome kiosk for the Imaginative Restoration project.
+Scripts to flash an SD card so a Pi 5 boots directly into the Imaginative
+Restoration dual-screen Chromium kiosk: display window on HDMI-A-1, capture
+window on HDMI-A-2.
 
 ## Files
 
-- `imgres-launch-raspbian.sh` - Launch script that starts two Chromium instances in kiosk mode
-- `rc.xml` - labwc window manager configuration for proper window positioning
+- `install-sdm.sh` — one-time installer for [SDM](https://github.com/gitbls/sdm)
+  (the image-customisation tool we use to bake config into the SD card image).
+- `pi-setup.sh` — main script. Downloads Raspberry Pi OS Bookworm, customises
+  the image with all the kiosk plumbing, and writes it to an SD card.
+- `imgres-launch-raspbian.sh` — legacy launcher from the old manual setup;
+  kept for reference but `pi-setup.sh` no longer uses it (it writes a fresh
+  `/usr/local/bin/imgres-kiosk-launch` to the image instead).
+- `rc.xml` — legacy labwc config from the manual setup; superseded by the
+  inline `~/.config/labwc/rc.xml` created during first boot.
 
-## Requirements
+## Usage
 
-- Raspberry Pi running Raspbian with Wayland
-- Two HDMI displays connected
-- labwc window manager installed
-- Chromium browser installed
-- `IMGRES_AUTH` environment variable with authentication credentials
+```bash
+./install-sdm.sh                # once per host machine; requires sudo
 
-## Display Configuration
+./pi-setup.sh \
+  --imgres-auth user:password \
+  --hostname imgres-rpi \
+  --wifi-ssid ANU-Secure \
+  --wifi-enterprise-user SOCY2 \
+  --wifi-enterprise-pass cybernetics2 \
+  --tailscale-authkey tskey-auth-... \
+  --ssh-key ~/.ssh/id_ed25519.pub
+```
 
-The setup assumes two 1920x1080 displays connected via HDMI:
-- **HDMI-A-1 (Primary)**: Shows the main application interface
-- **HDMI-A-2 (Secondary)**: Shows the capture interface
+Run `./pi-setup.sh --help` for the full option list.
 
-## Setup Instructions
+`--imgres-auth` is the only mandatory argument — it's the `user:password` for
+HTTP basic auth on `imgres.fly.dev` (matches the `AUTH_USERNAME` / `AUTH_PASSWORD`
+Fly secrets on the deployed app). Tailscale + WiFi are recommended; the SSH
+key flag enables passwordless login.
 
-1. **Install dependencies**
-   ```bash
-   sudo apt update
-   sudo apt install chromium-browser labwc
-   ```
+## What ends up on the SD card
 
-2. **Copy configuration files**
-   ```bash
-   # Copy the launch script
-   sudo cp imgres-launch-raspbian.sh /usr/local/bin/
-   sudo chmod +x /usr/local/bin/imgres-launch-raspbian.sh
-   
-   # Copy labwc configuration
-   mkdir -p ~/.config/labwc
-   cp rc.xml ~/.config/labwc/
-   ```
+SDM customises the image before flashing, so the Pi boots ready to run.
+Configuration baked in:
 
-3. **Set up environment variable**
-   Add to `~/.bashrc` or `/etc/environment`:
-   ```bash
-   export IMGRES_AUTH=your-auth-string-here
-   ```
+- **Admin account** (default `imgres / imgres`) with the supplied SSH key in
+  `~/.ssh/authorized_keys`.
+- **Hostname**, locale, timezone, keymap (timezone and locale inherited from
+  the host running the flash; keymap is `us`).
+- **Tailscale** — installed at first boot, then `tailscale up` runs as a
+  one-shot systemd unit gated on `network-online.target`. Joins with `--ssh`
+  so `tailscale ssh imgres@<hostname>` works from any tailnet device.
+- **Enterprise WiFi** — written to `/etc/NetworkManager/system-connections/`
+  by the first-boot script (regular WPA2 goes through SDM's `network` plugin
+  instead, which baulks at 802.1X).
+- **LightDM** autologin pinned to a custom `labwc-kiosk` Wayland session.
+  We edit `/etc/lightdm/lightdm.conf` directly — Pi OS's
+  `conf.d/` override mechanism is ignored for autologin.
+- **Kiosk launcher** at `/usr/local/bin/imgres-kiosk-launch` plus the
+  systemd user unit `imgres-kiosk.service`. The launcher opens two Chromium
+  windows (with distinct `--class` values), and a daily timer restarts the
+  service at midnight.
+- **labwc window rules** that map each Chromium window's `app_id` to a
+  specific HDMI output and toggle fullscreen — direct Wayland window
+  placement isn't possible from the client side.
+- **Chromium managed policy** at
+  `/etc/chromium/policies/managed/imgres.json` granting camera/microphone
+  access to the kiosk URL so Chromium doesn't show a permission prompt.
 
-4. **Configure auto-start**
-   Create a systemd service or add to your session autostart:
-   ```bash
-   # For labwc autostart
-   mkdir -p ~/.config/labwc
-   echo "/usr/local/bin/imgres-launch-raspbian.sh" >> ~/.config/labwc/autostart
-   ```
+## Why a few non-obvious choices
 
-5. **Enable auto-login** (if needed)
-   ```bash
-   sudo raspi-config
-   # Navigate to: System Options > Boot / Auto Login > Desktop Autologin
-   ```
+- **`--disable-features=WebRtcPipeWireCamera`** on Chromium — Chromium 136
+  on Wayland prefers the Pipewire+xdg-desktop-portal camera path, which
+  silently hangs `getUserMedia` on this Pi/portal combo. Disabling forces
+  V4L2 capture, which works.
+- **`wait -n` in the launcher** — if either Chromium dies, we exit so
+  systemd restarts the whole unit. A plain `wait` blocks forever on the
+  survivor and leaves the kiosk in a broken half-state.
+- **No `--use-fake-ui-for-media-stream`** — that flag works but Chromium
+  shows a "you are using an unsupported flag" yellow infobar in kiosk mode.
+  The managed policy file does the same job without the warning.
+- **kiosk-config copied with `chown=imgres:imgres`** — file is mode 600 so
+  it stays private, but the launcher runs as the kiosk user, not root.
 
-## How It Works
+## Day-to-day operation
 
-1. The `rc.xml` configuration tells labwc to:
-   - Position `chromium-browser-screen1` at (0,0) and maximize it
-   - Position `chromium-browser-screen2` at (1920,0) and maximize it
-   - Remove all window gaps for seamless display
+```bash
+# SSH in (over tailnet) once the Pi is up
+tailscale ssh imgres@imgres-rpi
 
-2. The launch script:
-   - Validates the `IMGRES_AUTH` environment variable
-   - Launches two separate Chromium instances with:
-     - Full kiosk mode (no UI elements)
-     - Separate user data directories to maintain independent sessions
-     - Authentication whitelist for imgres.fly.dev
-     - Autoplay enabled for media content
-   - Each instance opens a different URL on the target displays
+# Restart the kiosk after a config change
+systemctl --user restart imgres-kiosk.service
+
+# Live logs
+journalctl --user -u imgres-kiosk -f
+
+# Change the capture ROI without re-flashing
+sudo kiosk-set-capture-box 150,0,410,280
+systemctl --user restart imgres-kiosk
+
+# Change the base URL (e.g. staging vs prod)
+sudo kiosk-set-base-url https://staging.example.com
+systemctl --user restart imgres-kiosk
+```
 
 ## Troubleshooting
 
-### Check if displays are detected
-```bash
-wlr-randr
-```
-
-### Test the launch script manually
-```bash
-export IMGRES_AUTH=your-auth-string
-/usr/local/bin/imgres-launch-raspbian.sh
-```
-
-### View Chromium logs
-```bash
-journalctl -f -u session-*.scope
-```
-
-### Common Issues
-
-- **Black screen**: Ensure both HDMI cables are connected before boot
-- **Wrong display assignment**: Swap HDMI cables or modify the script's display names
-- **Authentication fails**: Verify `IMGRES_AUTH` is set correctly
-- **Windows not positioned correctly**: Check `rc.xml` is in the correct location
-
-## Security Considerations
-
-- The `IMGRES_AUTH` credential is passed via environment variable
-- Consider using read-only filesystem for production deployments
-- Physical access to the Pi grants full access to the system
-- The kiosk runs with user privileges, not root
-
-## Customization
-
-To modify URLs or display assignments, edit the configuration section at the top of `imgres-launch-raspbian.sh`:
-- `DISPLAY1` and `DISPLAY2` for monitor assignment
-- URLs for each screen
-- Window positions in `rc.xml` if using different resolution displays
+- **Black second monitor / both windows on one screen** — labwc didn't apply
+  the window rule. Check `~/.config/labwc/rc.xml` exists and contains the
+  `<windowRule identifier="chromium-browser-screen1|2">` blocks; the rule
+  matches on Chromium's `--class` value as the Wayland `app_id`.
+- **Pi boots to LXDE desktop, no kiosk** — autologin landed in
+  `LXDE-pi-labwc` instead of `labwc-kiosk`. Check `/etc/lightdm/lightdm.conf`
+  has `autologin-session=labwc-kiosk` (not just the `conf.d/` override).
+- **Capture page shows no live webcam preview** — `chrome://policy` should
+  list `VideoCaptureAllowedUrls` for the kiosk URL. If `getUserMedia` hangs,
+  confirm `--disable-features=WebRtcPipeWireCamera` is on the Chromium
+  command line.
+- **Tailscale didn't join** — likely the auth key was burned/expired. Run
+  `sudo tailscale up --authkey=<fresh-key> --ssh --hostname=$(hostname)`
+  manually over LAN SSH; once joined it persists.
