@@ -51,8 +51,9 @@ const SketchCanvasHook = {
 
     this.resizeObserver.observe(this.el);
 
-    // Create context with hardware acceleration hints. antialias/powerPreference
-    // are WebGL-only — alpha:false + desynchronized are the bits that matter for 2D.
+    // alpha:false skips per-pixel alpha blend at composite time.
+    // desynchronized:true measurably helped FPS on Pi 5 / V3D when tested
+    // (removing it dropped screen2 from ~39 to ~24 fps).
     this.ctx = this.el.getContext("2d", {
       alpha: false,
       desynchronized: true,
@@ -81,10 +82,16 @@ const SketchCanvasHook = {
   },
 
   updateCanvasSize(width, height) {
-    this.width = width;
-    this.height = height;
-    this.el.width = width;
-    this.el.height = height;
+    // Cap the backing buffer at the source video resolution (1024x768). The
+    // CSS box stays whatever layout decided; the browser GPU-upscales the
+    // smaller buffer cheaply at composite. ~50% fewer pixels rastered per
+    // frame -- enough headroom for the Pi 5 / V3D to hit vsync.
+    const maxW = 1024, maxH = 768;
+    const scale = Math.min(maxW / width, maxH / height, 1);
+    this.width = Math.round(width * scale);
+    this.height = Math.round(height * scale);
+    this.el.width = this.width;
+    this.el.height = this.height;
   },
 
   addNewSketch(id, dataurl) {
