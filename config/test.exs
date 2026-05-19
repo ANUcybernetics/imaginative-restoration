@@ -39,10 +39,6 @@ config :imaginative_restoration, ImaginativeRestoration.AI.Replicate,
 # still works for explicit invocation.
 config :imaginative_restoration, sweeper_interval_ms: :timer.hours(1)
 
-# Tests drive the classifier with explicit short frame sequences; a single
-# quiet tick is enough to assert the motion → rest transition.
-config :imaginative_restoration, stability_window_ticks: 1
-
 # Print only warnings and errors during test
 config :logger, level: :warning
 

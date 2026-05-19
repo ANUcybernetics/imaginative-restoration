@@ -26,8 +26,7 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
   end
 
   # Two distinct 1x1 PNGs — RMSE difference is ~100 between them and 0 between
-  # identical frames, which is plenty either side of the dev thresholds
-  # (change=3, settle=2).
+  # identical frames, which is plenty above the change threshold (2.5).
   @black_png "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
   @white_png "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
 
@@ -109,13 +108,12 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
     end
   end
 
-  describe "baseline + settle change detection" do
+  describe "baseline change detection" do
     test "first frame establishes baseline and does not trigger", %{conn: conn} do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
       render_hook(view, "webcam_frame", %{"frame" => @black_png})
 
-      # Bootstrap: no capture event for the very first frame.
       refute_push_event(view, "capture_triggered", %{})
     end
 
@@ -129,68 +127,45 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       refute_push_event(view, "capture_triggered", %{})
     end
 
-    test "different-then-settled sequence fires capture", %{conn: conn} do
+    test "a frame that differs from baseline fires capture", %{conn: conn} do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
-      # 1. Bootstrap baseline.
       render_hook(view, "webcam_frame", %{"frame" => @black_png})
-
-      # 2. Scene changes but isn't settled vs the previous frame yet.
       render_hook(view, "webcam_frame", %{"frame" => @white_png})
-      refute_push_event(view, "capture_triggered", %{})
 
-      # 3. Same frame again → settled vs previous → trigger.
-      render_hook(view, "webcam_frame", %{"frame" => @white_png})
       assert_push_event(view, "capture_triggered", %{})
     end
 
     test "admin frames are not processed", %{conn: conn} do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
-      render_hook(view, "webcam_frame", %{"frame" => @black_png, "is_admin" => true})
+      # Establish a baseline first so a non-admin white frame would otherwise
+      # fire — this ensures the is_admin gate is what's suppressing the trigger.
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+      render_hook(view, "webcam_frame", %{"frame" => @white_png, "is_admin" => true})
 
       refute_push_event(view, "capture_triggered", %{})
     end
 
-    test "after a no-op disturbance, a real change still triggers", %{conn: conn} do
-      # The motion latch must clear after a settled-but-no-change outcome,
-      # otherwise the very next motion→rest cycle would inherit stale state
-      # and behave inconsistently.
+    test "trigger adopts current frame as new baseline", %{conn: conn} do
+      # Once a capture fires, the scene that fired it becomes the new
+      # baseline — so the same scene held steady must not re-fire after the
+      # in-flight lock clears.
+      original = Application.get_env(:imaginative_restoration, :lock_timeout_ms)
+      Application.put_env(:imaginative_restoration, :lock_timeout_ms, 50)
+      on_exit(fn -> Application.put_env(:imaginative_restoration, :lock_timeout_ms, original) end)
+
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
-      # First cycle: disturbance that returns to baseline — no trigger.
       render_hook(view, "webcam_frame", %{"frame" => @black_png})
-      render_hook(view, "webcam_frame", %{"frame" => @white_png})
-      render_hook(view, "webcam_frame", %{"frame" => @black_png})
-      render_hook(view, "webcam_frame", %{"frame" => @black_png})
-      refute_push_event(view, "capture_triggered", %{})
-
-      # Second cycle: a real change that settles — must trigger.
-      render_hook(view, "webcam_frame", %{"frame" => @white_png})
       render_hook(view, "webcam_frame", %{"frame" => @white_png})
       assert_push_event(view, "capture_triggered", %{})
-    end
 
-    test "brief disturbance that returns to baseline does not trigger", %{conn: conn} do
-      # Regression: previously, a person walking through the FoV without
-      # drawing would briefly disturb the scene; once they left, the
-      # "settled and different-enough-from-the-old-baseline" gate could fire
-      # on AGC drift and capture the empty background. The motion → rest
-      # state machine should clear the latch in that scenario.
-      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
+      # Wait for the safety-net timer to clear the lock so the gate is live again.
+      Process.sleep(150)
 
-      # 1. Bootstrap baseline = black.
-      render_hook(view, "webcam_frame", %{"frame" => @black_png})
-
-      # 2. Disturbance enters: white.
+      # The new baseline is white; another white frame is no change.
       render_hook(view, "webcam_frame", %{"frame" => @white_png})
-
-      # 3. Disturbance leaves: back to black (identical to baseline).
-      render_hook(view, "webcam_frame", %{"frame" => @black_png})
-
-      # 4. Scene quiet again at the original baseline. No new content; no
-      #    trigger should fire.
-      render_hook(view, "webcam_frame", %{"frame" => @black_png})
 
       refute_push_event(view, "capture_triggered", %{})
     end
@@ -387,9 +362,8 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
     test "skips new frames while a submission is in flight", %{conn: conn} do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
-      # Drive the gate to a trigger: bootstrap → change → settled.
+      # Drive the gate to a trigger: bootstrap baseline, then a different frame.
       render_hook(view, "webcam_frame", %{"frame" => @black_png})
-      render_hook(view, "webcam_frame", %{"frame" => @white_png})
       render_hook(view, "webcam_frame", %{"frame" => @white_png})
       assert_push_event(view, "capture_triggered", %{})
 
@@ -420,12 +394,34 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
     test "drops frames when closed", %{conn: conn} do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
-      # Even after the full bootstrap+change+settle dance, no capture fires.
+      # A baseline-then-change sequence that would normally fire must not
+      # fire while operating hours are closed.
       render_hook(view, "webcam_frame", %{"frame" => @black_png})
-      render_hook(view, "webcam_frame", %{"frame" => @white_png})
       render_hook(view, "webcam_frame", %{"frame" => @white_png})
 
       refute_push_event(view, "capture_triggered", %{})
+    end
+
+    test "closed-hours frames update baseline so first open frame stays quiet", %{conn: conn} do
+      # While closed, frames are silently adopted as baseline. The point is
+      # that when we re-open, the first frame after opening should match the
+      # last closed-hours frame and therefore not fire.
+      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
+
+      render_hook(view, "webcam_frame", %{"frame" => @white_png})
+
+      # Re-open operating hours.
+      original = Application.get_env(:imaginative_restoration, :operating_hours)
+      Application.put_env(:imaginative_restoration, :operating_hours, Keyword.put(original, :blackout_ranges, []))
+      on_exit(fn -> Application.put_env(:imaginative_restoration, :operating_hours, original) end)
+
+      # Same frame as the last closed-hours one → matches baseline → no fire.
+      render_hook(view, "webcam_frame", %{"frame" => @white_png})
+      refute_push_event(view, "capture_triggered", %{})
+
+      # A genuinely different frame does fire.
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+      assert_push_event(view, "capture_triggered", %{})
     end
   end
 
@@ -440,15 +436,13 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       # Trigger a capture so the lock is set and the timer is armed.
       render_hook(view, "webcam_frame", %{"frame" => @black_png})
       render_hook(view, "webcam_frame", %{"frame" => @white_png})
-      render_hook(view, "webcam_frame", %{"frame" => @white_png})
       assert_push_event(view, "capture_triggered", %{})
 
       # Wait for the safety-net timer to fire and clear the lock.
       Process.sleep(150)
 
-      # A fresh trigger must work again. Use a third distinct value (black)
-      # against the current baseline (white) and settle it.
-      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+      # A fresh trigger must work again. The baseline is now white, so a
+      # black frame is a fresh change.
       render_hook(view, "webcam_frame", %{"frame" => @black_png})
 
       assert_push_event(view, "capture_triggered", %{})

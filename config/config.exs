@@ -38,27 +38,14 @@ config :imaginative_restoration,
   generators: [timestamp_type: :utc_datetime]
 
 config :imaginative_restoration,
-  # Capture gate. All three values are on RMSE * 100 (0-100 scale) except the
-  # last, which is a tick count.
-  #
-  # The classifier is a small motion → rest → compare state machine. A trigger
-  # requires (a) motion to have been observed since the last capture, (b) the
-  # scene to have been quiet for `stability_window_ticks` consecutive frames,
-  # and (c) the current frame to differ from the last-captured baseline by
-  # more than `image_difference_threshold`. The motion-precondition prevents
-  # slow camera AGC/lighting drift from ever triggering on its own.
-  #
-  #   * `image_difference_threshold` — change vs baseline to bother triggering.
-  #
-  #   * `frame_settle_threshold` — per-tick frame-to-frame diff above which we
-  #     treat the scene as in motion. Sits just above the static-scene noise
-  #     floor (measured ~1.65 in prod).
-  #
-  #   * `stability_window_ticks` — consecutive frames that must be at or below
-  #     `frame_settle_threshold` before we'll consider the scene at rest.
+  # Capture gate: each tick (every `webcam_capture_interval` ms), the current
+  # frame is compared against the last-fired frame (the "baseline"). If the
+  # RMSE * 100 (0-100 scale) exceeds `image_difference_threshold`, the
+  # pipeline fires and adopts the current frame as the new baseline. There is
+  # no rest-detection or motion-latching — slow AGC/lighting drift can
+  # accumulate and trigger spuriously, which is the failure mode we've
+  # accepted in exchange for not silently dropping legitimate captures.
   image_difference_threshold: 2.5,
-  frame_settle_threshold: 2.0,
-  stability_window_ticks: 3,
   webcam_capture_interval: 1_000,
   # Safety net: LiveView clears its in-flight submission lock if a sketch
   # broadcast never arrives. Sweeper handles the DB side after 5 min; this
