@@ -13,6 +13,8 @@ defmodule ImaginativeRestoration.Sketches do
       define :submit_generation
       define :complete_generation, args: [:intermediate_image]
       define :complete, args: [:processed_data, :thumbnail]
+      define :retry_generation
+      define :retry_bg_removal
       define :fail, args: [:error]
     end
   end

@@ -1,29 +1,40 @@
 defmodule ImaginativeRestoration.Sketches.Sweeper do
   @moduledoc """
-  Periodically fails sketches that have been stuck in a non-terminal state for
-  too long.
+  Periodically reconciles in-flight sketches against Replicate.
 
-  A sketch can get stuck if Replicate never delivers the webhook (network
-  glitch, mid-deploy restart, etc.). Without this sweep, the LiveView's
-  `current_sketch_id` would never clear and no new frames would be submitted.
+  For each sketch in `:generating` or `:removing_background` that hasn't moved
+  for `@stale_after_seconds`, the sweeper fetches the actual prediction status
+  from Replicate and hands the payload to `Sketches.Advance`. That dispatch
+  drives the state machine forward (or applies the retry-or-fail logic)
+  exactly as if a webhook had arrived.
+
+  This is a backstop for lost webhooks (network glitches, mid-deploy restarts,
+  rejected signatures). Unlike the previous time-only sweep, it never kills a
+  prediction that Replicate is still working on — it only acts when Replicate
+  itself reports a terminal status.
   """
   use GenServer
 
-  alias ImaginativeRestoration.Sketches
+  alias ImaginativeRestoration.AI.Replicate
+  alias ImaginativeRestoration.Sketches.Advance
   alias ImaginativeRestoration.Sketches.Sketch
 
   require Ash.Query
   require Logger
 
-  @sweep_interval_ms :timer.seconds(60)
-  @stuck_after_seconds 300
+  @default_sweep_interval_ms :timer.seconds(30)
+  @stale_after_seconds 60
+
+  defp sweep_interval_ms do
+    Application.get_env(:imaginative_restoration, :sweeper_interval_ms, @default_sweep_interval_ms)
+  end
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
   @doc "Run the sweep synchronously. Used in tests."
-  def sweep_now, do: GenServer.call(__MODULE__, :sweep)
+  def sweep_now, do: GenServer.call(__MODULE__, :sweep, :timer.seconds(30))
 
   @impl true
   def init(_opts) do
@@ -43,34 +54,63 @@ defmodule ImaginativeRestoration.Sketches.Sweeper do
     {:reply, do_sweep(), state}
   end
 
-  defp schedule_sweep, do: Process.send_after(self(), :sweep, @sweep_interval_ms)
+  defp schedule_sweep, do: Process.send_after(self(), :sweep, sweep_interval_ms())
 
   defp do_sweep do
-    cutoff = DateTime.add(DateTime.utc_now(), -@stuck_after_seconds, :second)
+    cutoff = DateTime.add(DateTime.utc_now(), -@stale_after_seconds, :second)
 
-    case fetch_stuck(cutoff) do
-      {:ok, stuck} ->
-        Enum.each(stuck, fn sketch ->
-          Logger.warning(
-            "Failing stuck sketch #{sketch.id} (state=#{sketch.state}, updated_at=#{sketch.updated_at})"
-          )
-
-          Sketches.fail(sketch, "Timed out after #{@stuck_after_seconds}s in state #{sketch.state}")
+    case fetch_stale(cutoff) do
+      {:ok, stale} ->
+        Enum.reduce(stale, %{advanced: 0, retried: 0, failed: 0, still_running: 0, ignored: 0, errored: 0}, fn sketch, acc ->
+          outcome = reconcile(sketch)
+          Map.update!(acc, outcome, &(&1 + 1))
         end)
-
-        length(stuck)
 
       {:error, reason} ->
         Logger.warning("Sweep skipped: #{inspect(reason)}")
-        0
+        %{}
     end
   end
 
+  defp reconcile(%Sketch{prediction_id: nil} = sketch) do
+    Logger.warning("Sketch #{sketch.id}: stale in #{sketch.state} with no prediction_id; skipping")
+    :ignored
+  end
+
+  defp reconcile(%Sketch{} = sketch) do
+    case Replicate.get_prediction(sketch.prediction_id) do
+      {:ok, payload} ->
+        case Advance.advance(sketch, payload) do
+          {:ok, outcome} ->
+            log_outcome(sketch, payload, outcome)
+            outcome
+
+          {:error, reason} ->
+            Logger.warning("Sketch #{sketch.id}: advance/2 errored: #{inspect(reason)}")
+            :errored
+        end
+
+      {:error, reason} ->
+        Logger.warning(
+          "Sketch #{sketch.id}: failed to fetch prediction #{sketch.prediction_id}: #{inspect(reason)}"
+        )
+
+        :errored
+    end
+  end
+
+  defp log_outcome(sketch, payload, outcome) when outcome in [:advanced, :retried, :failed] do
+    Logger.info(
+      "Sweeper reconciled sketch #{sketch.id} (was #{sketch.state}, prediction status=#{payload["status"]}): #{outcome}"
+    )
+  end
+
+  defp log_outcome(_sketch, _payload, _outcome), do: :ok
+
   # If the DB pool is saturated (e.g. a backfill or burst of LV traffic is in
-  # flight), the sweep's checkout would block for the default 15s timeout and
-  # then crash the GenServer. The sweep is best-effort housekeeping; skip and
-  # try again next tick rather than taking the supervisor restart hit.
-  defp fetch_stuck(cutoff) do
+  # flight), the sweep's checkout would block and crash the GenServer. The
+  # sweep is best-effort housekeeping; skip and try again next tick.
+  defp fetch_stale(cutoff) do
     {:ok,
      Sketch
      |> Ash.Query.for_read(:read)

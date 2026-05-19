@@ -4,15 +4,20 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
   ## States
 
-      :created --submit_generation--> :generating
-                                          |
-                                          +--complete_generation--> :removing_background
+      :created --submit_generation--> :generating <--retry_generation--+
+                                          |                            |
+                                          +--complete_generation--> :removing_background <--retry_bg_removal--+
                                           |                              |
                                           |                              +--complete--> :succeeded
                                           |                              |
                                           +--fail---------+              +--fail--> :failed
                                                           v
                                                        :failed
+
+  Provider-side failures (e.g. nano-banana returning "Failed to generate image.")
+  trigger a self-transition that resubmits with a fresh prediction, incrementing
+  `:retry_count` each time. Once `:retry_count` reaches `@max_retries` the next
+  failure transitions to `:failed`.
   """
   use Ash.Resource,
     domain: ImaginativeRestoration.Sketches,
@@ -32,6 +37,9 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
     end
   end
 
+  @max_retries 2
+  def max_retries, do: @max_retries
+
   state_machine do
     initial_states([:created])
     default_initial_state(:created)
@@ -40,6 +48,8 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
       transition(:submit_generation, from: :created, to: :generating)
       transition(:complete_generation, from: :generating, to: :removing_background)
       transition(:complete, from: :removing_background, to: :succeeded)
+      transition(:retry_generation, from: :generating, to: :generating)
+      transition(:retry_bg_removal, from: :removing_background, to: :removing_background)
       transition(:fail, from: [:created, :generating, :removing_background], to: :failed)
     end
   end
@@ -59,6 +69,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
     attribute :prediction_id, :string
     attribute :error, :string
     attribute :hidden, :boolean, default: false
+    attribute :retry_count, :integer, default: 0, allow_nil?: false
 
     create_timestamp :inserted_at
     update_timestamp :updated_at
@@ -97,6 +108,22 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
       require_atomic? false
 
       change transition_state(:succeeded)
+    end
+
+    update :retry_generation do
+      require_atomic? false
+
+      change ImaginativeRestoration.Sketches.Sketch.Changes.BumpRetryCount
+      change {Pipeline, stage: :submit_generation}
+      change transition_state(:generating)
+    end
+
+    update :retry_bg_removal do
+      require_atomic? false
+
+      change ImaginativeRestoration.Sketches.Sketch.Changes.BumpRetryCount
+      change {Pipeline, stage: :submit_bg_removal}
+      change transition_state(:removing_background)
     end
 
     update :fail do

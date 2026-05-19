@@ -3,8 +3,27 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
 
   import Phoenix.LiveViewTest
 
+  alias ImaginativeRestoration.AI.Replicate
+  alias ImaginativeRestoration.ReplicateStubs
   alias ImaginativeRestoration.Sketches.Sketch
   alias Phoenix.Socket.Broadcast
+
+  setup do
+    # The capture path spawns an async task that submits to Replicate; stub
+    # the create-prediction endpoint so the task succeeds quietly.
+    Req.Test.set_req_test_to_shared(%{})
+    ReplicateStubs.prime_version_cache()
+
+    Req.Test.stub(Replicate, fn
+      %{method: "POST"} = conn ->
+        ReplicateStubs.json_created(conn, %{"id" => "stub_pred", "status" => "starting"})
+
+      %{method: "GET"} = conn ->
+        Req.Test.json(conn, %{"status" => "starting"})
+    end)
+
+    :ok
+  end
 
   # Two distinct 1x1 PNGs — RMSE difference is ~100 between them and 0 between
   # identical frames, which is plenty either side of the dev thresholds

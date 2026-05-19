@@ -1,33 +1,29 @@
 defmodule ImaginativeRestorationWeb.ReplicateWebhookController do
   @moduledoc """
-  Receives Replicate prediction-completion webhooks and drives the sketch
-  state machine forward.
-
-  Dispatch is by the sketch's current state:
-    * `:generating` → submit the bg-removal prediction (via `complete_generation`)
-    * `:removing_background` → store the final image (via `complete`)
-
-  Failures at any stage transition the sketch to `:failed`.
+  Receives Replicate prediction-completion webhooks and hands them to the
+  shared `Sketches.Advance` dispatch, which drives the state machine forward
+  (and applies the same retry-or-fail logic as the reconciler).
   """
   use ImaginativeRestorationWeb, :controller
 
   alias ImaginativeRestoration.AI.Replicate
-  alias ImaginativeRestoration.Sketches
+  alias ImaginativeRestoration.Sketches.Advance
   alias ImaginativeRestoration.Sketches.Sketch
-  alias ImaginativeRestoration.Utils
 
   require Logger
-
-  @bg_removal_model "851-labs/background-remover"
 
   def replicate(conn, %{"sketch_id" => sketch_id} = params) do
     case verify_signature(conn) do
       :ok ->
-        Sketch
-        |> Ash.get(String.to_integer(sketch_id))
-        |> handle(params)
+        case Ash.get(Sketch, String.to_integer(sketch_id)) do
+          {:ok, sketch} ->
+            Advance.advance(sketch, params)
+            send_resp(conn, 200, "")
 
-        send_resp(conn, 200, "")
+          {:error, _} = err ->
+            Logger.warning("Webhook for unknown sketch #{sketch_id}: #{inspect(err)}")
+            send_resp(conn, 200, "")
+        end
 
       {:error, reason} ->
         Logger.warning("Rejected Replicate webhook for sketch #{sketch_id}: #{inspect(reason)}")
@@ -37,40 +33,6 @@ defmodule ImaginativeRestorationWeb.ReplicateWebhookController do
     e ->
       Logger.error("Error handling Replicate webhook: #{Exception.message(e)}")
       send_resp(conn, 500, "")
-  end
-
-  defp handle({:ok, %Sketch{state: :generating} = sketch}, %{"status" => "succeeded"} = payload) do
-    case Replicate.extract_output(sketch.model, payload) do
-      {:ok, output_url} -> Sketches.complete_generation(sketch, output_url)
-      {:error, reason} -> Sketches.fail(sketch, inspect(reason))
-    end
-  end
-
-  defp handle({:ok, %Sketch{state: :removing_background} = sketch}, %{"status" => "succeeded"} = payload) do
-    case Replicate.extract_output(@bg_removal_model, payload) do
-      {:ok, output_url} ->
-        image = Utils.to_image!(output_url)
-        processed_data = Utils.to_avif!(image)
-        thumbnail = Utils.to_thumbnail_avif!(image)
-        Sketches.complete(sketch, processed_data, thumbnail)
-
-      {:error, reason} ->
-        Sketches.fail(sketch, inspect(reason))
-    end
-  end
-
-  defp handle({:ok, sketch}, %{"status" => status} = payload) when status in ["failed", "canceled"] do
-    Sketches.fail(sketch, payload["error"] || "Prediction #{status}")
-  end
-
-  defp handle({:ok, sketch}, payload) do
-    Logger.warning("Ignoring webhook for sketch #{sketch.id} in state #{sketch.state}: #{inspect(payload)}")
-    :ok
-  end
-
-  defp handle({:error, _} = err, _payload) do
-    Logger.warning("Webhook for unknown sketch: #{inspect(err)}")
-    :ok
   end
 
   defp verify_signature(conn) do

@@ -170,8 +170,14 @@ defmodule ImaginativeRestorationWeb.AdminLive do
                       src={Sketch.processed_url(sketch) || Sketch.raw_url(sketch)}
                       class={["h-full rounded", !Sketch.processed_url(sketch) && "opacity-50"]}
                     />
-                    <span :if={!Sketch.processed_url(sketch)} class="text-xs text-yellow-400">
-                      Processing...
+                    <span :if={sketch.state == :failed} class="text-xs text-red-400">
+                      Failed{retry_suffix(sketch)}: {sketch.error || "unknown error"}
+                    </span>
+                    <span
+                      :if={!Sketch.processed_url(sketch) and sketch.state != :failed}
+                      class="text-xs text-yellow-400"
+                    >
+                      {state_label(sketch)}{retry_suffix(sketch)}
                     </span>
                   </div>
                 </div>
@@ -425,6 +431,14 @@ defmodule ImaginativeRestorationWeb.AdminLive do
         {0, 0, 0, 0}
     end
   end
+
+  defp state_label(%Sketch{state: :created}), do: "Queued"
+  defp state_label(%Sketch{state: :generating}), do: "Generating..."
+  defp state_label(%Sketch{state: :removing_background}), do: "Removing background..."
+  defp state_label(%Sketch{state: state}), do: to_string(state)
+
+  defp retry_suffix(%Sketch{retry_count: n}) when is_integer(n) and n > 0, do: " (retry #{n})"
+  defp retry_suffix(_), do: ""
 
   defp parse_size_to_gb(size_str) do
     # Parse sizes like "50G", "512M", "1.2T" to GB

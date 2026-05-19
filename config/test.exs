@@ -28,6 +28,17 @@ config :imaginative_restoration,
 
 config :imaginative_restoration, webhook_base_url: "http://localhost:4002"
 
+# Route Replicate HTTP calls through Req.Test so tests can stub responses.
+# `retry: false` keeps the default 5xx-retry from making tests slow when we
+# deliberately stub an HTTP error.
+config :imaginative_restoration, ImaginativeRestoration.AI.Replicate,
+  plug: {Req.Test, ImaginativeRestoration.AI.Replicate},
+  retry: false
+
+# Effectively disable the sweeper's periodic timer in tests — `sweep_now/0`
+# still works for explicit invocation.
+config :imaginative_restoration, sweeper_interval_ms: :timer.hours(1)
+
 # Tests drive the classifier with explicit short frame sequences; a single
 # quiet tick is enough to assert the motion → rest transition.
 config :imaginative_restoration, stability_window_ticks: 1

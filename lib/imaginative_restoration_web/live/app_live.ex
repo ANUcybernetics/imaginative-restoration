@@ -46,14 +46,20 @@ defmodule ImaginativeRestorationWeb.AppLive do
               src={Sketch.display_url(image)}
               class={[
                 "w-full h-full object-contain",
-                !processed?(image) && "sketch-processing"
+                !processed?(image) && image.state != :failed && "sketch-processing"
               ]}
             />
             <span
-              :if={!processed?(image)}
+              :if={!processed?(image) and image.state != :failed}
               class="absolute left-1/2 bottom-2 -translate-x-1/2 text-sm font-lacquer font-semibold px-1 py-0.5 text-[#8B2E15] backdrop-blur-md rounded-sm"
             >
               Processing...
+            </span>
+            <span
+              :if={image.state == :failed}
+              class="absolute left-1/2 bottom-2 -translate-x-1/2 text-sm font-lacquer font-semibold px-1 py-0.5 text-[#8B2E15] backdrop-blur-md rounded-sm"
+            >
+              Failed
             </span>
           </div>
         </div>

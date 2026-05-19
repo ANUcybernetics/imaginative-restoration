@@ -1,7 +1,15 @@
 defmodule ImaginativeRestorationWeb.ReplicateWebhookControllerTest do
   use ImaginativeRestorationWeb.ConnCase, async: false
 
+  alias ImaginativeRestoration.AI.Replicate
+  alias ImaginativeRestoration.ReplicateStubs
   alias ImaginativeRestoration.Sketches.Sketch
+
+  setup do
+    Req.Test.set_req_test_to_shared(%{})
+    ReplicateStubs.prime_version_cache()
+    :ok
+  end
 
   @raw_bytes Base.decode64!("UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAQAcJaQAA3AA/v3AgAAAAA==")
 
@@ -17,33 +25,54 @@ defmodule ImaginativeRestorationWeb.ReplicateWebhookControllerTest do
   end
 
   describe "POST /webhooks/replicate/:sketch_id" do
-    test "ignores webhooks for unknown sketches", %{conn: conn} do
+    test "returns 200 for webhooks targeting unknown sketches", %{conn: conn} do
       conn = post(conn, ~p"/webhooks/replicate/999999", %{"status" => "succeeded", "output" => []})
       assert response(conn, 200)
     end
 
-    test "transitions a :removing_background sketch to :succeeded when bg-removal completes", %{conn: conn} do
-      sketch =
-        create_sketch_in_state(:removing_background, %{intermediate_image: "https://example.com/gen.webp"})
+    test "advances a :generating sketch on a succeeded webhook", %{conn: conn} do
+      sketch = create_sketch_in_state(:generating)
 
-      output_url =
-        "https://fly.storage.tigris.dev/imaginative-restoration-sketches/test.webp"
+      Req.Test.stub(Replicate, fn
+        %{method: "POST"} = http_conn ->
+          ReplicateStubs.json_created(http_conn, %{"id" => "bgrm_pred", "status" => "starting"})
+      end)
 
-      # The controller calls Utils.to_image! on the output URL, which fetches over HTTP.
-      # We can't easily stub that here, so accept that we'll get either 200 (on fetch
-      # success) or 500 (on fetch failure) -- the important thing is the controller
-      # routes correctly. A pure dispatch test would require introducing a mock.
       conn =
         post(conn, ~p"/webhooks/replicate/#{sketch.id}", %{
           "status" => "succeeded",
-          "output" => output_url
+          "output" => "https://example.com/gen.jpg"
         })
 
-      assert conn.status in [200, 500]
+      assert response(conn, 200)
+
+      reloaded = Ash.get!(Sketch, sketch.id)
+      assert reloaded.state == :removing_background
     end
 
-    test "transitions to :failed on a failed prediction", %{conn: conn} do
-      sketch = create_sketch_in_state(:generating)
+    test "retries on a failed webhook when retry budget remains", %{conn: conn} do
+      sketch = create_sketch_in_state(:generating, %{retry_count: 0})
+
+      Req.Test.stub(Replicate, fn
+        %{method: "POST"} = http_conn ->
+          ReplicateStubs.json_created(http_conn, %{"id" => "retry_pred", "status" => "starting"})
+      end)
+
+      conn =
+        post(conn, ~p"/webhooks/replicate/#{sketch.id}", %{
+          "status" => "failed",
+          "error" => "Failed to generate image."
+        })
+
+      assert response(conn, 200)
+
+      reloaded = Ash.get!(Sketch, sketch.id)
+      assert reloaded.state == :generating
+      assert reloaded.retry_count == 1
+    end
+
+    test "transitions to :failed when retries are exhausted", %{conn: conn} do
+      sketch = create_sketch_in_state(:generating, %{retry_count: Sketch.max_retries()})
 
       conn =
         post(conn, ~p"/webhooks/replicate/#{sketch.id}", %{
@@ -73,7 +102,6 @@ defmodule ImaginativeRestorationWeb.ReplicateWebhookControllerTest do
 
         assert response(conn, 401)
 
-        # State should be unchanged
         reloaded = Ash.get!(Sketch, sketch.id)
         assert reloaded.state == :generating
       after

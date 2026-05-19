@@ -313,14 +313,14 @@ defmodule ImaginativeRestorationWeb.AdminLiveTest do
   end
 
   describe "visual indicators" do
-    test "shows processing state for unprocessed sketches", %{conn: conn} do
+    test "shows generating-state indicator for in-flight sketches", %{conn: conn} do
       {:ok, view, _html} = live(authenticated_conn(conn), "/admin")
 
-      # Add an unprocessed sketch
       sketch = %Sketch{
         id: Ash.UUID.generate(),
         raw_data: <<1, 2, 3>>,
         processed_data: nil,
+        state: :generating,
         inserted_at: DateTime.utc_now()
       }
 
@@ -332,9 +332,57 @@ defmodule ImaginativeRestorationWeb.AdminLiveTest do
 
       html = render(view)
 
-      # Should show processing indicator
-      assert html =~ "Processing..."
+      assert html =~ "Generating..."
       assert html =~ "opacity-50"
+    end
+
+    test "shows error message for failed sketches instead of in-flight badge", %{conn: conn} do
+      {:ok, view, _html} = live(authenticated_conn(conn), "/admin")
+
+      sketch = %Sketch{
+        id: Ash.UUID.generate(),
+        raw_data: <<1, 2, 3>>,
+        processed_data: nil,
+        state: :failed,
+        error: "Failed to generate image.",
+        inserted_at: DateTime.utc_now()
+      }
+
+      send(view.pid, %Broadcast{
+        topic: "sketch:updated",
+        event: "update",
+        payload: %{data: sketch}
+      })
+
+      html = render(view)
+
+      assert html =~ "Failed"
+      assert html =~ "Failed to generate image."
+      refute html =~ "Generating..."
+    end
+
+    test "shows retry suffix when retry_count is set", %{conn: conn} do
+      {:ok, view, _html} = live(authenticated_conn(conn), "/admin")
+
+      sketch = %Sketch{
+        id: Ash.UUID.generate(),
+        raw_data: <<1, 2, 3>>,
+        processed_data: nil,
+        state: :generating,
+        retry_count: 1,
+        inserted_at: DateTime.utc_now()
+      }
+
+      send(view.pid, %Broadcast{
+        topic: "sketch:updated",
+        event: "update",
+        payload: %{data: sketch}
+      })
+
+      html = render(view)
+
+      assert html =~ "Generating..."
+      assert html =~ "retry 1"
     end
 
     test "color codes frame distances", %{conn: conn} do

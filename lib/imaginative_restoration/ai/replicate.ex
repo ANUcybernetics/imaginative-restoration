@@ -11,6 +11,12 @@ defmodule ImaginativeRestoration.AI.Replicate do
 
   defp auth_token, do: System.get_env("REPLICATE_API_TOKEN")
 
+  # Read at call time so tests can override via Application.put_env.
+  defp req_opts, do: Application.get_env(:imaginative_restoration, __MODULE__, [])
+
+  defp req_get(url, opts), do: Req.get(url, Keyword.merge(req_opts(), opts))
+  defp req_post(url, opts), do: Req.post(url, Keyword.merge(req_opts(), opts))
+
   @doc """
   Submits a prediction to Replicate with a webhook for completion.
 
@@ -125,7 +131,7 @@ defmodule ImaginativeRestoration.AI.Replicate do
   defp fetch_latest_version(model) do
     url = "#{@base_url}/models/#{model}/versions"
 
-    case Req.get(url, auth: {:bearer, auth_token()}) do
+    case req_get(url, auth: {:bearer, auth_token()}) do
       {:ok, %{status: 200, body: body}} ->
         {:ok, body["results"] |> List.first() |> Map.get("id")}
 
@@ -151,8 +157,27 @@ defmodule ImaginativeRestoration.AI.Replicate do
          %{version: model_or_version, input: input, webhook: webhook_url, webhook_events_filter: ["completed"]}}
       end
 
-    case Req.post(url, json: body, auth: {:bearer, auth_token()}) do
+    case req_post(url, json: body, auth: {:bearer, auth_token()}) do
       {:ok, %{status: 201, body: body}} -> {:ok, body}
+      {:ok, %{status: status, body: body}} -> {:error, "HTTP #{status}: #{inspect(body)}"}
+      {:error, error} -> {:error, error}
+    end
+  end
+
+  @doc """
+  Fetches the current state of a prediction. Used by the reconciler when a
+  webhook hasn't arrived and we need to find out whether Replicate is still
+  working on it or it actually completed.
+
+  Returns the full prediction payload (same shape as a webhook body) so the
+  caller can hand it straight to the shared advance logic.
+  """
+  @spec get_prediction(String.t()) :: {:ok, map()} | {:error, any()}
+  def get_prediction(prediction_id) do
+    url = "#{@base_url}/predictions/#{prediction_id}"
+
+    case req_get(url, auth: {:bearer, auth_token()}) do
+      {:ok, %{status: 200, body: body}} -> {:ok, body}
       {:ok, %{status: status, body: body}} -> {:error, "HTTP #{status}: #{inspect(body)}"}
       {:error, error} -> {:error, error}
     end
@@ -166,7 +191,7 @@ defmodule ImaginativeRestoration.AI.Replicate do
   def cancel_prediction(prediction_id) do
     url = "#{@base_url}/predictions/#{prediction_id}/cancel"
 
-    case Req.post(url, auth: {:bearer, auth_token()}) do
+    case req_post(url, auth: {:bearer, auth_token()}) do
       {:ok, %{status: 200, body: body}} -> {:ok, body}
       {:ok, %{status: status, body: body}} -> {:error, "HTTP #{status}: #{inspect(body)}"}
       {:error, error} -> {:error, error}
