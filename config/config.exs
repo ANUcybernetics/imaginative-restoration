@@ -49,7 +49,7 @@ config :imaginative_restoration,
   #   * `frame_settle_threshold` — current frame must differ from the
   #     *previous tick* by less than this. Acts as a "scene has come to rest"
   #     gate so we don't capture mid-stroke or with a hand in frame.
-  image_difference_threshold: 3,
+  image_difference_threshold: 1.5,
   frame_settle_threshold: 2,
   webcam_capture_interval: 1_000,
   # Safety net: LiveView clears its in-flight submission lock if a sketch
