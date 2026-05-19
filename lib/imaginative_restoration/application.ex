@@ -10,7 +10,7 @@ defmodule ImaginativeRestoration.Application do
     children = [
       ImaginativeRestorationWeb.Telemetry,
       ImaginativeRestoration.Repo,
-      {Ecto.Migrator, repos: Application.fetch_env!(:imaginative_restoration, :ecto_repos), skip: skip_migrations?()},
+      {Ecto.Migrator, repos: Application.fetch_env!(:imaginative_restoration, :ecto_repos)},
       {DNSCluster, query: Application.get_env(:imaginative_restoration, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: ImaginativeRestoration.PubSub},
       {Task.Supervisor, name: ImaginativeRestoration.TaskSupervisor},
@@ -34,9 +34,4 @@ defmodule ImaginativeRestoration.Application do
     :ok
   end
 
-  defp skip_migrations? do
-    # In releases, run migrations manually via /app/bin/migrate rather than on boot —
-    # the sketches table is multi-GB and we want explicit control over when it runs.
-    System.get_env("RELEASE_NAME") != nil
-  end
 end
