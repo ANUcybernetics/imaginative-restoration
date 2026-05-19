@@ -189,14 +189,15 @@ defmodule ImaginativeRestorationWeb.AppLive do
         frame_image = Utils.to_image!(dataurl)
 
         case classify_frame(frame_image, socket.assigns) do
-          :trigger ->
+          {:trigger, _change, _settle} ->
             trigger_capture(frame_image, dataurl, socket)
 
           :bootstrap ->
             {:noreply, assign(socket, baseline_image: frame_image, previous_image: frame_image)}
 
-          reason when reason in [:no_change, :still_moving] ->
-            Logger.debug("Frame skipped (#{reason}), advancing previous only")
+          {reason, change, settle} when reason in [:no_change, :still_moving] ->
+            Logger.debug("Frame skipped (#{reason}) change=#{Float.round(change, 3)} settle=#{Float.round(settle, 3)}")
+
             {:noreply, assign(socket, previous_image: frame_image)}
         end
     end
@@ -221,9 +222,9 @@ defmodule ImaginativeRestorationWeb.AppLive do
     settle = frame_difference(previous, frame_image)
 
     cond do
-      change <= change_threshold -> :no_change
-      settle > settle_threshold -> :still_moving
-      true -> :trigger
+      change <= change_threshold -> {:no_change, change, settle}
+      settle > settle_threshold -> {:still_moving, change, settle}
+      true -> {:trigger, change, settle}
     end
   end
 
