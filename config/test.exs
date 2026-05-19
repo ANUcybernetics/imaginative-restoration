@@ -28,6 +28,10 @@ config :imaginative_restoration,
 
 config :imaginative_restoration, webhook_base_url: "http://localhost:4002"
 
+# Tests drive the classifier with explicit short frame sequences; a single
+# quiet tick is enough to assert the motion → rest transition.
+config :imaginative_restoration, stability_window_ticks: 1
+
 # Print only warnings and errors during test
 config :logger, level: :warning
 

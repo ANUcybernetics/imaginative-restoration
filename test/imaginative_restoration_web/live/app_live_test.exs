@@ -132,6 +132,49 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
 
       refute_push_event(view, "capture_triggered", %{})
     end
+
+    test "after a no-op disturbance, a real change still triggers", %{conn: conn} do
+      # The motion latch must clear after a settled-but-no-change outcome,
+      # otherwise the very next motion→rest cycle would inherit stale state
+      # and behave inconsistently.
+      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
+
+      # First cycle: disturbance that returns to baseline — no trigger.
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+      render_hook(view, "webcam_frame", %{"frame" => @white_png})
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+      refute_push_event(view, "capture_triggered", %{})
+
+      # Second cycle: a real change that settles — must trigger.
+      render_hook(view, "webcam_frame", %{"frame" => @white_png})
+      render_hook(view, "webcam_frame", %{"frame" => @white_png})
+      assert_push_event(view, "capture_triggered", %{})
+    end
+
+    test "brief disturbance that returns to baseline does not trigger", %{conn: conn} do
+      # Regression: previously, a person walking through the FoV without
+      # drawing would briefly disturb the scene; once they left, the
+      # "settled and different-enough-from-the-old-baseline" gate could fire
+      # on AGC drift and capture the empty background. The motion → rest
+      # state machine should clear the latch in that scenario.
+      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
+
+      # 1. Bootstrap baseline = black.
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+
+      # 2. Disturbance enters: white.
+      render_hook(view, "webcam_frame", %{"frame" => @white_png})
+
+      # 3. Disturbance leaves: back to black (identical to baseline).
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+
+      # 4. Scene quiet again at the original baseline. No new content; no
+      #    trigger should fire.
+      render_hook(view, "webcam_frame", %{"frame" => @black_png})
+
+      refute_push_event(view, "capture_triggered", %{})
+    end
   end
 
   describe "sketch update broadcasts" do

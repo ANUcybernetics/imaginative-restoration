@@ -77,7 +77,8 @@ defmodule ImaginativeRestorationWeb.AppLive do
 
     capture? = Map.has_key?(params, "capture") or Map.has_key?(params, "capture_box")
     change_threshold = Application.get_env(:imaginative_restoration, :image_difference_threshold)
-    settle_threshold = Application.get_env(:imaginative_restoration, :frame_settle_threshold)
+    motion_threshold = Application.get_env(:imaginative_restoration, :frame_settle_threshold)
+    stability_window = Application.get_env(:imaginative_restoration, :stability_window_ticks)
     lock_timeout_ms = Application.get_env(:imaginative_restoration, :lock_timeout_ms)
 
     {:ok,
@@ -87,13 +88,20 @@ defmodule ImaginativeRestorationWeb.AppLive do
        # reference frame to compare against — the last frame that triggered
        # processing (or the first frame seen, while bootstrapping)
        baseline_image: nil,
-       # previous tick's frame, used for the "scene has come to rest" check
+       # previous tick's frame, used to compute per-tick frame-to-frame diff
        previous_image: nil,
+       # rolling window of the last N frame-to-frame diffs (most recent first)
+       settle_history: [],
+       # latch: set true on any per-tick diff above motion_threshold, cleared
+       # on trigger (or on a settled-but-no-change outcome). The trigger
+       # precondition; without it, slow lighting drift would qualify.
+       motion_observed?: false,
        # list of the 5 most recent sketches
        recent_images: [],
        page_title: (capture? && "Capture") || "Display",
        change_threshold: change_threshold,
-       settle_threshold: settle_threshold,
+       motion_threshold: motion_threshold,
+       stability_window: stability_window,
        # camera error state
        camera_error: nil,
        # sketch id of the currently in-flight submission (or :pending while submitting)
@@ -178,53 +186,107 @@ defmodule ImaginativeRestorationWeb.AppLive do
         {:noreply, socket}
 
       not OperatingHours.open?() ->
-        # Outside hours: track latest frame as baseline/previous so the first
-        # frame after opening doesn't trip on an overnight lighting drift,
-        # but don't run change detection or submit.
+        # Outside hours: adopt the latest frame as baseline/previous and wipe
+        # the motion state, so the first frame after opening doesn't trip on
+        # overnight lighting drift or stale latched motion.
         frame_image = Utils.to_image!(dataurl)
-        {:noreply, assign(socket, baseline_image: frame_image, previous_image: frame_image)}
+
+        {:noreply,
+         assign(socket,
+           baseline_image: frame_image,
+           previous_image: frame_image,
+           settle_history: [],
+           motion_observed?: false
+         )}
 
       true ->
         CameraWatchdog.heartbeat()
         frame_image = Utils.to_image!(dataurl)
 
         case classify_frame(frame_image, socket.assigns) do
-          {:trigger, _change, _settle} ->
+          {:bootstrap, state} ->
+            {:noreply, assign(socket, Map.put(state, :baseline_image, frame_image))}
+
+          {:trigger, state} ->
+            Logger.info("Triggering capture change=#{Float.round(state.change, 3)}")
             trigger_capture(frame_image, dataurl, socket)
 
-          :bootstrap ->
-            {:noreply, assign(socket, baseline_image: frame_image, previous_image: frame_image)}
+          {reason, state} ->
+            Logger.debug(
+              "Frame skipped (#{reason}) settle=#{Float.round(state.settle, 3)} motion_observed?=#{state.motion_observed?}"
+            )
 
-          {reason, change, settle} when reason in [:no_change, :still_moving] ->
-            Logger.debug("Frame skipped (#{reason}) change=#{Float.round(change, 3)} settle=#{Float.round(settle, 3)}")
-
-            {:noreply, assign(socket, previous_image: frame_image)}
+            {:noreply, assign(socket, state)}
         end
     end
   end
 
-  # The classifier returns one of:
+  # The classifier returns `{outcome, state}` where `state` is the partial
+  # socket assigns to apply (always includes :previous_image, :settle_history,
+  # :motion_observed?). Outcomes:
   #
-  #   :bootstrap     — first frame in this session, just adopt as baseline
-  #   :no_change     — too similar to baseline (nothing new to process)
-  #   :still_moving  — different from baseline but scene is not yet at rest
-  #   :trigger       — scene differs from baseline AND has settled
-  defp classify_frame(_frame_image, %{baseline_image: nil}), do: :bootstrap
-  defp classify_frame(_frame_image, %{previous_image: nil}), do: :bootstrap
+  #   :bootstrap     — first frame this session; caller also sets baseline
+  #   :in_motion     — per-tick diff above motion_threshold
+  #   :warming_up    — not enough history yet to call the scene settled
+  #   :still_settling — recent ticks still contain motion
+  #   :no_motion     — scene quiet but no motion since last trigger (drift)
+  #   :no_change     — scene quiet, motion was observed, but change vs
+  #                    baseline is below the threshold (latch is cleared)
+  #   :trigger       — scene quiet AND motion was observed AND change is
+  #                    above threshold; `state` carries the :change value
+  defp classify_frame(frame_image, %{baseline_image: nil} = assigns) do
+    {:bootstrap,
+     %{
+       previous_image: frame_image,
+       settle_history: [],
+       motion_observed?: assigns.motion_observed?
+     }}
+  end
 
   defp classify_frame(frame_image, %{
          baseline_image: baseline,
          previous_image: previous,
+         settle_history: history,
+         motion_observed?: motion_observed?,
          change_threshold: change_threshold,
-         settle_threshold: settle_threshold
+         motion_threshold: motion_threshold,
+         stability_window: window
        }) do
-    change = frame_difference(baseline, frame_image)
     settle = frame_difference(previous, frame_image)
+    history = [settle | Enum.take(history, window - 1)]
+    in_motion? = settle > motion_threshold
+
+    base_state = %{
+      previous_image: frame_image,
+      settle_history: history,
+      motion_observed?: motion_observed? or in_motion?,
+      settle: settle
+    }
 
     cond do
-      change <= change_threshold -> {:no_change, change, settle}
-      settle > settle_threshold -> {:still_moving, change, settle}
-      true -> {:trigger, change, settle}
+      in_motion? ->
+        {:in_motion, base_state}
+
+      length(history) < window ->
+        {:warming_up, base_state}
+
+      Enum.any?(history, &(&1 > motion_threshold)) ->
+        {:still_settling, base_state}
+
+      not base_state.motion_observed? ->
+        {:no_motion, base_state}
+
+      true ->
+        change = frame_difference(baseline, frame_image)
+
+        if change > change_threshold do
+          {:trigger, Map.put(base_state, :change, change)}
+        else
+          # Quiet scene that does not meaningfully differ from baseline. Clear
+          # the latch so the next person-driven disturbance starts a fresh
+          # motion → rest cycle rather than counting against this one.
+          {:no_change, %{base_state | motion_observed?: false}}
+        end
     end
   end
 
@@ -235,7 +297,13 @@ defmodule ImaginativeRestorationWeb.AppLive do
     # The current frame becomes the new baseline immediately — so a failed
     # submission won't retrigger on the same scene, and the artist has to
     # change something for the next capture.
-    |> assign(baseline_image: frame_image, previous_image: frame_image, current_sketch_id: :pending)
+    |> assign(
+      baseline_image: frame_image,
+      previous_image: frame_image,
+      settle_history: [],
+      motion_observed?: false,
+      current_sketch_id: :pending
+    )
     |> arm_stuck_lock_timer()
     |> start_async(:submit, fn ->
       raw_data
