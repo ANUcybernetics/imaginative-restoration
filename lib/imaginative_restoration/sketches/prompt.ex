@@ -11,10 +11,12 @@ defmodule ImaginativeRestoration.Sketches.Prompt do
     "venerable and ancient"
   ]
 
+  # "seahorse" and "octopus" removed: both showed >=40% sketch-level failure
+  # from google/nano-banana even after retries (seahorse 71%, octopus 41%),
+  # suspected to be Gemini Flash safety-filter rejections on those concepts.
+  # The remaining creatures sit at 13-27% failure.
   @sea_creatures [
-    "octopus",
     "jellyfish",
-    "seahorse",
     "manta ray",
     "shark",
     "fish",
