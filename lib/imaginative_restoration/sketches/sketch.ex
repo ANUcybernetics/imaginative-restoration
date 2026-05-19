@@ -69,7 +69,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch do
 
     create :init do
       accept [:raw_data]
-      argument :model, :string, default: "lucataco/sdxl-lightning-multi-controlnet"
+      argument :model, :string, default: "google/nano-banana"
 
       validate present(:raw_data), message: "cannot create without a raw image"
 

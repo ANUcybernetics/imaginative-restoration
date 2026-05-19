@@ -10,7 +10,7 @@ defmodule ImaginativeRestoration.SketchTest do
       assert {:ok, sketch} = Sketches.init(@raw_bytes)
 
       assert sketch.raw_data == @raw_bytes
-      assert sketch.model == "lucataco/sdxl-lightning-multi-controlnet"
+      assert sketch.model == "google/nano-banana"
       assert is_nil(sketch.processed_data)
       assert is_nil(sketch.thumbnail)
       assert is_nil(sketch.prompt)

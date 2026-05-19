@@ -51,6 +51,7 @@ defmodule ImaginativeRestoration.AI.Replicate do
   def extract_output("lucataco/remove-bg", %{"output" => output}) when is_binary(output), do: {:ok, output}
   def extract_output("851-labs/background-remover", %{"output" => output}) when is_binary(output), do: {:ok, output}
   def extract_output("men1scus/birefnet", %{"output" => output}) when is_binary(output), do: {:ok, output}
+  def extract_output("google/nano-banana", %{"output" => output}) when is_binary(output), do: {:ok, output}
   def extract_output(model, payload), do: {:error, "Unexpected output shape for #{model}: #{inspect(payload)}"}
 
   @doc """
@@ -136,7 +137,9 @@ defmodule ImaginativeRestoration.AI.Replicate do
     end
   end
 
-  defp official_model?(model), do: String.starts_with?(model, "black-forest-labs/")
+  defp official_model?("black-forest-labs/" <> _), do: true
+  defp official_model?("google/" <> _), do: true
+  defp official_model?(_), do: false
 
   defp create_prediction(model_or_version, input, webhook_url) do
     {url, body} =
@@ -227,6 +230,16 @@ defmodule ImaginativeRestoration.AI.Replicate do
       num_inference_steps: 4,
       guidance_scale: 0,
       apply_watermark: false
+    }
+  end
+
+  defp build_input("google/nano-banana", image, prompt) do
+    %{
+      prompt:
+        "Transform this hand-drawn sketch into #{prompt}. " <>
+          "Preserve the silhouette, pose, and proportions of the original drawing.",
+      image_input: [image],
+      output_format: "jpg"
     }
   end
 

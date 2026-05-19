@@ -44,6 +44,14 @@ defmodule ImaginativeRestoration.ReplicateTest do
                })
     end
 
+    test "pulls bare URL output from nano-banana" do
+      assert {:ok, "https://example.com/out.jpg"} =
+               Replicate.extract_output("google/nano-banana", %{
+                 "status" => "succeeded",
+                 "output" => "https://example.com/out.jpg"
+               })
+    end
+
     test "returns error for failed predictions" do
       assert {:error, "boom"} =
                Replicate.extract_output("any/model", %{"status" => "failed", "error" => "boom"})
@@ -91,7 +99,8 @@ defmodule ImaginativeRestoration.ReplicateTest do
       "lucataco/sdxl-lightning-multi-controlnet",
       "lucataco/remove-bg",
       "851-labs/background-remover",
-      "men1scus/birefnet"
+      "men1scus/birefnet",
+      "google/nano-banana"
     ]
 
     for model <- @models do
@@ -108,14 +117,10 @@ defmodule ImaginativeRestoration.ReplicateTest do
         assert {:ok, %{status: 200}} = Req.get(url, auth: {:bearer, token}),
                "model #{model} not reachable"
 
-        if String.starts_with?(model, "black-forest-labs/") do
-          # Official models — Replicate.get_latest_version is a no-op for these,
-          # so the model-info GET above is the real check.
-          assert {:ok, ^model} = Replicate.get_latest_version(model)
-        else
-          assert {:ok, version} = Replicate.get_latest_version(model)
-          assert is_binary(version) and version != ""
-        end
+        # get_latest_version returns the slug for official models and a version
+        # hash for community ones — both are non-empty strings.
+        assert {:ok, version_or_slug} = Replicate.get_latest_version(model)
+        assert is_binary(version_or_slug) and version_or_slug != ""
       end
     end
   end

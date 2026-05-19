@@ -5,7 +5,7 @@ defmodule ImaginativeRestoration.Sketches.Sketch.Changes.SetModelOrDefault do
   """
   use Ash.Resource.Change
 
-  @default_model "black-forest-labs/flux-canny-dev"
+  @default_model "google/nano-banana"
 
   @impl true
   def change(changeset, _opts, _context) do
