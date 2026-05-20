@@ -39,12 +39,23 @@ config :imaginative_restoration,
 
 config :imaginative_restoration,
   # Capture gate: each tick (every `webcam_capture_interval` ms), the current
-  # frame is compared against the last-fired frame (the "baseline"). If the
-  # RMSE * 100 (0-100 scale) exceeds `image_difference_threshold`, the
-  # pipeline fires and adopts the current frame as the new baseline. There is
-  # no rest-detection or motion-latching — slow AGC/lighting drift can
-  # accumulate and trigger spuriously, which is the failure mode we've
-  # accepted in exchange for not silently dropping legitimate captures.
+  # frame is checked twice against `image_difference_threshold` (RMSE * 100,
+  # 0-100 scale):
+  #
+  #   1. Settle check — current vs the frame from ~2 ticks ago. If they
+  #      differ by more than the threshold, the scene is still moving;
+  #      nothing fires.
+  #
+  #   2. Change check — once settled, current vs the last-fired frame (the
+  #      "baseline"). If they differ by more than the threshold, fire and
+  #      adopt current as the new baseline.
+  #
+  # Net effect: a change must persist for ~2 s before the pipeline fires, so
+  # mid-stroke captures and brief disturbances (someone walking through and
+  # leaving) don't trigger. Slow AGC/lighting drift against the fixed
+  # baseline can still accumulate and trigger spuriously, which is the
+  # failure mode we've accepted in exchange for not silently dropping
+  # legitimate captures.
   image_difference_threshold: 2.5,
   webcam_capture_interval: 1_000,
   # Safety net: LiveView clears its in-flight submission lock if a sketch

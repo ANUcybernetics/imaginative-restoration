@@ -92,6 +92,10 @@ defmodule ImaginativeRestorationWeb.AppLive do
        # reference frame to compare against — the last frame that triggered
        # processing (or the first frame seen, while bootstrapping)
        baseline_image: nil,
+       # last two received frames (most recent first). Used for the settle
+       # check: current must match the 2-tick-old frame within threshold
+       # before we'll consider a capture.
+       recent_frames: [],
        # list of the 5 most recent sketches
        recent_images: [],
        page_title: (capture? && "Capture") || "Display",
@@ -180,9 +184,14 @@ defmodule ImaginativeRestorationWeb.AppLive do
         {:noreply, socket}
 
       not OperatingHours.open?() ->
-        # Outside hours: adopt the latest frame as baseline so the first frame
-        # after opening doesn't trip on overnight lighting drift.
-        {:noreply, assign(socket, baseline_image: Utils.to_image!(dataurl))}
+        # Outside hours: adopt the latest frame as baseline and clear the
+        # settle buffer so the first capture-eligible window after re-opening
+        # doesn't trip on overnight lighting drift or stale buffered frames.
+        {:noreply,
+         assign(socket,
+           baseline_image: Utils.to_image!(dataurl),
+           recent_frames: []
+         )}
 
       true ->
         CameraWatchdog.heartbeat()
@@ -190,18 +199,32 @@ defmodule ImaginativeRestorationWeb.AppLive do
 
         case socket.assigns.baseline_image do
           nil ->
-            {:noreply, assign(socket, baseline_image: frame_image)}
+            {:noreply, assign(socket, baseline_image: frame_image, recent_frames: [frame_image])}
 
           baseline ->
-            change = frame_difference(baseline, frame_image)
-
-            if change > socket.assigns.change_threshold do
-              Logger.info("Triggering capture change=#{Float.round(change, 3)}")
-              trigger_capture(frame_image, dataurl, socket)
-            else
-              {:noreply, socket}
-            end
+            evaluate_frame(frame_image, dataurl, baseline, socket)
         end
+    end
+  end
+
+  # The settle check requires two prior frames; until the buffer is full
+  # we just accumulate and don't fire. Once it is, current must match the
+  # 2-tick-old frame (the head of `recent` after shifting current onto the
+  # front, i.e. the last element of the prior buffer) within threshold.
+  defp evaluate_frame(frame_image, dataurl, baseline, socket) do
+    threshold = socket.assigns.change_threshold
+    recent = socket.assigns.recent_frames
+    new_recent = [frame_image | Enum.take(recent, 1)]
+
+    with [_prev, ref] <- recent,
+         settle_diff = frame_difference(frame_image, ref),
+         true <- settle_diff <= threshold,
+         change = frame_difference(baseline, frame_image),
+         true <- change > threshold do
+      Logger.info("Triggering capture change=#{Float.round(change, 3)}")
+      trigger_capture(frame_image, dataurl, socket)
+    else
+      _ -> {:noreply, assign(socket, recent_frames: new_recent)}
     end
   end
 
@@ -211,8 +234,9 @@ defmodule ImaginativeRestorationWeb.AppLive do
     socket
     # The current frame becomes the new baseline immediately — so a failed
     # submission won't retrigger on the same scene, and the artist has to
-    # change something for the next capture.
-    |> assign(baseline_image: frame_image, current_sketch_id: :pending)
+    # change something for the next capture. Clearing `recent_frames` forces
+    # the post-lock window to refill before another fire is possible.
+    |> assign(baseline_image: frame_image, recent_frames: [], current_sketch_id: :pending)
     |> arm_stuck_lock_timer()
     |> start_async(:submit, fn ->
       raw_data
