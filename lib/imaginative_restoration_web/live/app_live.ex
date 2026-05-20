@@ -92,10 +92,10 @@ defmodule ImaginativeRestorationWeb.AppLive do
        # reference frame to compare against — the last frame that triggered
        # processing (or the first frame seen, while bootstrapping)
        baseline_image: nil,
-       # last two received frames (most recent first). Used for the settle
-       # check: current must match the 2-tick-old frame within threshold
-       # before we'll consider a capture.
-       recent_frames: [],
+       # one-tick latch: set when a frame first exceeds the change threshold,
+       # cleared on revert. The next frame that still exceeds the threshold
+       # fires the capture, giving ~1 tick of confirmation delay.
+       change_noticed?: false,
        # list of the 5 most recent sketches
        recent_images: [],
        page_title: (capture? && "Capture") || "Display",
@@ -185,12 +185,12 @@ defmodule ImaginativeRestorationWeb.AppLive do
 
       not OperatingHours.open?() ->
         # Outside hours: adopt the latest frame as baseline and clear the
-        # settle buffer so the first capture-eligible window after re-opening
-        # doesn't trip on overnight lighting drift or stale buffered frames.
+        # latch so the first capture-eligible window after re-opening doesn't
+        # trip on overnight lighting drift or stale latch state.
         {:noreply,
          assign(socket,
            baseline_image: Utils.to_image!(dataurl),
-           recent_frames: []
+           change_noticed?: false
          )}
 
       true ->
@@ -199,7 +199,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
 
         case socket.assigns.baseline_image do
           nil ->
-            {:noreply, assign(socket, baseline_image: frame_image, recent_frames: [frame_image])}
+            {:noreply, assign(socket, baseline_image: frame_image)}
 
           baseline ->
             evaluate_frame(frame_image, dataurl, baseline, socket)
@@ -207,24 +207,24 @@ defmodule ImaginativeRestorationWeb.AppLive do
     end
   end
 
-  # The settle check requires two prior frames; until the buffer is full
-  # we just accumulate and don't fire. Once it is, current must match the
-  # 2-tick-old frame (the head of `recent` after shifting current onto the
-  # front, i.e. the last element of the prior buffer) within threshold.
+  # Two-tick confirmation: a single tick above threshold sets `change_noticed?`
+  # but doesn't fire. The next tick still above threshold triggers; a revert
+  # clears the latch.
   defp evaluate_frame(frame_image, dataurl, baseline, socket) do
-    threshold = socket.assigns.change_threshold
-    recent = socket.assigns.recent_frames
-    new_recent = [frame_image | Enum.take(recent, 1)]
+    change = frame_difference(baseline, frame_image)
+    changed? = change > socket.assigns.change_threshold
 
-    with [_prev, ref] <- recent,
-         settle_diff = frame_difference(frame_image, ref),
-         true <- settle_diff <= threshold,
-         change = frame_difference(baseline, frame_image),
-         true <- change > threshold do
-      Logger.info("Triggering capture change=#{Float.round(change, 3)}")
-      trigger_capture(frame_image, dataurl, socket)
-    else
-      _ -> {:noreply, assign(socket, recent_frames: new_recent)}
+    cond do
+      changed? and socket.assigns.change_noticed? ->
+        Logger.info("Triggering capture change=#{Float.round(change, 3)}")
+        trigger_capture(frame_image, dataurl, socket)
+
+      changed? ->
+        Logger.debug("Change noticed change=#{Float.round(change, 3)} — waiting one tick to confirm")
+        {:noreply, assign(socket, change_noticed?: true)}
+
+      true ->
+        {:noreply, assign(socket, change_noticed?: false)}
     end
   end
 
@@ -234,9 +234,9 @@ defmodule ImaginativeRestorationWeb.AppLive do
     socket
     # The current frame becomes the new baseline immediately — so a failed
     # submission won't retrigger on the same scene, and the artist has to
-    # change something for the next capture. Clearing `recent_frames` forces
-    # the post-lock window to refill before another fire is possible.
-    |> assign(baseline_image: frame_image, recent_frames: [], current_sketch_id: :pending)
+    # change something for the next capture. Reset the latch so the post-lock
+    # window requires a fresh two-tick confirmation before firing again.
+    |> assign(baseline_image: frame_image, change_noticed?: false, current_sketch_id: :pending)
     |> arm_stuck_lock_timer()
     |> start_async(:submit, fn ->
       raw_data
