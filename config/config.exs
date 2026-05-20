@@ -41,10 +41,9 @@ config :imaginative_restoration,
   # Capture gate: each tick (every `webcam_capture_interval` ms), the current
   # frame is compared against the last-fired baseline using
   # `image_difference_threshold` (RMSE * 100, 0-100 scale). A change above
-  # the threshold sets a one-tick latch but doesn't fire; the next tick
-  # still above threshold triggers, giving ~1 tick of confirmation delay so
-  # mid-stroke captures and brief disturbances are filtered out. A revert
-  # before the second tick clears the latch.
+  # the threshold arms a one-tick latch; the next tick fires unconditionally
+  # using its own frame, giving ~1 s between detection and capture so the
+  # artist has a moment to step out of frame.
   image_difference_threshold: 2.5,
   webcam_capture_interval: 1_000,
   # Safety net: LiveView clears its in-flight submission lock if a sketch

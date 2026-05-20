@@ -92,9 +92,9 @@ defmodule ImaginativeRestorationWeb.AppLive do
        # reference frame to compare against — the last frame that triggered
        # processing (or the first frame seen, while bootstrapping)
        baseline_image: nil,
-       # one-tick latch: set when a frame first exceeds the change threshold,
-       # cleared on revert. The next frame that still exceeds the threshold
-       # fires the capture, giving ~1 tick of confirmation delay.
+       # one-tick latch: set when a frame exceeds the change threshold. The
+       # next frame always fires the capture using its own data, giving ~1
+       # tick (~1 s) between detection and capture.
        change_noticed?: false,
        # list of the 5 most recent sketches
        recent_images: [],
@@ -207,24 +207,23 @@ defmodule ImaginativeRestorationWeb.AppLive do
     end
   end
 
-  # Two-tick confirmation: a single tick above threshold sets `change_noticed?`
-  # but doesn't fire. The next tick still above threshold triggers; a revert
-  # clears the latch.
+  # One-tick delay: any frame above threshold arms `change_noticed?`. The
+  # next frame fires unconditionally, using its own data — so the captured
+  # image is from ~1 s after the change was first noticed.
   defp evaluate_frame(frame_image, dataurl, baseline, socket) do
     change = frame_difference(baseline, frame_image)
-    changed? = change > socket.assigns.change_threshold
 
     cond do
-      changed? and socket.assigns.change_noticed? ->
-        Logger.info("Triggering capture change=#{Float.round(change, 3)}")
+      socket.assigns.change_noticed? ->
+        Logger.info("Triggering capture (after 1 s delay) change=#{Float.round(change, 3)}")
         trigger_capture(frame_image, dataurl, socket)
 
-      changed? ->
-        Logger.debug("Change noticed change=#{Float.round(change, 3)} — waiting one tick to confirm")
+      change > socket.assigns.change_threshold ->
+        Logger.debug("Change noticed change=#{Float.round(change, 3)} — firing on next tick")
         {:noreply, assign(socket, change_noticed?: true)}
 
       true ->
-        {:noreply, assign(socket, change_noticed?: false)}
+        {:noreply, socket}
     end
   end
 
@@ -235,7 +234,7 @@ defmodule ImaginativeRestorationWeb.AppLive do
     # The current frame becomes the new baseline immediately — so a failed
     # submission won't retrigger on the same scene, and the artist has to
     # change something for the next capture. Reset the latch so the post-lock
-    # window requires a fresh two-tick confirmation before firing again.
+    # window requires a fresh change-detection tick before firing again.
     |> assign(baseline_image: frame_image, change_noticed?: false, current_sketch_id: :pending)
     |> arm_stuck_lock_timer()
     |> start_async(:submit, fn ->

@@ -127,33 +127,20 @@ defmodule ImaginativeRestorationWeb.AppLiveTest do
       refute_push_event(view, "capture_triggered", %{})
     end
 
-    test "a sustained change fires capture after the confirmation tick", %{conn: conn} do
+    test "a change fires capture one tick after detection", %{conn: conn} do
       {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
 
       # Bootstrap baseline.
       render_hook(view, "webcam_frame", %{"frame" => @black_png})
 
-      # First white frame: change noticed but waits for confirmation.
+      # First white frame: change noticed but the actual capture is deferred
+      # by one tick.
       render_hook(view, "webcam_frame", %{"frame" => @white_png})
       refute_push_event(view, "capture_triggered", %{})
 
-      # Second white tick confirms the change → fires.
+      # Next tick fires unconditionally using its own frame.
       render_hook(view, "webcam_frame", %{"frame" => @white_png})
       assert_push_event(view, "capture_triggered", %{})
-    end
-
-    test "transient disturbance that returns to baseline does not fire", %{conn: conn} do
-      # Someone walks through the FoV and leaves: scene briefly differs from
-      # the baseline but returns to it. The latch is cleared on revert, so
-      # the brief disturbance never reaches the second confirming tick.
-      {:ok, view, _html} = live(authenticated_conn(conn), "/?capture=true")
-
-      render_hook(view, "webcam_frame", %{"frame" => @black_png})
-      render_hook(view, "webcam_frame", %{"frame" => @white_png})
-      render_hook(view, "webcam_frame", %{"frame" => @black_png})
-      render_hook(view, "webcam_frame", %{"frame" => @black_png})
-
-      refute_push_event(view, "capture_triggered", %{})
     end
 
     test "admin frames are not processed", %{conn: conn} do
