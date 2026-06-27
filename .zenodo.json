@@ -10,13 +10,34 @@
       "affiliation": "School of Cybernetics, Australian National University",
       "orcid": "0000-0003-2138-5969"
     },
-    { "name": "Zavala-Baeza, Marcelo", "affiliation": "National Institute of Dramatic Art (NIDA)" },
-    { "name": "Bradley, Charlotte", "affiliation": "National Institute of Dramatic Art (NIDA)" },
-    { "name": "Hepworth, Joe", "affiliation": "National Institute of Dramatic Art (NIDA)" },
-    { "name": "Herten, Daniel", "affiliation": "National Institute of Dramatic Art (NIDA)" },
-    { "name": "Rubens, Ripley", "affiliation": "National Institute of Dramatic Art (NIDA)" },
-    { "name": "Shulman, Beth", "affiliation": "National Institute of Dramatic Art (NIDA)" },
-    { "name": "Thomson, Lily", "affiliation": "National Institute of Dramatic Art (NIDA)" }
+    {
+      "name": "Zavala-Baeza, Marcelo",
+      "affiliation": "National Institute of Dramatic Art (NIDA)"
+    },
+    {
+      "name": "Bradley, Charlotte",
+      "affiliation": "National Institute of Dramatic Art (NIDA)"
+    },
+    {
+      "name": "Hepworth, Joe",
+      "affiliation": "National Institute of Dramatic Art (NIDA)"
+    },
+    {
+      "name": "Herten, Daniel",
+      "affiliation": "National Institute of Dramatic Art (NIDA)"
+    },
+    {
+      "name": "Rubens, Ripley",
+      "affiliation": "National Institute of Dramatic Art (NIDA)"
+    },
+    {
+      "name": "Shulman, Beth",
+      "affiliation": "National Institute of Dramatic Art (NIDA)"
+    },
+    {
+      "name": "Thomson, Lily",
+      "affiliation": "National Institute of Dramatic Art (NIDA)"
+    }
   ],
   "keywords": [
     "generative AI",
@@ -28,5 +49,10 @@
     "NIDA",
     "NFSA",
     "Cybernetic Studio"
+  ],
+  "communities": [
+    {
+      "identifier": "cybernetic-studio"
+    }
   ]
 }
