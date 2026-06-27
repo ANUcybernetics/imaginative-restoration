@@ -1,0 +1,32 @@
+{
+  "title": "Imaginative Restoration: Rewilding Division",
+  "description": "An interactive installation made with the National Institute of Dramatic Art (NIDA) and the National Film and Sound Archive (NFSA), in which visitors hand-draw creatures that are composited, live, into damaged black-and-white archival film---\"rewilding\" the footage with imagined flora and fauna as they watch. It turns generative AI toward creative restoration and play rather than replacement, and grew from a three-day cross-disciplinary workshop on the future of the dramatic arts in the age of generative AI. Presented at Fantastic Futures 2024 (NFSA). This repository archives the source code (MIT licence); the installation itself is the creative work.",
+  "upload_type": "other",
+  "access_right": "open",
+  "license": "MIT",
+  "creators": [
+    {
+      "name": "Swift, Ben",
+      "affiliation": "School of Cybernetics, Australian National University",
+      "orcid": "0000-0003-2138-5969"
+    },
+    { "name": "Zavala-Baeza, Marcelo", "affiliation": "National Institute of Dramatic Art (NIDA)" },
+    { "name": "Bradley, Charlotte", "affiliation": "National Institute of Dramatic Art (NIDA)" },
+    { "name": "Hepworth, Joe", "affiliation": "National Institute of Dramatic Art (NIDA)" },
+    { "name": "Herten, Daniel", "affiliation": "National Institute of Dramatic Art (NIDA)" },
+    { "name": "Rubens, Ripley", "affiliation": "National Institute of Dramatic Art (NIDA)" },
+    { "name": "Shulman, Beth", "affiliation": "National Institute of Dramatic Art (NIDA)" },
+    { "name": "Thomson, Lily", "affiliation": "National Institute of Dramatic Art (NIDA)" }
+  ],
+  "keywords": [
+    "generative AI",
+    "creative AI",
+    "interactive installation",
+    "archival film",
+    "cultural heritage",
+    "GLAM",
+    "NIDA",
+    "NFSA",
+    "Cybernetic Studio"
+  ]
+}
