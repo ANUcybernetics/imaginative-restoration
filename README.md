@@ -1,4 +1,4 @@
-# Imaginative Restoration: Re-wilding Division
+# Imaginative Restoration: Rewilding Division
 
 > In a distant future, humanity has retreated underground to escape increasingly
 > inhospitable surface conditions. Here, in subterranean grottos, the
