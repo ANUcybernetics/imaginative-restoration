@@ -9,10 +9,5 @@ AWS_REGION = "auto"
 # AUTH_USERNAME and AUTH_PASSWORD live in mise.local.toml (gitignored).
 # Real prod creds are set as Fly secrets.
 
-# Secrets are exported from the untracked [env] block in
-# ~/.config/mise/config.local.toml. Their 1Password items, kept here because
-# the mapping is tedious to reconstruct and lived only in the removed
-# fnox.toml:
-#   REPLICATE_API_TOKEN    op://Personal/Replicate/credential
-#   AWS_ACCESS_KEY_ID      op://Personal/AWS S3 imaginative_restoration/username
-#   AWS_SECRET_ACCESS_KEY  op://Personal/AWS S3 imaginative_restoration/credential
+# Secrets (REPLICATE_API_TOKEN, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+# come from the untracked [env] block in ~/.config/mise/config.local.toml.
