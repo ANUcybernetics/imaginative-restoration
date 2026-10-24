@@ -27,7 +27,7 @@ Runbook:
     flyctl auth login
 
     # 2. Fetch the webhook signing secret from Replicate
-    curl -s -H "Authorization: Bearer $(fnox get REPLICATE_API_TOKEN)" \
+    curl -s -H "Authorization: Bearer $REPLICATE_API_TOKEN" \
       https://api.replicate.com/v1/webhooks/default/secret
     # → { "key": "whsec_xxxxx" }
 
