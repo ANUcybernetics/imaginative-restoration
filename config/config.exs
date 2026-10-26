@@ -8,6 +8,7 @@
 import Config
 
 config :ash, :default_belongs_to_type, :integer
+config :ash, :default_string_length_count, :codepoints
 
 # Use tzdata so OperatingHours can resolve "Australia/Sydney" across DST.
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
