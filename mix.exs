@@ -34,7 +34,6 @@ defmodule ImaginativeRestoration.MixProject do
   defp deps do
     [
       {:usage_rules, "~> 1.2", only: [:dev]},
-      {:tidewave, "~> 0.9", only: [:dev]},
       {:phoenix, "~> 1.8"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.14"},
