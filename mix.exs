@@ -10,7 +10,8 @@ defmodule ImaginativeRestoration.MixProject do
       start_permanent: Mix.env() == :prod,
       consolidate_protocols: Mix.env() != :dev,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      usage_rules: usage_rules()
     ]
   end
 
@@ -61,6 +62,28 @@ defmodule ImaginativeRestoration.MixProject do
       {:image, "~> 0.54"},
       {:tzdata, "~> 1.2"},
       {:igniter, "~> 0.3", only: [:dev], runtime: false}
+    ]
+  end
+
+  # `mix usage_rules.sync` writes these into .claude/skills, which is gitignored
+  defp usage_rules do
+    [
+      file: "AGENTS.md",
+      skills: [
+        location: ".claude/skills",
+        build: [
+          "ash-framework": [
+            description:
+              "Load before changing or debugging anything in lib/imaginative_restoration/ (modules that use Ash.Resource or Ash.Domain): actions, changes, policies, code interfaces, AshPhoenix forms, or an Ash.Error.* in test output.",
+            usage_rules: [:ash, :ash_phoenix]
+          ],
+          "phoenix-framework": [
+            description:
+              "Load before changing or debugging anything in lib/imaginative_restoration_web/: LiveViews, function components, HEEx templates, the router, controllers or PubSub broadcasts.",
+            usage_rules: [:phoenix]
+          ]
+        ]
+      ]
     ]
   end
 
