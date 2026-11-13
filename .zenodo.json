@@ -3,7 +3,7 @@
   "description": "An interactive installation made with the National Institute of Dramatic Art (NIDA) and the National Film and Sound Archive (NFSA), in which visitors hand-draw creatures that are composited, live, into damaged black-and-white archival film---\"rewilding\" the footage with imagined flora and fauna as they watch. It turns generative AI toward creative restoration and play rather than replacement, and grew from a three-day cross-disciplinary workshop on the future of the dramatic arts in the age of generative AI. Presented at Fantastic Futures 2024 (NFSA). This repository archives the source code (MIT licence); the installation itself is the creative work.",
   "upload_type": "other",
   "access_right": "open",
-  "license": "MIT",
+  "license": "cc-by-4.0",
   "creators": [
     {
       "name": "Swift, Ben",
